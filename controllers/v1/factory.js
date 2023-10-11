@@ -25,8 +25,6 @@ class FactoryController {
           factories,
           {
             total_data: totalData,
-            page,
-            limit,
           }
         )
       );

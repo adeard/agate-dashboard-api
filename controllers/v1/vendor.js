@@ -1,5 +1,7 @@
+const FactoryModel = require('../../models/factory');
 const VendorModel = require('../../models/vendor');
 const { createResponseSuccess } = require('../../utils/helpers');
+const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 
 class VendorController {
@@ -7,14 +9,28 @@ class VendorController {
     try {
       const { name = '', factory = '' } = req.query;
 
+      const { query } = getBasicQuery(req.query);
+
       const regexPattern = new RegExp(name || '', 'i');
 
-      const vendors = await VendorModel.find({
-        name: { $regex: regexPattern },
-        factory: factory,
-      })
-        .sort({ updatedAt: -1 })
-        .lean();
+      const vendors = await VendorModel.aggregate([
+        { $match: { ...query, name: { $regex: regexPattern } } },
+        {
+          $lookup: {
+            from: FactoryModel.collection.name,
+            localField: 'factory',
+            foreignField: '_id',
+            as: 'factory',
+          },
+        },
+        {
+          $unwind: {
+            path: '$factory',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $sort: { updatedAt: -1 } },
+      ]);
 
       const totalData = await VendorModel.count({});
 
@@ -26,8 +42,6 @@ class VendorController {
           vendors,
           {
             total_data: totalData,
-            page,
-            limit,
           }
         )
       );

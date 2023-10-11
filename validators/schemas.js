@@ -4,8 +4,8 @@ const schemas = {
   user: Joi.object({
     email: Joi.string().email().required(),
     full_name: Joi.string().required(),
-    status: Joi.number().default(1),
-    access_factory: Joi.number().default(0),
+    status: Joi.number().default(1).required(),
+    access_factory: Joi.array().items(Joi.string()).required(),
   }),
   'change-password': Joi.object({
     old_password: Joi.string().required(),
@@ -28,6 +28,21 @@ const schemas = {
   vendor: Joi.object({
     name: Joi.string().required(),
     factory: Joi.string().required(),
+  }),
+
+  settings: Joi.object({
+    good: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    not_good: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    bad: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
   }),
 };
 

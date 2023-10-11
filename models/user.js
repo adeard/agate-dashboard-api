@@ -2,6 +2,11 @@ const { Schema, model } = require('mongoose');
 
 const NAME = 'GradingHQ_USER';
 
+const FACTORYSCHEMA = {
+  type: Schema.Types.ObjectId,
+  ref: 'GradingHQ_FACTORY',
+};
+
 const SCHEMA = new Schema(
   {
     full_name: {
@@ -13,10 +18,8 @@ const SCHEMA = new Schema(
       required: true,
     },
     access_factory: {
-      type: Number,
+      type: [FACTORYSCHEMA],
       required: true,
-      enum: [0, 1],
-      default: 0,
     },
     status: {
       type: Number,

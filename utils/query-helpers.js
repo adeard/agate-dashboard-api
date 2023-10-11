@@ -3,7 +3,7 @@ const { deleteEmptyObjectValue } = require('./helpers');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
-const whitelistObjectId = ['plant', 'machine', 'customer', 'device'];
+const whitelistObjectId = ['plant', 'vendor', 'afdelink', 'factory'];
 
 module.exports = {
   getBasicQuery: (query, options = {}) => {

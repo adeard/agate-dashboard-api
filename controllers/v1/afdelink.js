@@ -1,5 +1,7 @@
 const AfdelinkModel = require('../../models/afdelink');
+const FactoryModel = require('../../models/factory');
 const { createResponseSuccess } = require('../../utils/helpers');
+const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 
 class AfdelinkController {
@@ -7,14 +9,28 @@ class AfdelinkController {
     try {
       const { name = '', factory = '' } = req.query;
 
+      const { query } = getBasicQuery(req.query);
+
       const regexPattern = new RegExp(name || '', 'i');
 
-      const afdelinks = await AfdelinkModel.find({
-        name: { $regex: regexPattern },
-        factory: factory,
-      })
-        .sort({ updatedAt: -1 })
-        .lean();
+      const afdelinks = await AfdelinkModel.aggregate([
+        { $match: { ...query, name: { $regex: regexPattern } } },
+        {
+          $lookup: {
+            from: FactoryModel.collection.name,
+            localField: 'factory',
+            foreignField: '_id',
+            as: 'factory',
+          },
+        },
+        {
+          $unwind: {
+            path: '$factory',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $sort: { updatedAt: -1 } },
+      ]);
 
       const totalData = await AfdelinkModel.count({});
 
@@ -26,8 +42,6 @@ class AfdelinkController {
           afdelinks,
           {
             total_data: totalData,
-            page,
-            limit,
           }
         )
       );

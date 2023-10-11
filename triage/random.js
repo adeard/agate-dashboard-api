@@ -9,13 +9,17 @@ const UserModel = require('../models/user');
 connectToDatabase().then(async (res) => {
   console.log(res);
 
-  await UserModel.create({
-    email: 'hi@accelego.id',
-    full_name: 'Admin Accelego',
-    status: 1,
-    access_factory: 1,
-    password: hashPassword('secret123'),
-  });
+  await UserModel.deleteOne({ email: "text@mail.com" });
+  await UserModel.deleteOne({ email: "text@mail.com" });
+  await UserModel.deleteOne({ email: "hi@accelego.id" });
+
+  // await UserModel.create({
+  //   email: 'hi@accelego.id',
+  //   full_name: 'Admin Accelego',
+  //   status: 1,
+  //   access_factory: 1,
+  //   password: hashPassword('secret123'),
+  // });
 
   // await UserModel.deleteOne({ username: 'ilham' });
 
