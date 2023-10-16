@@ -44,6 +44,42 @@ const schemas = {
       max: Joi.number().required(),
     }),
   }),
+
+  inspection: Joi.object({
+    summary: Joi.object({
+      factory: Joi.string().required(),
+      vendor: Joi.string().required(),
+      waybill_number: Joi.string().required(),
+      vehicle_number: Joi.string().required(),
+      start_date: Joi.string().required(),
+      finish_date: Joi.string().required(),
+      total_in_kg: Joi.number().required(),
+      total_tandon: Joi.number().required(),
+      total_received_tandon: Joi.number().required(),
+      rejected: Joi.number().required(),
+      passed: Joi.number().required(),
+      notes: Joi.string().optional(),
+    }).required(),
+    standart: Joi.object({
+      ripe_accepted: Joi.alternatives()
+        .try(Joi.number(), Joi.string().valid('all'))
+        .required(),
+      semi_ripe_accepted: Joi.alternatives()
+        .try(Joi.number(), Joi.string().valid('all'))
+        .required(),
+    }).required(),
+    grading_results: Joi.object({
+      unripe: Joi.number(),
+      half_unripe: Joi.number(),
+      ripe: Joi.number(),
+      over_ripe: Joi.number(),
+      rotten: Joi.number(),
+      pest_infection: Joi.number(),
+      long_stash: Joi.number(),
+      not_detected: Joi.number(),
+      detected_more_than_one: Joi.number(),
+    }).required(),
+  }),
 };
 
 module.exports = {

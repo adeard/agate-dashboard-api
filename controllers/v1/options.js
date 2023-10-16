@@ -1,17 +1,10 @@
-const DeviceModel = require('../../models/device');
-const PlantModel = require('../../models/plant');
-const MachineModel = require('../../models/machine');
-const CustomerModel = require('../../models/customer');
-const ItemModel = require('../../models/item');
-
 const { createResponseSuccess } = require('../../utils/helpers');
+const FactoryModel = require('../../models/factory');
+const VendorModel = require('../../models/vendor');
 
 const labelKey = {
-  device: 'mac_address',
-  plant: 'name',
-  machine: 'name',
-  customer: 'name',
-  item: 'item_code',
+  factory: 'name',
+  vendor: 'name',
 };
 
 const enumType = Object.keys(labelKey);
@@ -31,24 +24,12 @@ class OptionsController {
         };
       }
 
-      if (type === 'device') {
-        datas = await DeviceModel.find({}).lean();
+      if (type === 'factory') {
+        datas = await FactoryModel.find({}).lean();
       }
 
-      if (type === 'plant') {
-        datas = await PlantModel.find({}).lean();
-      }
-
-      if (type === 'machine') {
-        datas = await MachineModel.find({}).lean();
-      }
-
-      if (type === 'customer') {
-        datas = await CustomerModel.find({}).lean();
-      }
-
-      if (type === 'item') {
-        datas = await ItemModel.find({}).populate('customer').lean();
+      if (type === 'vendor') {
+        datas = await VendorModel.find({}).lean();
       }
 
       return res.status(200).json(
