@@ -50,7 +50,6 @@ const SCHEMA = new Schema(
     },
     notes: {
       type: String,
-      required: true,
     },
 
     ripe_accepted: {

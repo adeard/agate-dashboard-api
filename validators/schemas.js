@@ -58,7 +58,6 @@ const schemas = {
       total_received_tandon: Joi.number().required(),
       rejected: Joi.number().required(),
       passed: Joi.number().required(),
-      notes: Joi.string().optional(),
     }).required(),
     standart: Joi.object({
       ripe_accepted: Joi.alternatives()
@@ -79,6 +78,7 @@ const schemas = {
       not_detected: Joi.number(),
       detected_more_than_one: Joi.number(),
     }).required(),
+    notes: Joi.string().optional(),
   }),
 };
 

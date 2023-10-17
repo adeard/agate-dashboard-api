@@ -5,4 +5,5 @@ module.exports = (express) =>
   new express.Router()
     .use(authorization)
     .post('/setup', InspectionHistoryControllers.setupInspectionHistory)
-    .get('/', InspectionHistoryControllers.getAllList);
+    .get('/:inspectionId', InspectionHistoryControllers.getDetail)
+    .post('/', InspectionHistoryControllers.getAllList);

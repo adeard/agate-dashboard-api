@@ -1,28 +1,42 @@
-const { hashPassword, comparePass } = require('../../lib/bcrypt');
-const { decodeToken } = require('../../lib/jwt');
+const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
 const InspectionHistoryModel = require('../../models/inspection-history');
-const UserModel = require('../../models/user');
 const VendorModel = require('../../models/vendor');
-const { sendEmail } = require('../../utils/email');
-const {
-  createResponseSuccess,
-  generateRandomPassword,
-} = require('../../utils/helpers');
+const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
+
+const ObjectId = require('mongoose').Types.ObjectId;
 
 class InspectionHistoryControllers {
   static async getAllList(req, res, next) {
     try {
-      const { query, page, limit } = getBasicQuery(req.query, {
+      const baseQuery = { ...req.body };
+      delete baseQuery['factory'];
+      delete baseQuery['vendor'];
+
+      const { query, page, limit } = getBasicQuery(baseQuery, {
         parseToNumber: ['status'],
       });
 
-      const users = await InspectionHistoryModel.aggregate([
+      let payload = { ...query };
+
+      if (req.body.factory) {
+        payload['factory'] = {
+          $in: req.body.factory.map((d) => new ObjectId(d)),
+        };
+      }
+
+      if (req.body.vendor) {
+        payload['vendor'] = {
+          $in: req.body.vendor.map((d) => new ObjectId(d)),
+        };
+      }
+
+      const results = await InspectionHistoryModel.aggregate([
         {
           $match: {
-            ...query,
+            ...payload,
           },
         },
         {
@@ -83,10 +97,34 @@ class InspectionHistoryControllers {
       const totalData = await InspectionHistoryModel.countDocuments({});
 
       return res.status(200).json(
-        createResponseSuccess(200, 'Success', 'Success get all data', users, {
+        createResponseSuccess(200, 'Success', 'Success get all data', results, {
           total_data: totalData,
         })
       );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getDetail(req, res, next) {
+    try {
+      const { inspectionId } = req.params;
+
+      const result = await InspectionHistoryModel.findById(inspectionId)
+        .populate({ path: 'factory', select: 'name _id' })
+        .populate({ path: 'vendor', select: 'name _id' })
+        .lean();
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get detail data',
+            result
+          )
+        );
     } catch (err) {
       next(err);
     }
@@ -100,8 +138,11 @@ class InspectionHistoryControllers {
 
       await InspectionHistoryModel.create({
         ...body.summary,
+        start_date: dayjs(body.summary.start_date),
+        finish_date: dayjs(body.summary.finish_date),
         ...body.standart,
         ...body.grading_results,
+        notes: body.notes,
       });
 
       return res
