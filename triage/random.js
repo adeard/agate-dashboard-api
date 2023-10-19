@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const { hashPassword } = require('../lib/bcrypt');
 const connectToDatabase = require('../lib/db-connect');
+const InspectionHistoryModel = require('../models/inspection-history');
 const UserModel = require('../models/user');
 
 // console.log(generateRandomPassword(6));
@@ -9,9 +10,9 @@ const UserModel = require('../models/user');
 connectToDatabase().then(async (res) => {
   console.log(res);
 
-  await UserModel.deleteOne({ email: "text@mail.com" });
-  await UserModel.deleteOne({ email: "text@mail.com" });
-  await UserModel.deleteOne({ email: "hi@accelego.id" });
+  // await UserModel.deleteOne({ email: "text@mail.com" });
+  // await UserModel.deleteOne({ email: "text@mail.com" });
+  // await UserModel.deleteOne({ email: "hi@accelego.id" });
 
   // await UserModel.create({
   //   email: 'hi@accelego.id',
@@ -48,6 +49,8 @@ connectToDatabase().then(async (res) => {
   // const prods = await ProductionModel.find({});
 
   // console.log({ prods });
+
+  await InspectionHistoryModel.deleteMany({})
 
   console.log('Done');
 });

@@ -36,15 +36,11 @@ const SCHEMA = new Schema(
       type: Number,
       required: true,
     },
-    total_received_tandon: {
+    total_received: {
       type: Number,
       required: true,
     },
-    rejected: {
-      type: Number,
-      required: true,
-    },
-    passed: {
+    total_rejected: {
       type: Number,
       required: true,
     },

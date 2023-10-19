@@ -55,9 +55,8 @@ const schemas = {
       finish_date: Joi.string().required(),
       total_in_kg: Joi.number().required(),
       total_tandon: Joi.number().required(),
-      total_received_tandon: Joi.number().required(),
-      rejected: Joi.number().required(),
-      passed: Joi.number().required(),
+      total_received: Joi.number().required(),
+      total_rejected: Joi.number().required(),
     }).required(),
     standart: Joi.object({
       ripe_accepted: Joi.alternatives()
@@ -69,7 +68,7 @@ const schemas = {
     }).required(),
     grading_results: Joi.object({
       unripe: Joi.number(),
-      half_unripe: Joi.number(),
+      half_ripe: Joi.number(),
       ripe: Joi.number(),
       over_ripe: Joi.number(),
       rotten: Joi.number(),
