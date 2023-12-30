@@ -1,9 +1,16 @@
 const InspectionHistoryControllers = require('../../controllers/v1/inspection-history');
-const { authorization } = require('../../middlewares/authorization');
+const {
+  authorization,
+  validateClientKey,
+} = require('../../middlewares/authorization');
 
 module.exports = (express) =>
   new express.Router()
+    .post(
+      '/setup',
+      validateClientKey,
+      InspectionHistoryControllers.setupInspectionHistory
+    )
     .use(authorization)
-    .post('/setup', InspectionHistoryControllers.setupInspectionHistory)
     .get('/:inspectionId', InspectionHistoryControllers.getDetail)
     .post('/', InspectionHistoryControllers.getAllList);

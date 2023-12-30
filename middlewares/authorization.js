@@ -59,4 +59,18 @@ function adminAccess(req, res, next) {
   }
 }
 
-module.exports = { authorization, adminAccess };
+function validateClientKey(req, res, next) {
+  const headers = req.headers;
+
+  if (headers['client-key'] === process.env.CLIENT_KEY) {
+    next();
+  } else {
+    throw {
+      code: 403,
+      message: 'Invalid client key',
+      title: 'Not Allowed',
+    };
+  }
+}
+
+module.exports = { authorization, adminAccess, validateClientKey };
