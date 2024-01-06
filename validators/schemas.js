@@ -58,7 +58,7 @@ const schemas = {
       total_received: Joi.number().required(),
       total_rejected: Joi.number().required(),
     }).required(),
-    standart: Joi.object({
+    standard: Joi.object({
       ripe_accepted: Joi.alternatives()
         .try(Joi.number(), Joi.string().valid('all'))
         .required(),

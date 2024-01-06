@@ -140,7 +140,7 @@ class InspectionHistoryControllers {
         ...body.summary,
         start_date: dayjs(body.summary.start_date),
         finish_date: dayjs(body.summary.finish_date),
-        ...body.standart,
+        ...body.standard,
         ...body.grading_results,
         notes: body.notes,
       });
