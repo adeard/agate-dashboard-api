@@ -9,9 +9,9 @@ const SCHEMA = new Schema(
       ref: 'GradingHQ_FACTORY',
     },
     vendor: {
-      // type: Schema.Types.ObjectId,
-      // ref: 'GradingHQ_VENDOR',
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'GradingHQ_VENDOR',
+      // type: String,
     },
     start_date: {
       type: Date,
