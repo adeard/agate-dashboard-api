@@ -83,7 +83,7 @@ const schemas = {
       not_detected: Joi.number(),
       detected_more_than_one: Joi.number(),
     }).required(),
-    notes: Joi.string().optional(),
+    notes: Joi.string().allow('').allow(null).optional(),
   }),
 };
 
