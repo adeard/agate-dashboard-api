@@ -48,13 +48,21 @@ const SCHEMA = new Schema(
       type: String,
     },
 
+    unripe_accepeted: {
+      type: String,
+      // required: true,
+    },
+    over_ripe_accepted: {
+      type: String,
+      // required: true,
+    },
     ripe_accepted: {
       type: String,
-      required: true,
+      // required: true,
     },
     semi_ripe_accepted: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     // Grading Status

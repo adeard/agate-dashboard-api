@@ -59,12 +59,18 @@ const schemas = {
       total_rejected: Joi.number().required(),
     }).required(),
     standard: Joi.object({
+      unripe_accepted: Joi.alternatives()
+        .try(Joi.number(), Joi.string().valid('all'))
+        .optional(),
+      over_ripe_accepted: Joi.alternatives()
+        .try(Joi.number(), Joi.string().valid('all'))
+        .optional(),
       ripe_accepted: Joi.alternatives()
         .try(Joi.number(), Joi.string().valid('all'))
-        .required(),
+        .optional(),
       semi_ripe_accepted: Joi.alternatives()
         .try(Joi.number(), Joi.string().valid('all'))
-        .required(),
+        .optional(),
     }).required(),
     grading_results: Joi.object({
       unripe: Joi.number(),
