@@ -106,16 +106,16 @@ class DashboardController {
         );
         return {
           total,
-          percent: (total / totalGraded) * 100 + '%',
+          percent: (total / totalGraded) * 100,
         };
       };
 
-      const percentRejected = (totalRejected / totalAllTandon) * 100 + '%';
+      const percentRejected = (totalRejected / totalAllTandon) * 100;
 
       const data = {
         total_grading: totalData,
         total_tbs_graded: totalGraded,
-        tbs_avg_weight: Number(totalWeight / totalGraded).toFixed(2) + 'kg',
+        tbs_avg_weight: Number(Number(totalWeight / totalGraded).toFixed(2)),
         total_passed: totalPassed,
         total_rejected: totalRejected,
         percent_rejected: percentRejected,
