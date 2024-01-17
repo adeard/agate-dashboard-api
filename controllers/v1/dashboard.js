@@ -8,6 +8,16 @@ const { vBody } = require('../../validators/joi');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
+const CLASSIFICAITON_ENUM = [
+  'unripe',
+  'half_ripe',
+  'ripe',
+  'over_ripe',
+  'rotten',
+  'pest_infection',
+  'long_stash',
+];
+
 class DashboardController {
   static async getDataDashboard(req, res, next) {
     try {
@@ -163,6 +173,49 @@ class DashboardController {
             200,
             'Success',
             'Success get detail grading',
+            result
+          )
+        );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getDetailClassification(req, res, next) {
+    try {
+      const { type } = req.query;
+
+      if (!CLASSIFICAITON_ENUM.includes(type)) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Classification type not found.',
+        };
+      }
+
+      let result = await InspectionHistoryModel.find({
+        [type]: {
+          $gt: 0,
+        },
+      })
+        .populate({ path: 'vendor', select: 'name _id' })
+        .lean();
+
+      result = result.map((r) => {
+        return {
+          vendor: r.vendor,
+          total: r[type],
+          percentage: (r[type] / r.total_tandon) * 100,
+        };
+      });
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get detail grading by classification',
             result
           )
         );
