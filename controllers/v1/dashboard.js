@@ -80,7 +80,6 @@ class DashboardController {
           },
         },
       ]);
-      const totalData = await InspectionHistoryModel.countDocuments({});
 
       const totalAllTandon = results.reduce(
         (curr, acc) => Number(acc.total_tandon || 0) + curr,
@@ -125,7 +124,7 @@ class DashboardController {
       const percentRejected = (totalRejected / totalAllTandon) * 100;
 
       const data = {
-        total_grading: totalAllTandon,
+        total_grading: results.length,
         total_tbs_graded: totalGraded,
         tbs_avg_weight: Number(Number(totalWeight / totalGraded).toFixed(2)),
         total_passed: totalPassed,
