@@ -48,12 +48,6 @@ class InspectionHistoryControllers {
           },
         },
         {
-          $unwind: {
-            path: '$vendor',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
           $lookup: {
             from: VendorModel.collection.name,
             localField: 'vendor',
@@ -64,6 +58,12 @@ class InspectionHistoryControllers {
         {
           $unwind: {
             path: '$vendor',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$factory',
             preserveNullAndEmptyArrays: true,
           },
         },
