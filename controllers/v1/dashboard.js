@@ -31,13 +31,13 @@ class DashboardController {
 
       let payload = { ...query };
 
-      if (req.body.factory) {
+      if (req.body.factory.length) {
         payload['factory'] = {
           $in: req.body.factory.map((d) => new ObjectId(d)),
         };
       }
 
-      if (req.body.vendor) {
+      if (req.body.vendor.length) {
         payload['vendor'] = {
           $in: req.body.vendor.map((d) => new ObjectId(d)),
         };
