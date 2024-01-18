@@ -125,7 +125,7 @@ class DashboardController {
       const percentRejected = (totalRejected / totalAllTandon) * 100;
 
       const data = {
-        total_grading: totalData,
+        total_grading: totalAllTandon,
         total_tbs_graded: totalGraded,
         tbs_avg_weight: Number(Number(totalWeight / totalGraded).toFixed(2)),
         total_passed: totalPassed,
