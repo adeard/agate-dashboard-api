@@ -43,9 +43,11 @@ class DashboardController {
         };
       }
 
+      // console.log({payload})
+
       const results = await InspectionHistoryModel.aggregate([
         {
-          $match: {},
+          $match: { ...payload },
         },
         {
           $lookup: {

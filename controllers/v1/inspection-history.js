@@ -81,7 +81,7 @@ class InspectionHistoryControllers {
         {
           $project: {
             total_tandon: 1,
-            rejected: 1,
+            total_rejected: 1,
             vehicle_number: 1,
             waybill_number: 1,
             'vendor._id': 1,
