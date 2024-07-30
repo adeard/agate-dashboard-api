@@ -8,4 +8,4 @@ module.exports = (express) =>
   new express.Router()
     .post('/', validateClientKey, InspectionDataController.createNew)
     .use(authorization)
-    .post('/', InspectionDataController.getAll);
+    .get('/', InspectionDataController.getAll);
