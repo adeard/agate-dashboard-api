@@ -46,7 +46,11 @@ class InspectionDataController {
 
       await vBody('inspection-data', body);
 
-      await InspectionDataModel.create(body);
+      await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+      });
 
       return res
         .status(200)
