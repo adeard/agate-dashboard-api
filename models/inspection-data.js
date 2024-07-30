@@ -114,6 +114,10 @@ const SCHEMA = new Schema(
       required: false,
       default: null,
     },
+    grading_result: {
+      type: Object,
+      required: true,
+    },
   },
   { timestamps: true }
 );

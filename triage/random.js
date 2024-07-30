@@ -3,6 +3,7 @@ require('dotenv').config();
 const { hashPassword } = require('../lib/bcrypt');
 const connectToDatabase = require('../lib/db-connect');
 const FactoryModel = require('../models/factory');
+const InspectionDataModel = require('../models/inspection-data');
 const InspectionHistoryModel = require('../models/inspection-history');
 const UserModel = require('../models/user');
 const VendorModel = require('../models/vendor');
@@ -53,7 +54,7 @@ connectToDatabase().then(async (res) => {
 
   // console.log({ prods });
 
-  // await InspectionHistoryModel.deleteMany({})
+  await InspectionDataModel.deleteMany({});
 
   // const response = await FactoryModel.find({});
   // const vendors = await VendorModel.find({});

@@ -128,6 +128,7 @@ const schemas = {
     date: Joi.date().allow(null), // Optional field
     finish_date: Joi.date().allow(null), // Optional field,
     id: Joi.string().required(),
+    grading_result: Joi.object().allow(null),
   }),
 };
 
