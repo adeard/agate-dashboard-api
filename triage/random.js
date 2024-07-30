@@ -54,12 +54,12 @@ connectToDatabase().then(async (res) => {
 
   // console.log({ prods });
 
-  await InspectionDataModel.deleteMany({});
+  // await InspectionDataModel.deleteMany({});
 
   // const response = await FactoryModel.find({});
   // const vendors = await VendorModel.find({});
 
   // console.log({ response, vendors });
 
-  console.log('Done');
+  const users = await console.log('Done');
 });

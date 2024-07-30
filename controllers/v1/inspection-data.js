@@ -17,10 +17,8 @@ class InspectionDataController {
       }
 
       const inspections = await InspectionDataModel.find(q)
-        .sort({ updatedAt: -1 })
+        .sort({ date: -1 })
         .lean();
-
-      console.log(inspections);
 
       const totalData = await InspectionDataModel.count(q);
 
