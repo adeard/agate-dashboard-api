@@ -85,6 +85,49 @@ const schemas = {
     }).required(),
     notes: Joi.string().allow('').allow(null).optional(),
   }),
+
+  'inspection-data': Joi.object({
+    vendor_id: Joi.string().allow(null), // Optional field,
+    vendor_name: Joi.string().allow(null),
+    main_classification_accepted: Joi.array()
+      .items(
+        Joi.string().valid(
+          'MENTAH',
+          'KURANG MATANG',
+          'LEWAT MATANG',
+          'MATANG',
+          'JANJANG KOSONG'
+        )
+      )
+      .required(),
+    sub_classification_accepted: Joi.array()
+      .items(
+        Joi.string().valid(
+          'TANGKAI PANJANG',
+          'RUSAK DIMAKAN TIKUS',
+          'BUAH KECIL DIBAWAH 3KG',
+          'BUAH KECIL DIBAWAH 5KG'
+        )
+      )
+      .required(),
+    classification_rejected: Joi.array().items(Joi.string()).required(),
+    unripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    half_ripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    long_stash_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    small_fruit_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    small_fruit_5_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    delivery_number: Joi.string().allow(null), // Optional field
+    vehicle_number: Joi.string().allow(null), // Optional field
+    verification_code: Joi.number().integer().allow(null), // Optional field
+    is_active: Joi.boolean().allow(null), // Optional field
+    is_started: Joi.boolean().allow(null), // Optional field
+    is_finished: Joi.boolean().allow(null), // Optional field
+    is_confirmed: Joi.boolean().allow(null), // Optional field
+    vendor_type: Joi.string().valid(1, 2).required(), // Enum with numeric values
+    inspection_code: Joi.string().allow(null), // Optional field
+    date: Joi.date().allow(null), // Optional field
+    finish_date: Joi.date().allow(null), // Optional field
+  }),
 };
 
 module.exports = {
