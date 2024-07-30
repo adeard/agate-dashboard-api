@@ -8,6 +8,10 @@ const NAME = 'GradingHQ_INSPECTION_DATA';
 
 const SCHEMA = new Schema(
   {
+    id: {
+      type: String,
+      required: true,
+    },
     vendor_id: {
       type: String,
       required: false,
@@ -92,7 +96,7 @@ const SCHEMA = new Schema(
     },
     vendor_type: {
       type: String,
-      enum: [1, 2],
+      enum: ['1', '2'],
       required: true,
     },
     inspection_code: {

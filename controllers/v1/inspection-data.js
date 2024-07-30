@@ -8,15 +8,21 @@ class InspectionDataController {
     try {
       const { name = '' } = req.query;
 
-      const regexPattern = new RegExp(name || '', 'i');
+      let q = {};
+      if (name) {
+        const regexPattern = new RegExp(name || '', 'i');
+        q['name'] = {
+          name: { $regex: regexPattern },
+        };
+      }
 
-      const inspections = await InspectionDataModel.find({
-        name: { $regex: regexPattern },
-      })
+      const inspections = await InspectionDataModel.find(q)
         .sort({ updatedAt: -1 })
         .lean();
 
-      const totalData = await InspectionDataModel.count({});
+      console.log(inspections);
+
+      const totalData = await InspectionDataModel.count(q);
 
       return res.status(200).json(
         createResponseSuccess(
