@@ -42,6 +42,23 @@ class InspectionDataController {
     try {
       const body = req.body;
 
+      const founded = await InspectionDataModel.findOne({
+        id: body['id'],
+      }).lean();
+
+      if (founded) {
+        return res
+          .status(200)
+          .json(
+            createResponseSuccess(
+              200,
+              'Success',
+              'Inspection already integrated',
+              {}
+            )
+          );
+      }
+
       await vBody('inspection-data', body);
 
       await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
