@@ -59,6 +59,8 @@ class InspectionDataController {
           );
       }
 
+      delete body['is_integrated'];
+
       await vBody('inspection-data', body);
 
       await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
@@ -74,6 +76,31 @@ class InspectionDataController {
             200,
             'Success',
             'Success create new inspection',
+            {}
+          )
+        );
+    } catch (err) {
+      console.log({ err });
+      next(err);
+    }
+  }
+
+  static async getDetail(req, res, next) {
+    try {
+      const { inspectionId } = req.params;
+
+      const inspections = await InspectionDataModel.findById(
+        inspectionId
+      ).lean();
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get detail inspections',
+            inspections,
             {}
           )
         );
