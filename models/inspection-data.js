@@ -118,6 +118,10 @@ const SCHEMA = new Schema(
       type: Object,
       required: true,
     },
+    year: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );

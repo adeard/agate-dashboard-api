@@ -1,4 +1,5 @@
 const FactoryModel = require('../../models/factory');
+const VendorV2Model = require('../../models/v2/vendor');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { vBody } = require('../../validators/joi');
 
@@ -9,11 +10,22 @@ class FactoryController {
 
       const regexPattern = new RegExp(name || '', 'i');
 
-      const factories = await FactoryModel.find({
+      let factories = await FactoryModel.find({
         name: { $regex: regexPattern },
       })
         .sort({ updatedAt: -1 })
         .lean();
+
+      let populated = [];
+
+      await factories.reduce(async (p, fac) => {
+        await p;
+        const totalVendor = await VendorV2Model.count({ factory: fac._id });
+
+        fac['total_vendor'] = totalVendor;
+
+        populated.push(fac);
+      }, Promise.resolve());
 
       const totalData = await FactoryModel.count({});
 
@@ -22,7 +34,7 @@ class FactoryController {
           200,
           'Success',
           'Success get all factories',
-          factories,
+          populated,
           {
             total_data: totalData,
           }

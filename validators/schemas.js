@@ -130,6 +130,12 @@ const schemas = {
     id: Joi.string().required(),
     grading_result: Joi.object().allow(null),
   }),
+
+  'vendor-2': Joi.object({
+    name: Joi.string().required(),
+    type: Joi.number().required(),
+    factory: Joi.string().required(),
+  }),
 };
 
 module.exports = {
