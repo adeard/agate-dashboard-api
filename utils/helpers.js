@@ -1,3 +1,5 @@
+const dayjs = require('dayjs');
+
 const whitelistObjectId = ['greenhouse', 'device'];
 
 module.exports = {
@@ -43,5 +45,82 @@ module.exports = {
         delete object[key];
       }
     });
+  },
+
+  generateDatesByYear: (year) => {
+    const currentYear = dayjs().year();
+    const startDate = dayjs(`${year}-01-01`);
+    const today = dayjs().startOf('day');
+    const endDate =
+      String(currentYear) === String(year) ? today : dayjs(`${year}-12-31`);
+    const dates = [];
+
+    let currentDate = startDate;
+
+    while (
+      currentDate.isSame(endDate, 'day') ||
+      currentDate.isBefore(endDate, 'day')
+    ) {
+      dates.push(currentDate.format('DD/MM/YYYY'));
+      currentDate = currentDate.add(1, 'day');
+    }
+
+    return dates;
+  },
+  generateWeeks: (year) => {
+    const currentYear = dayjs().year();
+    const startDate = dayjs(`${year}-01-01`);
+    const today = dayjs().startOf('day');
+    const endDate =
+      String(currentYear) === String(year) ? today : dayjs(`${year}-12-31`);
+    const weeks = [];
+
+    let currentDate = startDate;
+    let currentWeek = 1;
+
+    while (
+      currentDate.isSame(endDate, 'day') ||
+      currentDate.isBefore(endDate, 'day')
+    ) {
+      weeks.push(String(currentWeek));
+      currentDate = currentDate.add(7, 'day');
+      currentWeek += 1;
+    }
+
+    return weeks;
+  },
+  generateMonths: (year) => {
+    const currentYear = dayjs().year();
+    const startDate = dayjs(`${year}-01-01`);
+    const today = dayjs().startOf('day');
+    const endDate =
+      String(currentYear) === String(year) ? today : dayjs(`${year}-12-31`);
+    const months = [];
+
+    let currentDate = startDate;
+
+    while (
+      currentDate.isSame(endDate, 'month') ||
+      currentDate.isBefore(endDate, 'month')
+    ) {
+      months.push(currentDate.format('MMMM YYYY'));
+      currentDate = currentDate.add(1, 'month');
+    }
+
+    return months;
+  },
+  getDateMonthYearDay: (date, useUtcOffset = true) => {
+    const mod = useUtcOffset ? dayjs(date).utcOffset(7.1 * 60) : dayjs(date);
+    return {
+      day: mod.format('DD/MM/YYYY'),
+      monthYear: mod.format('MMMM YYYY'),
+    };
+  },
+
+  getWeekNumber: (date) => {
+    const modifiedDate = dayjs(date).utcOffset(7.1 * 60);
+    const firstDayOfYear = new Date(new Date(modifiedDate).getFullYear(), 0, 1);
+    const pastDaysOfYear = (new Date(modifiedDate) - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   },
 };

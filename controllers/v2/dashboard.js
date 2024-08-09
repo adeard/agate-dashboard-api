@@ -2,7 +2,12 @@ const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
 const InspectionHistoryModel = require('../../models/inspection-history');
 const VendorModel = require('../../models/vendor');
-const { createResponseSuccess } = require('../../utils/helpers');
+const {
+  createResponseSuccess,
+  generateWeeks,
+  generateDatesByYear,
+  generateMonths,
+} = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const InspectionDataModel = require('../../models/inspection-data');
@@ -53,6 +58,10 @@ class DashboardV2Controller {
     try {
       const { year = '2024', factory = '' } = req.query;
 
+      const weeks = generateWeeks(year);
+      const days = generateDatesByYear(year);
+      const months = generateMonths(year);
+
       const inspections = await InspectionDataModel.find({
         // year: Number(year),
       });
@@ -63,6 +72,7 @@ class DashboardV2Controller {
       let byVendorPlasmaAccepted = {};
       let totalAcceptedPlasma = 0;
 
+      let totalIntiFruits = 0;
       let byIntiFruits = KLASIFIKASI_INTI.reduce((curr, k) => {
         curr[k] = {
           total: 0,
@@ -72,7 +82,6 @@ class DashboardV2Controller {
 
         return curr;
       }, {});
-      let totalIntiFruits = 0;
       let byIntiFruitsSize = SUB_KLASIFIKASI_SIZE.reduce((curr, k) => {
         curr[k] = {
           total: 0,
@@ -92,6 +101,7 @@ class DashboardV2Controller {
         return curr;
       }, {});
 
+      let totalPlasmaFruits = 0;
       let byPlasmaFruits = KLASIFIKASI_PLASMA.reduce((curr, k) => {
         curr[k] = {
           total: 0,
@@ -101,7 +111,6 @@ class DashboardV2Controller {
 
         return curr;
       }, {});
-      let totalPlasmaFruits = 0;
       let byPlasmaFruitsSize = SUB_KLASIFIKASI_SIZE.reduce((curr, k) => {
         curr[k] = {
           total: 0,
@@ -120,6 +129,24 @@ class DashboardV2Controller {
 
         return curr;
       }, {});
+
+      let demographyInti = {
+        main: {
+          monthly: {},
+          weekly: {},
+          daily: {},
+        },
+        size: {
+          monthly: {},
+          weekly: {},
+          daily: {},
+        },
+        tp: {
+          monthly: {},
+          weekly: {},
+          daily: {},
+        },
+      };
 
       inspections.forEach((inspection) => {
         if (inspection.vendor_type === '1') {
