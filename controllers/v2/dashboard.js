@@ -7,6 +7,8 @@ const {
   generateWeeks,
   generateDatesByYear,
   generateMonths,
+  getDateMonthYearDay,
+  getWeekNumber,
 } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
@@ -51,6 +53,64 @@ const SUB_KLASIFIKASI_TP = ['TANGKAI PANJANG'];
 
 const countPercentage = (number = 0, divider = 1) => {
   return divider > 0 && number ? (Number(number) / Number(divider)) * 100 : 0;
+};
+
+const generateTemplate = (array) => {
+  return array.reduce((curr, m) => {
+    if (!Object.keys(curr).includes(m)) {
+      curr[m] = {};
+    }
+
+    return curr;
+  }, {});
+};
+
+const setChartData = (
+  inspection,
+  object,
+  key,
+  time,
+  timeKey,
+  mainClass,
+  subClass,
+  isSubClass = false
+) => {
+  let x = isSubClass ? subClass : mainClass;
+
+  if (Object.keys(object[key][time]).includes(String(timeKey))) {
+    if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
+      object[key][time][String(timeKey)][x] = 0;
+    }
+
+    object[key][time][String(timeKey)][x] +=
+      inspection['grading_result']['classification_summary']?.[mainClass]?.[
+        isSubClass ? subClass : 'TOTAL'
+      ] || 0;
+  }
+};
+
+const converDemographyChartToArray = (object, main, time, divider = 1) => {
+  let x = object[main][time];
+  return Object.keys(x).map((key) => {
+    // let total = Object.keys(x[key]).reduce(
+    //   (tot, acc) => Number(tot) + Number(x[key][acc] || 0),
+    //   0
+    // );
+
+    let data = Object.keys(x[key]).reduce((curr, acc) => {
+      let val = curr[acc];
+      let percent = countPercentage(val, divider);
+      curr[acc] = percent;
+
+      return curr;
+    }, x[key]);
+
+    return {
+      title: key,
+      data: Object.keys(data).map((k) => ({ name: k, total: data[k] })),
+      // total: countPercentage(total, divider),
+    };
+  });
 };
 
 class DashboardV2Controller {
@@ -130,25 +190,49 @@ class DashboardV2Controller {
         return curr;
       }, {});
 
-      let demographyInti = {
+      let byDemographyInti = {
         main: {
-          monthly: {},
-          weekly: {},
-          daily: {},
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
         },
         size: {
-          monthly: {},
-          weekly: {},
-          daily: {},
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
         },
         tp: {
-          monthly: {},
-          weekly: {},
-          daily: {},
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
         },
       };
 
+      let byDemographyPlasma = {
+        main: {
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
+        },
+        size: {
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
+        },
+        tp: {
+          monthly: generateTemplate(months),
+          weekly: generateTemplate(weeks),
+          daily: generateTemplate(days),
+        },
+      };
+
+      // console.log({ byDemographyInti });
+
       inspections.forEach((inspection) => {
+        const inspectionDate = dayjs(inspection['date']);
+        const { day, monthYear } = getDateMonthYearDay(inspection['date']);
+        const week = getWeekNumber(inspection['date']);
+
         if (inspection.vendor_type === '1') {
           totalAcceptedInti +=
             inspection['grading_result']['total_accepted'] || 0;
@@ -203,6 +287,37 @@ class DashboardV2Controller {
                   'TOTAL'
                 ] || 0;
 
+              setChartData(
+                inspection,
+                byDemographyInti,
+                'main',
+                'monthly',
+                monthYear,
+                k,
+                null,
+                false
+              );
+              setChartData(
+                inspection,
+                byDemographyInti,
+                'main',
+                'weekly',
+                week,
+                k,
+                null,
+                false
+              );
+              setChartData(
+                inspection,
+                byDemographyInti,
+                'main',
+                'daily',
+                day,
+                k,
+                null,
+                false
+              );
+
               SUB_KLASIFIKASI.forEach((sub) => {
                 if (!Object.keys(curr).includes(sub)) {
                   curr[sub] = {
@@ -236,6 +351,37 @@ class DashboardV2Controller {
                     inspection['grading_result']['classification_summary']?.[
                       k
                     ]?.[sub] || 0;
+
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'tp',
+                    'monthly',
+                    monthYear,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'tp',
+                    'weekly',
+                    week,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'tp',
+                    'daily',
+                    day,
+                    k,
+                    sub,
+                    true
+                  );
                 } else {
                   byIntiFruitsSize[sub]['total'] +=
                     inspection['grading_result']['classification_summary']?.[
@@ -256,6 +402,37 @@ class DashboardV2Controller {
                     inspection['grading_result']['classification_summary']?.[
                       k
                     ]?.[sub] || 0;
+
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'size',
+                    'monthly',
+                    monthYear,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'size',
+                    'weekly',
+                    week,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyInti,
+                    'size',
+                    'daily',
+                    day,
+                    k,
+                    sub,
+                    true
+                  );
                 }
               });
 
@@ -315,6 +492,37 @@ class DashboardV2Controller {
                   'TOTAL'
                 ] || 0;
 
+              setChartData(
+                inspection,
+                byDemographyPlasma,
+                'main',
+                'monthly',
+                monthYear,
+                k,
+                null,
+                false
+              );
+              setChartData(
+                inspection,
+                byDemographyPlasma,
+                'main',
+                'weekly',
+                week,
+                k,
+                null,
+                false
+              );
+              setChartData(
+                inspection,
+                byDemographyPlasma,
+                'main',
+                'daily',
+                day,
+                k,
+                null,
+                false
+              );
+
               SUB_KLASIFIKASI.forEach((sub) => {
                 if (!Object.keys(curr).includes(sub)) {
                   curr[sub] = {
@@ -348,6 +556,37 @@ class DashboardV2Controller {
                     inspection['grading_result']['classification_summary']?.[
                       k
                     ]?.[sub] || 0;
+
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'tp',
+                    'monthly',
+                    monthYear,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'tp',
+                    'weekly',
+                    week,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'tp',
+                    'daily',
+                    day,
+                    k,
+                    sub,
+                    true
+                  );
                 } else {
                   byPlasmaFruitsSize[sub]['total'] +=
                     inspection['grading_result']['classification_summary']?.[
@@ -368,6 +607,37 @@ class DashboardV2Controller {
                     inspection['grading_result']['classification_summary']?.[
                       k
                     ]?.[sub] || 0;
+
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'size',
+                    'monthly',
+                    monthYear,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'size',
+                    'weekly',
+                    week,
+                    k,
+                    sub,
+                    true
+                  );
+                  setChartData(
+                    inspection,
+                    byDemographyPlasma,
+                    'size',
+                    'daily',
+                    day,
+                    k,
+                    sub,
+                    true
+                  );
                 }
               });
 
@@ -506,12 +776,40 @@ class DashboardV2Controller {
         };
       });
 
+      byDemographyPlasma = Object.keys(byDemographyPlasma).reduce(
+        (curr, key) => {
+          Object.keys(curr[key]).forEach((k) => {
+            curr[key][k] = converDemographyChartToArray(
+              curr,
+              key,
+              k,
+              totalPlasmaFruits
+            );
+          });
+          return curr;
+        },
+        byDemographyPlasma
+      );
+      byDemographyInti = Object.keys(byDemographyInti).reduce((curr, key) => {
+        Object.keys(curr[key]).forEach((k) => {
+          curr[key][k] = converDemographyChartToArray(
+            curr,
+            key,
+            k,
+            totalIntiFruits
+          );
+        });
+        return curr;
+      }, byDemographyInti);
+
       return res.status(200).json(
         createResponseSuccess(
           200,
           'Success',
           'Success get all data',
           {
+            by_demography_plasma: byDemographyPlasma,
+            by_demography_inti: byDemographyInti,
             by_inti_accepted: byVendorIntiAccepted,
             by_plasma_accepted: byVendorPlasmaAccepted,
             by_inti_fruits: byIntiFruits,

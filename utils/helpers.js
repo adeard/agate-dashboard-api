@@ -1,6 +1,6 @@
 const dayjs = require('dayjs');
-
-const whitelistObjectId = ['greenhouse', 'device'];
+const utc = require('dayjs/plugin/utc');
+dayjs.extend(utc);
 
 module.exports = {
   createResponseSuccess: (code, title, m, data, meta) => {
