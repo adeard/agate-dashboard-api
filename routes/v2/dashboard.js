@@ -5,4 +5,5 @@ const { authorization } = require('../../middlewares/authorization');
 module.exports = (express) =>
   new express.Router()
     .use(authorization)
-    .post('/', DashboardV2Controller.getDataDashboard);
+    .post('/', DashboardV2Controller.getDataDashboard)
+    .post('/monitoring', DashboardV2Controller.getDataDashboardMonitoring);

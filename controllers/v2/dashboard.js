@@ -49,7 +49,12 @@ const SUB_KLASIFIKASI_SIZE = [
   'BUAH KECIL DIBAWAH 3KG',
   'BUAH KECIL DIBAWAH 5KG',
 ];
+
 const SUB_KLASIFIKASI_TP = ['TANGKAI PANJANG'];
+
+const ACCEPTED_PLASMA = ['MATANG', 'LEWAT MATANG'];
+const FINED_PLASMA = ['BUAH KECIL DIBAWAH 5KG', 'TANGKAI PANJANG'];
+const REJECTED_PLASMA = ['MENTAH', 'JANJANG KOSONG', 'BUAH KECIL DIBAWAH 3KG'];
 
 const countPercentage = (number = 0, divider = 1) => {
   return divider > 0 && number ? (Number(number) / Number(divider)) * 100 : 0;
@@ -76,20 +81,33 @@ const setChartData = (
   isSubClass = false
 ) => {
   let x = isSubClass ? subClass : mainClass;
+  let vendorName = inspection['vendor_name'];
 
   if (Object.keys(object[key][time]).includes(String(timeKey))) {
     if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
-      object[key][time][String(timeKey)][x] = 0;
+      object[key][time][String(timeKey)][x] = { value: 0, vendors: {} };
     }
 
-    object[key][time][String(timeKey)][x] +=
+    let vendors = object[key][time][String(timeKey)][x]['vendors'];
+
+    if (!Object.keys(vendors).includes(vendorName)) {
+      vendors[vendorName] = 0;
+    }
+
+    vendors[vendorName] +=
+      inspection['grading_result']['classification_summary']?.[mainClass]?.[
+        isSubClass ? subClass : 'TOTAL'
+      ] || 0;
+
+    object[key][time][String(timeKey)][x]['vendors'] = vendors;
+    object[key][time][String(timeKey)][x]['value'] +=
       inspection['grading_result']['classification_summary']?.[mainClass]?.[
         isSubClass ? subClass : 'TOTAL'
       ] || 0;
   }
 };
 
-const converDemographyChartToArray = (object, main, time, divider = 1) => {
+const convertDemographyChartToArray = (object, main, time, divider = 1) => {
   let x = object[main][time];
   return Object.keys(x).map((key) => {
     // let total = Object.keys(x[key]).reduce(
@@ -98,16 +116,29 @@ const converDemographyChartToArray = (object, main, time, divider = 1) => {
     // );
 
     let data = Object.keys(x[key]).reduce((curr, acc) => {
-      let val = curr[acc];
+      let val = curr[acc]['value'];
       let percent = countPercentage(val, divider);
-      curr[acc] = percent;
+      curr[acc]['percent'] = percent;
 
       return curr;
     }, x[key]);
 
     return {
       title: key,
-      data: Object.keys(data).map((k) => ({ name: k, total: data[k] })),
+      data: Object.keys(data).map((k) => {
+        let vendorData = Object.keys(data[k]['vendors']).map((kv) => {
+          return {
+            name: kv,
+            total: countPercentage(data[k]['vendors'][kv], data[k]['value']),
+          };
+        });
+
+        return {
+          name: k,
+          total: data[k]['percent'],
+          vendors: vendorData,
+        };
+      }),
       // total: countPercentage(total, divider),
     };
   });
@@ -779,7 +810,7 @@ class DashboardV2Controller {
       byDemographyPlasma = Object.keys(byDemographyPlasma).reduce(
         (curr, key) => {
           Object.keys(curr[key]).forEach((k) => {
-            curr[key][k] = converDemographyChartToArray(
+            curr[key][k] = convertDemographyChartToArray(
               curr,
               key,
               k,
@@ -792,7 +823,7 @@ class DashboardV2Controller {
       );
       byDemographyInti = Object.keys(byDemographyInti).reduce((curr, key) => {
         Object.keys(curr[key]).forEach((k) => {
-          curr[key][k] = converDemographyChartToArray(
+          curr[key][k] = convertDemographyChartToArray(
             curr,
             key,
             k,
@@ -824,6 +855,206 @@ class DashboardV2Controller {
       );
     } catch (err) {
       console.log({ err });
+      next(err);
+    }
+  }
+
+  static async getDataDashboardMonitoring(req, res, next) {
+    try {
+      const inspections = await InspectionDataModel.find({});
+
+      const totalAllTandon = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
+        0
+      );
+      const totalRejected = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_rejected || 0) + curr,
+        0
+      );
+      const totalPassed = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_accepted || 0) + curr,
+        0
+      );
+      const totalFined = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
+        0
+      );
+      const totalInspection = inspections.length;
+
+      // const getTotalFruitClassification = (type) => {
+      //   const total = results.reduce(
+      //     (curr, acc) => curr + Number(acc[type] || 0),
+      //     0
+      //   );
+      //   return {
+      //     total,
+      //     percent: (total / totalGraded) * 100,
+      //   };
+      // };
+
+      const totalAllTandonInti = inspections
+        .filter((i) => i['vendor_type'] === '1')
+        .reduce(
+          (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
+          0
+        );
+
+      const totalAllTandonPlasma = inspections
+        .filter((i) => i['vendor_type'] === '2')
+        .reduce(
+          (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
+          0
+        );
+
+      const classification = KLASIFIKASI_INTI.map((key) => {
+        const total = inspections.reduce((a, i) => {
+          if (i['vendor_type'] === '1') {
+            let sum = i.grading_result['classification_summary']?.[key]
+              ? Number(
+                  i.grading_result['classification_summary']?.[key]['TOTAL']
+                )
+              : 0;
+
+            return a + (sum || 0);
+          }
+
+          return a + 0;
+        }, 0);
+
+        return {
+          label: key.toLowerCase(),
+          total: total,
+          percentage: (total / totalAllTandonInti) * 100,
+        };
+      });
+      const subclass = SUB_KLASIFIKASI.map((key) => {
+        const total = inspections.reduce((a, i) => {
+          if (i['vendor_type'] === '1') {
+            let sum = Object.keys(
+              i.grading_result['classification_summary']
+            ).reduce((c, k) => {
+              return (
+                c + (i.grading_result['classification_summary'][k][key] || 0)
+              );
+            }, 0);
+
+            return a + (sum || 0);
+          }
+
+          return a + 0;
+        }, 0);
+
+        return {
+          label: key.toLowerCase(),
+          total: total,
+          percentage: (total / totalAllTandonInti) * 100,
+        };
+      });
+
+      const accepted_plasma = ACCEPTED_PLASMA.map((key) => {
+        const total = inspections.reduce((a, i) => {
+          if (i['vendor_type'] === '2') {
+            let sum = i.grading_result['accepted_summary']?.[key]
+              ? Number(i.grading_result['accepted_summary']?.[key]['TOTAL'])
+              : 0;
+
+            return a + (sum || 0);
+          }
+
+          return a + 0;
+        }, 0);
+
+        return {
+          label: key.toLowerCase(),
+          total: total,
+          percentage: (total / totalAllTandonPlasma) * 100,
+        };
+      });
+      const rejected_plasma = REJECTED_PLASMA.map((key) => {
+        const total = inspections.reduce((a, i) => {
+          if (i['vendor_type'] === '2') {
+            const isSub = SUB_KLASIFIKASI.includes(key);
+            let sum = Object.keys(i.grading_result['rejected_summary']).reduce(
+              (c, k) => {
+                return isSub
+                  ? c + (i.grading_result['rejected_summary'][k][key] || 0)
+                  : c +
+                      (i.grading_result['rejected_summary'][key]
+                        ? i.grading_result['rejected_summary'][key]['TOTAL'] ||
+                          0
+                        : 0);
+              },
+              0
+            );
+
+            return a + (sum || 0);
+          }
+
+          return a + 0;
+        }, 0);
+
+        return {
+          label: key.toLowerCase(),
+          total: total,
+          percentage: (total / totalAllTandonPlasma) * 100,
+        };
+      });
+      const fined_plasma = FINED_PLASMA.map((key) => {
+        const total = inspections.reduce((a, i) => {
+          if (i['vendor_type'] === '2') {
+            let sum = i.grading_result['fined_summary']?.[key]
+              ? Number(i.grading_result['fined_summary']?.[key]['TOTAL'])
+              : 0;
+
+            return a + (sum || 0);
+          }
+
+          return a + 0;
+        }, 0);
+
+        return {
+          label: key.toLowerCase(),
+          total: total,
+          percentage: (total / totalAllTandon) * 100,
+        };
+      });
+
+      const percentRejected = (totalRejected / totalAllTandon) * 100;
+      const percentAccepted = (totalPassed / totalAllTandon) * 100;
+
+      const data = {
+        total_tandan: totalAllTandon,
+        total_grading: totalInspection,
+        total_passed: totalPassed,
+        total_rejected: totalRejected,
+        total_fined: totalFined,
+        percent_rejected: percentRejected,
+        percent_passed: percentAccepted,
+        classification: {
+          inti: {
+            main: classification,
+            sub: subclass,
+          },
+          plasma: {
+            accepted: accepted_plasma,
+            fined: fined_plasma,
+            rejected: rejected_plasma,
+          },
+        },
+      };
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get all data',
+            data,
+            {}
+          )
+        );
+    } catch (err) {
       next(err);
     }
   }
