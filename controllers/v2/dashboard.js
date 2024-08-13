@@ -1021,6 +1021,7 @@ class DashboardV2Controller {
 
       const percentRejected = (totalRejected / totalAllTandon) * 100;
       const percentAccepted = (totalPassed / totalAllTandon) * 100;
+      const percentFined = (totalFined / totalPassed) * 100;
 
       const data = {
         total_tandan: totalAllTandon,
@@ -1030,6 +1031,7 @@ class DashboardV2Controller {
         total_fined: totalFined,
         percent_rejected: percentRejected,
         percent_passed: percentAccepted,
+        percent_fined: percentFined,
         classification: {
           inti: {
             main: classification,
