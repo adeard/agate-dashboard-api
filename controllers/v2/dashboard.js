@@ -9,6 +9,7 @@ const {
   generateMonths,
   getDateMonthYearDay,
   getWeekNumber,
+  sortDataByKey,
 } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
@@ -129,19 +130,35 @@ const convertDemographyChartToArray = (object, main, time, divider = 1) => {
         let vendorData = Object.keys(data[k]['vendors']).map((kv) => {
           return {
             name: kv,
-            total: countPercentage(data[k]['vendors'][kv], data[k]['value']),
+            percent: countPercentage(data[k]['vendors'][kv], data[k]['value']),
+            total: data[k]['vendors'][kv],
           };
         });
 
         return {
           name: k,
-          total: data[k]['percent'],
-          vendors: vendorData,
+          total: data[k]['value'],
+          vendors: vendorData.filter((e) => e.total > 0),
         };
       }),
       // total: countPercentage(total, divider),
     };
   });
+};
+
+const mapVendorData = (vendors, total) => {
+  return sortDataByKey(
+    Object.keys(vendors)
+      .map((kv) => {
+        return {
+          label: kv,
+          total: vendors[kv]['total'],
+          percent: countPercentage(vendors[kv]['total'], total),
+        };
+      })
+      .filter((e) => e.total > 0),
+    'total'
+  );
 };
 
 class DashboardV2Controller {
@@ -677,22 +694,24 @@ class DashboardV2Controller {
         }
       });
 
-      byVendorIntiAccepted = Object.keys(byVendorIntiAccepted).map((key) => {
-        const demography = byVendorIntiAccepted[key]['demography'];
-        const total = byVendorIntiAccepted[key]['total'];
-        return {
-          label: key,
-          total: total,
-          percent: countPercentage(total, totalAcceptedInti),
-          demography: Object.keys(demography).map((kd) => ({
-            label: kd,
-            total: demography[kd]['total'],
-            percent: countPercentage(demography[kd]['total'], total),
-          })),
-        };
-      });
-      byVendorPlasmaAccepted = Object.keys(byVendorPlasmaAccepted).map(
-        (key) => {
+      byVendorIntiAccepted = Object.keys(byVendorIntiAccepted)
+        .map((key) => {
+          const demography = byVendorIntiAccepted[key]['demography'];
+          const total = byVendorIntiAccepted[key]['total'];
+          return {
+            label: key,
+            total: total,
+            percent: countPercentage(total, totalAcceptedInti),
+            demography: Object.keys(demography).map((kd) => ({
+              label: kd,
+              total: demography[kd]['total'],
+              percent: countPercentage(demography[kd]['total'], total),
+            })),
+          };
+        })
+        .filter((e) => e.total > 0);
+      byVendorPlasmaAccepted = Object.keys(byVendorPlasmaAccepted)
+        .map((key) => {
           const demography = byVendorPlasmaAccepted[key]['demography'];
           const total = byVendorPlasmaAccepted[key]['total'];
           return {
@@ -708,8 +727,8 @@ class DashboardV2Controller {
               percent: countPercentage(demography[kd]['total'], total),
             })),
           };
-        }
-      );
+        })
+        .filter((e) => e.total > 0);
       byIntiFruits = Object.keys(byIntiFruits).map((key) => {
         let total = byIntiFruits[key]['total'];
         let vendors = byIntiFruits[key]['vendors'];
@@ -717,13 +736,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalIntiFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
       byIntiFruitsSize = Object.keys(byIntiFruitsSize).map((key) => {
@@ -733,13 +746,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalIntiFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
       byIntiFruitsTP = Object.keys(byIntiFruitsTP).map((key) => {
@@ -749,13 +756,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalIntiFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
       byPlasmaFruits = Object.keys(byPlasmaFruits).map((key) => {
@@ -765,13 +766,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalPlasmaFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
       byPlasmaFruitsSize = Object.keys(byPlasmaFruitsSize).map((key) => {
@@ -781,13 +776,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalPlasmaFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
       byPlasmaFruitsTP = Object.keys(byPlasmaFruitsTP).map((key) => {
@@ -797,13 +786,7 @@ class DashboardV2Controller {
           label: key,
           total: total,
           percent: countPercentage(total, totalPlasmaFruits),
-          vendors: Object.keys(vendors).map((kv) => {
-            return {
-              label: kv,
-              total: vendors[kv]['total'],
-              percent: countPercentage(vendors[kv]['total'], total),
-            };
-          }),
+          vendors: mapVendorData(vendors, total),
         };
       });
 
@@ -841,8 +824,8 @@ class DashboardV2Controller {
           {
             by_demography_plasma: byDemographyPlasma,
             by_demography_inti: byDemographyInti,
-            by_inti_accepted: byVendorIntiAccepted,
-            by_plasma_accepted: byVendorPlasmaAccepted,
+            by_inti_accepted: sortDataByKey(byVendorIntiAccepted, 'total'),
+            by_plasma_accepted: sortDataByKey(byVendorPlasmaAccepted, 'total'),
             by_inti_fruits: byIntiFruits,
             by_plasma_fruits: byPlasmaFruits,
             by_inti_fruits_size: byIntiFruitsSize,
@@ -907,6 +890,7 @@ class DashboardV2Controller {
         );
 
       const classification = KLASIFIKASI_INTI.map((key) => {
+        let vendors = {};
         const total = inspections.reduce((a, i) => {
           if (i['vendor_type'] === '1') {
             let sum = i.grading_result['classification_summary']?.[key]
@@ -914,6 +898,12 @@ class DashboardV2Controller {
                   i.grading_result['classification_summary']?.[key]['TOTAL']
                 )
               : 0;
+
+            if (!Object.keys(vendors).includes(i['vendor_name'])) {
+              vendors[i['vendor_name']] = 0;
+            }
+
+            vendors[i['vendor_name']] += sum;
 
             return a + (sum || 0);
           }
@@ -925,9 +915,17 @@ class DashboardV2Controller {
           label: key.toLowerCase(),
           total: total,
           percentage: (total / totalAllTandonInti) * 100,
+          vendors: Object.keys(vendors)
+            .map((k) => ({
+              label: k,
+              total: vendors[k],
+              percent: (vendors[k] / total) * 100,
+            }))
+            .filter((e) => e.total > 0),
         };
       });
       const subclass = SUB_KLASIFIKASI.map((key) => {
+        let vendors = {};
         const total = inspections.reduce((a, i) => {
           if (i['vendor_type'] === '1') {
             let sum = Object.keys(
@@ -938,6 +936,12 @@ class DashboardV2Controller {
               );
             }, 0);
 
+            if (!Object.keys(vendors).includes(i['vendor_name'])) {
+              vendors[i['vendor_name']] = 0;
+            }
+
+            vendors[i['vendor_name']] += sum;
+
             return a + (sum || 0);
           }
 
@@ -948,15 +952,29 @@ class DashboardV2Controller {
           label: key.toLowerCase(),
           total: total,
           percentage: (total / totalAllTandonInti) * 100,
+          vendors: Object.keys(vendors)
+            .map((k) => ({
+              label: k,
+              total: vendors[k],
+              percent: (vendors[k] / total) * 100,
+            }))
+            .filter((e) => e.total > 0),
         };
       });
 
       const accepted_plasma = ACCEPTED_PLASMA.map((key) => {
+        let vendors = {};
         const total = inspections.reduce((a, i) => {
           if (i['vendor_type'] === '2') {
             let sum = i.grading_result['accepted_summary']?.[key]
               ? Number(i.grading_result['accepted_summary']?.[key]['TOTAL'])
               : 0;
+
+            if (!Object.keys(vendors).includes(i['vendor_name'])) {
+              vendors[i['vendor_name']] = 0;
+            }
+
+            vendors[i['vendor_name']] += sum;
 
             return a + (sum || 0);
           }
@@ -968,9 +986,17 @@ class DashboardV2Controller {
           label: key.toLowerCase(),
           total: total,
           percentage: (total / totalAllTandonPlasma) * 100,
+          vendors: Object.keys(vendors)
+            .map((k) => ({
+              label: k,
+              total: vendors[k],
+              percent: (vendors[k] / total) * 100,
+            }))
+            .filter((e) => e.total > 0),
         };
       });
       const rejected_plasma = REJECTED_PLASMA.map((key) => {
+        let vendors = {};
         const total = inspections.reduce((a, i) => {
           if (i['vendor_type'] === '2') {
             const isSub = SUB_KLASIFIKASI.includes(key);
@@ -986,6 +1012,11 @@ class DashboardV2Controller {
               },
               0
             );
+            if (!Object.keys(vendors).includes(i['vendor_name'])) {
+              vendors[i['vendor_name']] = 0;
+            }
+
+            vendors[i['vendor_name']] += sum;
 
             return a + (sum || 0);
           }
@@ -997,14 +1028,27 @@ class DashboardV2Controller {
           label: key.toLowerCase(),
           total: total,
           percentage: (total / totalAllTandonPlasma) * 100,
+          vendors: Object.keys(vendors)
+            .map((k) => ({
+              label: k,
+              total: vendors[k],
+              percent: (vendors[k] / total) * 100,
+            }))
+            .filter((e) => e.total > 0),
         };
       });
       const fined_plasma = FINED_PLASMA.map((key) => {
+        let vendors = {};
         const total = inspections.reduce((a, i) => {
           if (i['vendor_type'] === '2') {
             let sum = i.grading_result['fined_summary']?.[key]
               ? Number(i.grading_result['fined_summary']?.[key]['TOTAL'])
               : 0;
+            if (!Object.keys(vendors).includes(i['vendor_name'])) {
+              vendors[i['vendor_name']] = 0;
+            }
+
+            vendors[i['vendor_name']] += sum;
 
             return a + (sum || 0);
           }
@@ -1016,6 +1060,13 @@ class DashboardV2Controller {
           label: key.toLowerCase(),
           total: total,
           percentage: (total / totalAllTandon) * 100,
+          vendors: Object.keys(vendors)
+            .map((k) => ({
+              label: k,
+              total: vendors[k],
+              percent: (vendors[k] / total) * 100,
+            }))
+            .filter((e) => e.total > 0),
         };
       });
 

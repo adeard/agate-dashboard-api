@@ -123,4 +123,9 @@ module.exports = {
     const pastDaysOfYear = (new Date(modifiedDate) - firstDayOfYear) / 86400000;
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   },
+
+  sortDataByKey: (data = [], key) => {
+    console.log({ data });
+    return data.sort((a, b) => Number(b[key]) - Number(a[key]));
+  },
 };

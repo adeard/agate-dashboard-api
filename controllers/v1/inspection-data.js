@@ -6,7 +6,14 @@ const { vBody } = require('../../validators/joi');
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
-      const { name = '' } = req.query;
+      const {
+        name = '',
+        delivery_number = '',
+        vehicle_number = '',
+        vendor_id = '',
+        date_from = '',
+        date_to = '',
+      } = req.query;
 
       let q = {};
       if (name) {
@@ -14,6 +21,16 @@ class InspectionDataController {
         q['name'] = {
           name: { $regex: regexPattern },
         };
+      }
+
+      if (delivery_number) {
+        q['delivery_number'] = String(delivery_number).trim();
+      }
+      if (vehicle_number) {
+        q['vehicle_number'] = String(vehicle_number).trim();
+      }
+      if (vendor_id) {
+        q['vendor_id'] = vendor_id;
       }
 
       const inspections = await InspectionDataModel.find(q)
