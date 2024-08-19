@@ -122,6 +122,17 @@ const SCHEMA = new Schema(
       type: Number,
       required: true,
     },
+    factory: {
+      type: Schema.Types.ObjectId,
+      ref: 'GradingHQ_FACTORY',
+      required: true,
+    },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: 'GradingHQ_VENDOR',
+      // type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

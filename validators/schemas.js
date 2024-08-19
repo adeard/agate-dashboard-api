@@ -129,6 +129,8 @@ const schemas = {
     finish_date: Joi.date().allow(null), // Optional field,
     id: Joi.string().required(),
     grading_result: Joi.object().allow(null),
+    year: Joi.number().required(),
+    factory: Joi.string(),
   }),
 
   'vendor-2': Joi.object({

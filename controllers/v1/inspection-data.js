@@ -14,8 +14,12 @@ class InspectionDataController {
         date_from = '',
         date_to = '',
       } = req.query;
+      const { factoryId } = req.params;
 
       let q = {};
+      if (factoryId) {
+        q['factory'] = factoryId;
+      }
       if (name) {
         const regexPattern = new RegExp(name || '', 'i');
         q['name'] = {
@@ -30,7 +34,7 @@ class InspectionDataController {
         q['vehicle_number'] = String(vehicle_number).trim();
       }
       if (vendor_id) {
-        q['vendor_id'] = vendor_id;
+        q['vendor'] = vendor_id;
       }
 
       const inspections = await InspectionDataModel.find(q)

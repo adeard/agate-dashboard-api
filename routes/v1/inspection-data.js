@@ -9,4 +9,5 @@ module.exports = (express) =>
     .post('/', validateClientKey, InspectionDataController.createNew)
     .use(authorization)
     .get('/', InspectionDataController.getAll)
+    .get('/by-factory/:factoryId', InspectionDataController.getAll)
     .get('/:inspectionId', InspectionDataController.getDetail);

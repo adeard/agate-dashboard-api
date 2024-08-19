@@ -54,6 +54,30 @@ class SyncDataController {
     try {
       const body = req.body;
 
+      const factory = await FactoryModel.findOne({
+        name: body['factory'],
+      }).lean();
+
+      if (!factory) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Factory not found',
+        };
+      }
+
+      const vendor = await VendorV2Model.findOne({
+        id: body['vendor_id'],
+      }).lean();
+
+      if (!vendor) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Vendor not found',
+        };
+      }
+
       const founded = await InspectionDataModel.findOne({
         id: body['id'],
       }).lean();
@@ -74,6 +98,9 @@ class SyncDataController {
       delete body['is_integrated'];
 
       await vBody('inspection-data', body);
+
+      body['factory'] = factory._id;
+      body['vendor'] = vendor._id;
 
       await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
         upsert: true,
