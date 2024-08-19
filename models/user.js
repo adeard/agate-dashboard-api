@@ -30,6 +30,13 @@ const SCHEMA = new Schema(
       type: String,
       required: true,
     },
+    whatsapp_number: {
+      type: String,
+    },
+    subscribe_notification: {
+      type: Number,
+      enum: [0, 1],
+    },
   },
   { timestamps: true }
 );

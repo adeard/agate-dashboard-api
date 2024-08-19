@@ -132,6 +132,7 @@ const schemas = {
   }),
 
   'vendor-2': Joi.object({
+    id: Joi.string().required(),
     name: Joi.string().required(),
     type: Joi.number().required(),
     factory: Joi.string().required(),

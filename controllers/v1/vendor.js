@@ -1,4 +1,5 @@
 const FactoryModel = require('../../models/factory');
+const VendorV2Model = require('../../models/v2/vendor');
 const VendorModel = require('../../models/vendor');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
@@ -13,7 +14,7 @@ class VendorController {
 
       const regexPattern = new RegExp(name || '', 'i');
 
-      const vendors = await VendorModel.aggregate([
+      const vendors = await VendorV2Model.aggregate([
         { $match: { ...query, name: { $regex: regexPattern } } },
         {
           $lookup: {
@@ -32,7 +33,7 @@ class VendorController {
         { $sort: { updatedAt: -1 } },
       ]);
 
-      const totalData = await VendorModel.count({});
+      const totalData = await VendorV2Model.count({});
 
       return res.status(200).json(
         createResponseSuccess(

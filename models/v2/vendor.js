@@ -4,7 +4,7 @@ const NAME = 'GradingHQ_VENDOR_V2';
 
 const SCHEMA = new Schema(
   {
-    origin_id: {
+    id: {
       type: String,
       required: true,
     },

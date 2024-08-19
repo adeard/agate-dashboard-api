@@ -914,7 +914,7 @@ class DashboardV2Controller {
         return {
           label: key.toLowerCase(),
           total: total,
-          percentage: (total / totalAllTandonInti) * 100,
+          percentage: (total / totalAllTandonInti) * 100 || 0,
           vendors: Object.keys(vendors)
             .map((k) => ({
               label: k,
@@ -951,7 +951,7 @@ class DashboardV2Controller {
         return {
           label: key.toLowerCase(),
           total: total,
-          percentage: (total / totalAllTandonInti) * 100,
+          percentage: (total / totalAllTandonInti) * 100 || 0,
           vendors: Object.keys(vendors)
             .map((k) => ({
               label: k,
@@ -985,7 +985,7 @@ class DashboardV2Controller {
         return {
           label: key.toLowerCase(),
           total: total,
-          percentage: (total / totalAllTandonPlasma) * 100,
+          percentage: (total / totalAllTandonPlasma) * 100 || 0,
           vendors: Object.keys(vendors)
             .map((k) => ({
               label: k,
@@ -1027,7 +1027,7 @@ class DashboardV2Controller {
         return {
           label: key.toLowerCase(),
           total: total,
-          percentage: (total / totalAllTandonPlasma) * 100,
+          percentage: (total / totalAllTandonPlasma) * 100 || 0,
           vendors: Object.keys(vendors)
             .map((k) => ({
               label: k,
@@ -1059,7 +1059,7 @@ class DashboardV2Controller {
         return {
           label: key.toLowerCase(),
           total: total,
-          percentage: (total / totalAllTandon) * 100,
+          percentage: (total / totalAllTandon) * 100 || 0,
           vendors: Object.keys(vendors)
             .map((k) => ({
               label: k,
@@ -1080,9 +1080,9 @@ class DashboardV2Controller {
         total_passed: totalPassed,
         total_rejected: totalRejected,
         total_fined: totalFined,
-        percent_rejected: percentRejected,
-        percent_passed: percentAccepted,
-        percent_fined: percentFined,
+        percent_rejected: percentRejected || 0,
+        percent_passed: percentAccepted || 0,
+        percent_fined: percentFined || 0,
         classification: {
           inti: {
             main: classification,
