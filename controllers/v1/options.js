@@ -1,6 +1,7 @@
 const { createResponseSuccess } = require('../../utils/helpers');
 const FactoryModel = require('../../models/factory');
 const VendorModel = require('../../models/vendor');
+const VendorV2Model = require('../../models/v2/vendor');
 
 const labelKey = {
   factory: 'name',
@@ -13,6 +14,7 @@ class OptionsController {
   static async getOptionsSelector(req, res, next) {
     try {
       const { type } = req.params;
+      const { factory = '' } = req.query;
 
       let datas = [];
 
@@ -29,7 +31,11 @@ class OptionsController {
       }
 
       if (type === 'vendor') {
-        datas = await VendorModel.find({}).lean();
+        let q = {};
+        if (factory) {
+          q['factory'] = factory;
+        }
+        datas = await VendorV2Model.find(q).lean();
       }
 
       return res.status(200).json(

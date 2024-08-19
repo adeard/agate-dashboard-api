@@ -39,6 +39,23 @@ class InspectionDataController {
 
       const totalData = await InspectionDataModel.count(q);
 
+      const totalAllTandon = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
+        0
+      );
+      const totalRejected = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_rejected || 0) + curr,
+        0
+      );
+      const totalAccepted = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_accepted || 0) + curr,
+        0
+      );
+      const totalFined = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
+        0
+      );
+
       return res.status(200).json(
         createResponseSuccess(
           200,
@@ -47,6 +64,10 @@ class InspectionDataController {
           inspections,
           {
             total_data: totalData,
+            total_accepted: totalAccepted,
+            total_fined: totalFined,
+            total_rejected: totalRejected,
+            total_tandan: totalAllTandon,
           }
         )
       );
