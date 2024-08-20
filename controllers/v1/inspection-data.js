@@ -1,3 +1,4 @@
+const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
 const { createResponseSuccess } = require('../../utils/helpers');
@@ -35,6 +36,12 @@ class InspectionDataController {
       }
       if (vendor_id) {
         q['vendor'] = vendor_id;
+      }
+      if (date_from && date_to) {
+        q['date'] = {
+          $gte: new Date(date_from),
+          $lte: new Date(date_to),
+        };
       }
 
       const inspections = await InspectionDataModel.find(q)

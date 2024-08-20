@@ -167,15 +167,35 @@ const mapVendorData = (vendors, total) => {
 class DashboardV2Controller {
   static async getDataDashboard(req, res, next) {
     try {
-      const { year = '2024', factory = '' } = req.query;
+      const {
+        year = '2024',
+        factory = '',
+        date_to = null,
+        date_from = null,
+      } = req.query;
 
       const weeks = generateWeeks(year);
       const days = generateDatesByYear(year);
       const months = generateMonths(year);
 
-      const inspections = await InspectionDataModel.find({
-        // year: Number(year),
-      });
+      let q = {};
+
+      if (date_from && date_to) {
+        q['date'] = {
+          $gte: new Date(date_from),
+          $lte: new Date(date_to),
+        };
+      }
+
+      if (factory) {
+        q['factory'] = factory;
+      }
+
+      if (year) {
+        q['year'] = Number(year);
+      }
+
+      const inspections = await InspectionDataModel.find(q);
 
       let byVendorIntiAccepted = {};
       let totalAcceptedInti = 0;
@@ -858,7 +878,21 @@ class DashboardV2Controller {
 
   static async getDataDashboardMonitoring(req, res, next) {
     try {
-      const inspections = await InspectionDataModel.find({});
+      const { date_from = null, date_to = null, factory = null } = req.body;
+
+      let q = {};
+
+      if (date_from && date_to) {
+        q['date'] = {
+          $gte: new Date(date_from),
+          $lte: new Date(date_to),
+        };
+      }
+      if (factory) {
+        q['factory'] = factory;
+      }
+
+      const inspections = await InspectionDataModel.find(q).lean();
 
       const totalAllTandon = inspections.reduce(
         (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
