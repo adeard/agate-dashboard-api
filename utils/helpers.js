@@ -125,7 +125,6 @@ module.exports = {
   },
 
   sortDataByKey: (data = [], key) => {
-    console.log({ data });
     return data.sort((a, b) => Number(b[key]) - Number(a[key]));
   },
 };

@@ -97,7 +97,7 @@ class UserController {
 
       const password = generateRandomPassword(6);
 
-      console.log({ password });
+      // console.log({ password });
 
       await UserModel.create({
         ...body,

@@ -18,26 +18,26 @@ connectToDatabase().then(async (res) => {
   console.log(res);
   // await UserModel.deleteMany({});
 
-  // await VendorModel.deleteMany({});
-  // await VendorV2Model.deleteMany({});
+  await VendorModel.deleteMany({});
+  await VendorV2Model.deleteMany({});
   // await FactoryModel.deleteMany({});
-  // await InspectionDataModel.deleteMany({});
+  await InspectionDataModel.deleteMany({});
   // await InspectionHistoryModel.deleteMany({});
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
 
-  const factory = await FactoryModel.findOne({
-    name: 'LNGM',
-  }).lean();
+  // const factory = await FactoryModel.findOne({
+  //   name: 'LNGM',
+  // }).lean();
 
-  await UserModel.create({
-    full_name: 'Accelego',
-    email: 'hi@accelego.id',
-    password: hashPassword('admin123'),
-    access_factory: [factory._id],
-    status: 1,
-    whatsapp_number: '6281385784854',
-    subscribe_notification: 1,
-  });
+  // await UserModel.create({
+  //   full_name: 'Accelego',
+  //   email: 'hi@accelego.id',
+  //   password: hashPassword('admin123'),
+  //   access_factory: [factory._id],
+  //   status: 1,
+  //   whatsapp_number: '6281385784854',
+  //   subscribe_notification: 1,
+  // });
   console.log('Done');
 });

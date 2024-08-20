@@ -17,12 +17,15 @@ const InspectionDataModel = require('../../models/inspection-data');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
-const KLASIFIKASI = [
+const KLASIFIKASI_SORTING = [
   'MENTAH',
   'KURANG MATANG',
   'MATANG',
   'LEWAT MATANG',
   'JANJANG KOSONG',
+  'BUAH KECIL DIBAWAH 3KG',
+  'BUAH KECIL DIBAWAH 5KG',
+  'TANGKAI PANJANG',
 ];
 
 const KLASIFIKASI_INTI = [
@@ -277,7 +280,6 @@ class DashboardV2Controller {
       // console.log({ byDemographyInti });
 
       inspections.forEach((inspection) => {
-        const inspectionDate = dayjs(inspection['date']);
         const { day, monthYear } = getDateMonthYearDay(inspection['date']);
         const week = getWeekNumber(inspection['date']);
 
@@ -702,11 +704,17 @@ class DashboardV2Controller {
             label: key,
             total: total,
             percent: countPercentage(total, totalAcceptedInti),
-            demography: Object.keys(demography).map((kd) => ({
-              label: kd,
-              total: demography[kd]['total'],
-              percent: countPercentage(demography[kd]['total'], total),
-            })),
+            demography: Object.keys(demography)
+              .map((kd) => ({
+                label: kd,
+                total: demography[kd]['total'],
+                percent: countPercentage(demography[kd]['total'], total),
+              }))
+              .sort(
+                (a, b) =>
+                  KLASIFIKASI_SORTING.indexOf(a.label) -
+                  KLASIFIKASI_SORTING.indexOf(b.label)
+              ),
           };
         })
         .filter((e) => e.total > 0);
@@ -721,11 +729,17 @@ class DashboardV2Controller {
               byVendorPlasmaAccepted[key]['total'],
               totalAcceptedPlasma
             ),
-            demography: Object.keys(demography).map((kd) => ({
-              label: kd,
-              total: demography[kd]['total'],
-              percent: countPercentage(demography[kd]['total'], total),
-            })),
+            demography: Object.keys(demography)
+              .map((kd) => ({
+                label: kd,
+                total: demography[kd]['total'],
+                percent: countPercentage(demography[kd]['total'], total),
+              }))
+              .sort(
+                (a, b) =>
+                  KLASIFIKASI_SORTING.indexOf(a.label) -
+                  KLASIFIKASI_SORTING.indexOf(b.label)
+              ),
           };
         })
         .filter((e) => e.total > 0);
