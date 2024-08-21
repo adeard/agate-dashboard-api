@@ -2,17 +2,19 @@ const fs = require('fs');
 const path = require('path');
 
 const getImageFile = (filename) => {
-  let imgPath = path.join(__dirname, 'images', filename);
+  const imgPath = path.join(__dirname, 'images', filename);
 
-  fs.readFile(imgPath, (err, data) => {
-    if (err) {
-      console.log('Fail read image');
-      return;
-    }
+  try {
+    // Synchronously read the image file
+    const data = fs.readFileSync(imgPath);
 
+    // Convert the image data to Base64
     const base64Image = Buffer.from(data).toString('base64');
-    return base64Image;
-  });
-};
 
+    return base64Image;
+  } catch (err) {
+    console.error('Failed to read image:', err);
+    return null;
+  }
+};
 module.exports = getImageFile;
