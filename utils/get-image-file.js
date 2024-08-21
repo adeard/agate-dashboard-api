@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const getImageFile = (filename) => {
-  let imgPath = path.join(__dirname, 'assets', filename);
+  let imgPath = path.join(__dirname, 'images', filename);
 
   fs.readFile(imgPath, (err, data) => {
     if (err) {
