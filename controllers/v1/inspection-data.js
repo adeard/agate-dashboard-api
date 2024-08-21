@@ -3,7 +3,11 @@ const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { vBody } = require('../../validators/joi');
+const generatePdf = require('../../lib/pdf');
 
+const countPercentage = (number = 0, divider = 1) => {
+  return divider > 0 && number ? (Number(number) / Number(divider)) * 100 : 0;
+};
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
@@ -150,6 +154,164 @@ class InspectionDataController {
             'Success',
             'Success get detail inspections',
             inspections,
+            {}
+          )
+        );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async downloadExcel(req, res, next) {
+    try {
+      const { factoryId } = req.params;
+
+      let q = {};
+      if (factoryId) {
+        q['factory'] = factoryId;
+      }
+
+      const inspections = await InspectionDataModel.find(q)
+        .sort({ date: -1 })
+        .lean();
+
+      let template = [
+        [
+          'No',
+          'Waktu',
+          'Vendor',
+          'Nomor Surat Jalan',
+          'Nomor Plat Kendaraan',
+          'Total Tandan',
+          'Diterima',
+          'Didenda',
+          'Ditolak',
+        ],
+      ];
+
+      inspections.forEach((ins, index) => {
+        template.push([
+          index + 1,
+          dayjs(ins.date).format('DD/MM/YYYY HH:mm'),
+          ins.vendor_name,
+          ins.delivery_number,
+          ins.vehicle_number,
+          ins.grading_result ? ins.grading_result.total_tandan : 0,
+          ins.grading_result ? ins.grading_result.total_accepted : 0,
+          ins.grading_result ? ins.grading_result.total_fined : 0,
+          ins.grading_result ? ins.grading_result.total_rejected : 0,
+        ]);
+      });
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get all inspections',
+            template
+          )
+        );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async downloadDetailPdf(req, res, next) {
+    try {
+      const { inspectionId } = req.params;
+
+      const inspections = await InspectionDataModel.findById(
+        inspectionId
+      ).lean();
+
+      if (!inspections) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Pemeriksaan tidak ditemukan.',
+        };
+      }
+
+      let acceptedSummary = inspections.grading_result.accepted_summary;
+      let rejectedSummary = inspections.grading_result.rejected_summary;
+      let finedSummary = inspections.grading_result.fined_summary;
+      let classificationSummary =
+        inspections.grading_result.classification_summary;
+
+      let acceptedData = Object.keys(acceptedSummary).map((k) => {
+        return {
+          label: k,
+          ...acceptedSummary[k],
+        };
+      });
+      let rejectedData = Object.keys(rejectedSummary).map((k) => {
+        return {
+          label: k,
+          ...rejectedSummary[k],
+        };
+      });
+      let finedData = Object.keys(finedSummary).map((k) => {
+        return {
+          label: k,
+          ...finedSummary[k],
+          'TOTAL DENDA': finedSummary[k]['TOTAL'] * finedSummary[k]['DENDA'],
+        };
+      });
+      let classificationData = Object.keys(classificationSummary).map((k) => {
+        return {
+          label: k,
+          ...classificationSummary[k],
+        };
+      });
+
+      let data = {
+        location: 'Langling, Jambi',
+        vendor_type:
+          Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
+        vendor: inspections['vendor_name'],
+        delivery_number: inspections['delivery_number'],
+        vehicle_number: inspections['vehicle_number'],
+        date: dayjs(inspections['date']).format('DD/MM/YYYY HH:mm:ss'),
+        finish_date: dayjs(inspections['finish_date']).format(
+          'DD/MM/YYYY HH:mm:ss'
+        ),
+        grading_result: {
+          total_accepted: inspections['grading_result']['total_accepted'],
+          total_rejected: inspections['grading_result']['total_accepted'],
+          total_fined: inspections['grading_result']['total_fined'],
+          total_accepted_percent: countPercentage(
+            inspections['grading_result']['total_accepted'],
+            inspections['grading_result']['total_tandan']
+          ),
+          total_rejected_percent: countPercentage(
+            inspections['grading_result']['total_rejected'],
+            inspections['grading_result']['total_tandan']
+          ),
+          total_fined_percent: countPercentage(
+            inspections['grading_result']['total_fined'],
+            inspections['grading_result']['total_accepted']
+          ),
+        },
+        classification_result: classificationData,
+        accepted_result: acceptedData.length ? acceptedData : null,
+        rejected_result: rejectedData.length ? rejectedData : null,
+        fined_result: finedData.length ? finedData : null,
+      };
+
+      let template = `utils/pdf/templates/grading-result.html`;
+
+      return generatePdf(data, template, res);
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get detail inspections',
+            data,
             {}
           )
         );
