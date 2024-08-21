@@ -6,7 +6,7 @@ const {
   capitalizeString,
 } = require('../../utils/helpers');
 const { vBody } = require('../../validators/joi');
-// const generatePdf = require('../../lib/pdf');
+const generatePdf = require('../../lib/pdf');
 const getImageFile = require('../../utils/get-image-file');
 
 const countPercentage = (number = 0, divider = 1) => {
@@ -336,7 +336,7 @@ class InspectionDataController {
 
       let template = `lib/pdf/templates/grading-result.html`;
 
-      // return generatePdf(data, template, res);
+      return generatePdf(data, template, res);
 
       return res
         .status(200)
