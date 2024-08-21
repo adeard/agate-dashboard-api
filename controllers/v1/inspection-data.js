@@ -300,7 +300,7 @@ class InspectionDataController {
         fined_result: finedData.length ? finedData : null,
       };
 
-      let template = `utils/pdf/templates/grading-result.html`;
+      let template = `lib/pdf/templates/grading-result.html`;
 
       return generatePdf(data, template, res);
 
