@@ -11,6 +11,10 @@ module.exports = (express) =>
       '/download-pdf/:inspectionId',
       InspectionDataController.downloadDetailPdf
     )
+    .get(
+      '/download-pdf/:factoryId/summary',
+      InspectionDataController.downloadPdfSummary
+    )
     .use(authorization)
     .get('/', InspectionDataController.getAll)
     .get('/download-excel/:factoryId', InspectionDataController.downloadExcel)
