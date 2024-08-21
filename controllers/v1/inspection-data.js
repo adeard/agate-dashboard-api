@@ -714,8 +714,16 @@ class InspectionDataController {
       );
 
       let data = {
-        // sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
-        // agate_logo_img: getImageFile('agate-logo.png'),
+        start_date: date_from
+          ? dayjs(date_from).format('DD/MM/YYYY HH:mm')
+          : dayjs(inspections[0]['date']).format('DD/MM/YYYY HH:mm:ss'),
+        end_date: date_to
+          ? dayjs(date_to).format('DD/MM/YYYY HH:mm')
+          : dayjs(inspections[inspections.length - 1]['date']).format(
+              'DD/MM/YYYY HH:mm:ss'
+            ),
+        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
         summary: demografikSemua,
         summary_inti: demografikInti,
