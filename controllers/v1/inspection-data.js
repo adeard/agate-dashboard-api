@@ -10,8 +10,136 @@ const generatePdf = require('../../lib/pdf');
 const getImageFile = require('../../utils/get-image-file');
 
 const countPercentage = (number = 0, divider = 1) => {
-  return divider > 0 && number ? (Number(number) / Number(divider)) * 100 : 0;
+  let percent =
+    divider > 0 && number > 0 ? (Number(number) / Number(divider)) * 100 : 0;
+  return percent < 100 && percent > 0 ? percent.toFixed(2) : percent;
 };
+
+const baseObjectInti = {
+  total_tandan: 0,
+  total_accepted: 0,
+  total_rejected: 0,
+  total_fined: 0,
+  classification_summary: {
+    MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'KURANG MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    MATANG: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'LEWAT MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'JANJANG KOSONG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+  },
+};
+
+const baseObjectPlasma = {
+  total_tandan: 0,
+  total_accepted: 0,
+  total_rejected: 0,
+  total_fined: 0,
+  classification_summary: {
+    MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    MATANG: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'LEWAT MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'JANJANG KOSONG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+  },
+};
+
+function calculateAndAppendTotals(data) {
+  const totalCounts = { label: 'Total' };
+
+  // Initialize the keys with 0
+  Object.keys(data[0]).forEach((key) => {
+    if (key !== 'label') {
+      totalCounts[key] = 0;
+    }
+  });
+
+  // Sum up the values for each key
+  data.forEach((entry) => {
+    Object.keys(entry).forEach((key) => {
+      if (key !== 'label') {
+        totalCounts[key] += entry[key];
+      }
+    });
+  });
+
+  // Append the totals to the data array
+  data.push(totalCounts);
+
+  return data;
+}
+
+function generateClassificationResultArray(summary) {
+  const result = [];
+
+  for (const [key, value] of Object.entries(summary)) {
+    result.push({ label: capitalizeString(key), ...value });
+  }
+
+  return calculateAndAppendTotals(result);
+}
+
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
@@ -311,22 +439,10 @@ class InspectionDataController {
           total_accepted: inspections['grading_result']['total_accepted'],
           total_rejected: inspections['grading_result']['total_rejected'],
           total_fined: inspections['grading_result']['total_fined'],
-          total_accepted_percent:
-            total_accepted_percent < 100 && total_accepted_percent > 0
-              ? Number(total_accepted_percent).toFixed(2)
-              : total_accepted_percent,
-          total_rejected_percent:
-            total_rejected_percent < 100 && total_rejected_percent > 0
-              ? Number(total_rejected_percent).toFixed(2)
-              : total_rejected_percent,
-          total_fined_percent:
-            total_fined_percent < 100 && total_fined_percent > 0
-              ? Number(total_fined_percent).toFixed(2)
-              : total_fined_percent,
-          total_percent:
-            total_percent < 100 && total_percent > 0
-              ? Number(total_percent).toFixed(2)
-              : total_percent,
+          total_accepted_percent: total_accepted_percent,
+          total_rejected_percent: total_rejected_percent,
+          total_fined_percent: total_fined_percent,
+          total_percent: total_percent,
         },
         classification_result: classificationData,
         accepted_result: acceptedData.length ? acceptedData : null,
@@ -403,152 +519,214 @@ class InspectionDataController {
         };
       }
 
-      let demografikSemu = {
-        total_tandan: 0,
-        total_accepted: 0,
-        total_rejected: 0,
-        total_fined: 0,
-        classification_summary: {
-          MENTAH: {
-            TOTAL: 0,
-            NORMAL: 0,
-            'RUSAK DIMAKAN TIKUS': 0,
-            'TANGKAI PANJANG': 0,
-            'BUAH KECIL DIBAWAH 3KG': 0,
-            'BUAH KECIL DIBAWAH 5KG': 0,
-          },
-          'KURANG MATANG': {
-            TOTAL: 0,
-            NORMAL: 0,
-            'RUSAK DIMAKAN TIKUS': 0,
-            'TANGKAI PANJANG': 0,
-            'BUAH KECIL DIBAWAH 3KG': 0,
-            'BUAH KECIL DIBAWAH 5KG': 0,
-          },
-          MATANG: {
-            TOTAL: 0,
-            NORMAL: 0,
-            'RUSAK DIMAKAN TIKUS': 0,
-            'TANGKAI PANJANG': 0,
-            'BUAH KECIL DIBAWAH 3KG': 0,
-            'BUAH KECIL DIBAWAH 5KG': 0,
-          },
-          'LEWAT MATANG': {
-            TOTAL: 0,
-            NORMAL: 0,
-            'RUSAK DIMAKAN TIKUS': 0,
-            'TANGKAI PANJANG': 0,
-            'BUAH KECIL DIBAWAH 3KG': 0,
-            'BUAH KECIL DIBAWAH 5KG': 0,
-          },
-          'JANJANG KOSONG': {
-            TOTAL: 0,
-            NORMAL: 0,
-            'RUSAK DIMAKAN TIKUS': 0,
-            'TANGKAI PANJANG': 0,
-            'BUAH KECIL DIBAWAH 3KG': 0,
-            'BUAH KECIL DIBAWAH 5KG': 0,
-          },
-        },
+      let demografikSemua = {
+        ...baseObjectInti,
       };
 
-      let acceptedSummary = inspections.grading_result.accepted_summary;
-      let rejectedSummary = inspections.grading_result.rejected_summary;
-      let finedSummary = inspections.grading_result.fined_summary;
-      let classificationSummary =
-        inspections.grading_result.classification_summary;
+      let demografikInti = {
+        ...baseObjectInti,
+      };
 
-      let acceptedData = Object.keys(acceptedSummary).map((k) => {
-        return {
-          label: capitalizeString(k),
-          ...acceptedSummary[k],
-        };
-      });
-      let rejectedData = Object.keys(rejectedSummary).map((k) => {
-        return {
-          label: capitalizeString(k),
-          ...rejectedSummary[k],
-        };
-      });
-      let finedData = Object.keys(finedSummary).map((k) => {
-        return {
-          label: capitalizeString(k),
-          ...finedSummary[k],
-          'TOTAL DENDA': finedSummary[k]['TOTAL'] * finedSummary[k]['DENDA'],
-        };
-      });
-      let classificationData = Object.keys(classificationSummary).map((k) => {
-        return {
-          label: capitalizeString(k),
-          ...classificationSummary[k],
-        };
+      let demografikPlasma = {
+        ...baseObjectPlasma,
+      };
+
+      let demografikVendorInti = {};
+      let demografikVendorPlasma = {};
+
+      inspections.forEach((inspection) => {
+        const totalTandan = inspection['grading_result']['total_tandan'];
+        const totalAccepted = inspection['grading_result']['total_accepted'];
+        const totalRejected = inspection['grading_result']['total_rejected'];
+        const totalFined = inspection['grading_result']['total_fined'];
+
+        const classificationSummary =
+          inspection['grading_result']['classification_summary'];
+        const acceptedSummary =
+          inspection['grading_result']['accepted_summary'];
+        const rejectedSummary =
+          inspection['grading_result']['rejected_summary'];
+        const finedSummary = inspection['grading_result']['fined_summary'];
+
+        const vendorId = inspection['vendor_id'];
+
+        demografikSemua['total_tandan'] += totalTandan;
+        demografikSemua['total_accepted'] += totalAccepted;
+        demografikSemua['total_fined'] += totalFined;
+        demografikSemua['total_rejected'] += totalRejected;
+
+        if (Number(inspection['vendor_type']) === 1) {
+          demografikInti['total_tandan'] += totalTandan;
+          demografikInti['total_accepted'] += totalAccepted;
+          demografikInti['total_fined'] += totalFined;
+          demografikInti['total_rejected'] += totalRejected;
+
+          if (!demografikVendorInti[vendorId]) {
+            demografikVendorInti[vendorId] = { ...baseObjectInti };
+            demografikVendorInti[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorInti[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorInti[vendorId]['total_fined'] += totalFined;
+          demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
+        } else {
+          demografikPlasma['total_tandan'] += totalTandan;
+          demografikPlasma['total_accepted'] += totalAccepted;
+          demografikPlasma['total_fined'] += totalFined;
+          demografikPlasma['total_rejected'] += totalRejected;
+
+          if (!demografikVendorPlasma[vendorId]) {
+            demografikVendorPlasma[vendorId] = { ...baseObjectInti };
+            demografikVendorPlasma[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorPlasma[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorPlasma[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorPlasma[vendorId]['total_fined'] += totalFined;
+          demografikVendorPlasma[vendorId]['total_rejected'] += totalRejected;
+        }
+
+        Object.keys(classificationSummary).forEach((k) => {
+          const item = classificationSummary[k];
+          Object.keys(item).forEach((ks) => {
+            const value = item[ks];
+            demografikSemua['classification_summary'][k][ks] += value;
+
+            if (Number(inspection['vendor_type']) === 1) {
+              demografikInti['classification_summary'][k][ks] += value;
+              demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
+                value;
+            } else {
+              demografikPlasma['classification_summary'][k][ks] += value;
+              demografikVendorPlasma[vendorId]['classification_summary'][k][
+                ks
+              ] += value;
+            }
+          });
+        });
       });
 
-      let total_accepted_percent =
-        inspections['grading_result']['total_accepted'] > 0
-          ? countPercentage(
-              inspections['grading_result']['total_accepted'],
-              inspections['grading_result']['total_tandan']
-            )
-          : 0;
-      let total_rejected_percent =
-        inspections['grading_result']['total_rejected'] > 0
-          ? countPercentage(
-              inspections['grading_result']['total_rejected'],
-              inspections['grading_result']['total_tandan']
-            )
-          : 0;
-      let total_fined_percent =
-        inspections['grading_result']['total_fined'] > 0
-          ? countPercentage(
-              inspections['grading_result']['total_fined'],
-              inspections['grading_result']['total_accepted']
-            )
-          : 0;
-      let total_percent = total_rejected_percent + total_accepted_percent;
+      demografikSemua['total_accepted_percent'] = countPercentage(
+        demografikSemua['total_accepted'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['total_rejected_percent'] = countPercentage(
+        demografikSemua['total_rejected'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['total_fined_percent'] = countPercentage(
+        demografikSemua['total_fined'],
+        demografikSemua['total_accepted']
+      );
+      demografikSemua['total_percent'] = countPercentage(
+        demografikSemua['total_accepted'] + demografikSemua['total_rejected'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['classification_summary'] =
+        generateClassificationResultArray(
+          demografikSemua['classification_summary']
+        );
+
+      demografikInti['total_accepted_percent'] = countPercentage(
+        demografikInti['total_accepted'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['total_rejected_percent'] = countPercentage(
+        demografikInti['total_rejected'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['total_fined_percent'] = countPercentage(
+        demografikInti['total_fined'],
+        demografikInti['total_accepted']
+      );
+      demografikInti['total_percent'] = countPercentage(
+        demografikInti['total_accepted'] + demografikInti['total_rejected'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['classification_summary'] =
+        generateClassificationResultArray(
+          demografikInti['classification_summary']
+        );
+
+      demografikPlasma['total_accepted_percent'] = countPercentage(
+        demografikPlasma['total_accepted'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['total_rejected_percent'] = countPercentage(
+        demografikPlasma['total_rejected'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['total_fined_percent'] = countPercentage(
+        demografikPlasma['total_fined'],
+        demografikPlasma['total_accepted']
+      );
+      demografikPlasma['total_percent'] = countPercentage(
+        demografikPlasma['total_accepted'] + demografikPlasma['total_rejected'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['classification_summary'] =
+        generateClassificationResultArray(
+          demografikPlasma['classification_summary']
+        );
+
+      demografikVendorInti = Object.keys(demografikVendorInti).map((key) => {
+        const data = demografikVendorInti[key];
+        return {
+          label: data['vendor'],
+          total_tandan: data['total_tandan'],
+          percent_accepted: countPercentage(
+            data['total_accepted'],
+            data['total_tandan']
+          ),
+          percent_rejected: countPercentage(
+            data['total_rejected'],
+            data['total_tandan']
+          ),
+          percent_fined: countPercentage(
+            data['total_fined'],
+            data['total_accepted']
+          ),
+        };
+      });
+      demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
+        (key) => {
+          const data = demografikVendorPlasma[key];
+          return {
+            label: data['vendor'],
+            total_tandan: data['total_tandan'],
+            percent_accepted: countPercentage(
+              data['total_accepted'],
+              data['total_tandan']
+            ),
+            percent_rejected: countPercentage(
+              data['total_rejected'],
+              data['total_tandan']
+            ),
+            percent_fined: countPercentage(
+              data['total_fined'],
+              data['total_accepted']
+            ),
+          };
+        }
+      );
 
       let data = {
-        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
-        agate_logo_img: getImageFile('agate-logo.png'),
+        // sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        // agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
-        vendor_type:
-          Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
-        vendor: inspections['vendor_name'],
-        delivery_number: inspections['delivery_number'],
-        vehicle_number: inspections['vehicle_number'],
-        date: dayjs(inspections['date']).format('DD/MM/YYYY HH:mm:ss'),
-        finish_date: dayjs(inspections['finish_date']).format(
-          'DD/MM/YYYY HH:mm:ss'
-        ),
-        grading_result: {
-          total_tandan: inspections['grading_result']['total_tandan'],
-          total_accepted: inspections['grading_result']['total_accepted'],
-          total_rejected: inspections['grading_result']['total_rejected'],
-          total_fined: inspections['grading_result']['total_fined'],
-          total_accepted_percent:
-            total_accepted_percent < 100 && total_accepted_percent > 0
-              ? Number(total_accepted_percent).toFixed(2)
-              : total_accepted_percent,
-          total_rejected_percent:
-            total_rejected_percent < 100 && total_rejected_percent > 0
-              ? Number(total_rejected_percent).toFixed(2)
-              : total_rejected_percent,
-          total_fined_percent:
-            total_fined_percent < 100 && total_fined_percent > 0
-              ? Number(total_fined_percent).toFixed(2)
-              : total_fined_percent,
-          total_percent:
-            total_percent < 100 && total_percent > 0
-              ? Number(total_percent).toFixed(2)
-              : total_percent,
-        },
-        classification_result: classificationData,
-        accepted_result: acceptedData.length ? acceptedData : null,
-        rejected_result: rejectedData.length ? rejectedData : null,
-        fined_result: finedData.length ? finedData : null,
+        summary: demografikSemua,
+        summary_inti: demografikInti,
+        summary_plasma: demografikPlasma,
+        vendor_inti: demografikVendorInti.length ? demografikVendorInti : null,
+        vendor_plasma: demografikVendorPlasma.length
+          ? demografikVendorPlasma
+          : null,
       };
 
-      let template = `lib/pdf/templates/grading-result.html`;
+      let template = `lib/pdf/templates/grading-summary.html`;
 
       return generatePdf(data, template, res);
 
