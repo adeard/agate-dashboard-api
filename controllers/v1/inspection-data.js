@@ -279,20 +279,30 @@ class InspectionDataController {
         ),
         grading_result: {
           total_accepted: inspections['grading_result']['total_accepted'],
-          total_rejected: inspections['grading_result']['total_accepted'],
+          total_rejected: inspections['grading_result']['total_rejected'],
           total_fined: inspections['grading_result']['total_fined'],
-          total_accepted_percent: countPercentage(
-            inspections['grading_result']['total_accepted'],
-            inspections['grading_result']['total_tandan']
-          ),
-          total_rejected_percent: countPercentage(
-            inspections['grading_result']['total_rejected'],
-            inspections['grading_result']['total_tandan']
-          ),
-          total_fined_percent: countPercentage(
-            inspections['grading_result']['total_fined'],
-            inspections['grading_result']['total_accepted']
-          ),
+          total_accepted_percent: inspections['grading_result'][
+            'total_accepted'
+          ]
+            ? countPercentage(
+                inspections['grading_result']['total_accepted'],
+                inspections['grading_result']['total_tandan']
+              )
+            : 0,
+          total_rejected_percent: inspections['grading_result'][
+            'total_rejected'
+          ]
+            ? countPercentage(
+                inspections['grading_result']['total_rejected'],
+                inspections['grading_result']['total_tandan']
+              )
+            : 0,
+          total_fined_percent: inspections['grading_result']['total_fined']
+            ? countPercentage(
+                inspections['grading_result']['total_fined'],
+                inspections['grading_result']['total_accepted']
+              )
+            : 0,
         },
         classification_result: classificationData,
         accepted_result: acceptedData.length ? acceptedData : null,
