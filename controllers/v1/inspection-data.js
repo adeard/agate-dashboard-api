@@ -1,9 +1,13 @@
 const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
-const { createResponseSuccess } = require('../../utils/helpers');
+const {
+  createResponseSuccess,
+  capitalizeString,
+} = require('../../utils/helpers');
 const { vBody } = require('../../validators/joi');
 const generatePdf = require('../../lib/pdf');
+const getImageFile = require('../../utils/get-image-file');
 
 const countPercentage = (number = 0, divider = 1) => {
   return divider > 0 && number ? (Number(number) / Number(divider)) * 100 : 0;
@@ -242,26 +246,26 @@ class InspectionDataController {
 
       let acceptedData = Object.keys(acceptedSummary).map((k) => {
         return {
-          label: k,
+          label: capitalizeString(k),
           ...acceptedSummary[k],
         };
       });
       let rejectedData = Object.keys(rejectedSummary).map((k) => {
         return {
-          label: k,
+          label: capitalizeString(k),
           ...rejectedSummary[k],
         };
       });
       let finedData = Object.keys(finedSummary).map((k) => {
         return {
-          label: k,
+          label: capitalizeString(k),
           ...finedSummary[k],
           'TOTAL DENDA': finedSummary[k]['TOTAL'] * finedSummary[k]['DENDA'],
         };
       });
       let classificationData = Object.keys(classificationSummary).map((k) => {
         return {
-          label: k,
+          label: capitalizeString(k),
           ...classificationSummary[k],
         };
       });
@@ -287,8 +291,11 @@ class InspectionDataController {
               inspections['grading_result']['total_accepted']
             )
           : 0;
+      let total_percent = total_rejected_percent + total_accepted_percent;
 
       let data = {
+        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
         vendor_type:
           Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
@@ -304,10 +311,22 @@ class InspectionDataController {
           total_accepted: inspections['grading_result']['total_accepted'],
           total_rejected: inspections['grading_result']['total_rejected'],
           total_fined: inspections['grading_result']['total_fined'],
-          total_accepted_percent,
-          total_fined_percent,
-          total_rejected_percent,
-          total_percent: total_rejected_percent + total_accepted_percent,
+          total_accepted_percent:
+            total_accepted_percent < 100 && total_accepted_percent > 0
+              ? Number(total_accepted_percent).toFixed(2)
+              : total_accepted_percent,
+          total_rejected_percent:
+            total_rejected_percent < 100 && total_rejected_percent > 0
+              ? Number(total_rejected_percent).toFixed(2)
+              : total_rejected_percent,
+          total_fined_percent:
+            total_fined_percent < 100 && total_fined_percent > 0
+              ? Number(total_fined_percent).toFixed(2)
+              : total_fined_percent,
+          total_percent:
+            total_percent < 100 && total_percent > 0
+              ? Number(total_percent).toFixed(2)
+              : total_percent,
         },
         classification_result: classificationData,
         accepted_result: acceptedData.length ? acceptedData : null,
