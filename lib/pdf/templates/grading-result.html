@@ -241,111 +241,114 @@
         </div>
       </div>
 
-      <div style="height: 24px"></div>
       {{#if accepted_result}}
       <div>
-        <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
-          Rekap Diterima
-        </p>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Diterima
+          </p>
 
-        <table>
-          <thead>
-            <tr style="font-weight: bold">
-              <th style="text-align: left">Klasifikasi</th>
-              <th style="width: 60px">P</th>
-              <th style="width: 60px">TP</th>
-              <th style="width: 60px">&lt;3kg</th>
-              <th style="width: 60px">3-5kg</th>
-              <th style="width: 60px">N</th>
-              <th style="width: 60px">T</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each accepted_result}}
-            <tr>
-              <td style="text-align: left; text-transform: capitalize">
-                {{label}}
-              </td>
-              <td>{{RUSAK_DIMAKAN_TIKUS}}</td>
-              <td>{{TANGKAI_PANJANG}}</td>
-              <td>{{BUAH_KECIL_DIBAWAH_3KG}}</td>
-              <td>{{BUAH_KECIL_DIBAWAH_5KG}}</td>
-              <td>{{NORMAL}}</td>
-              <td style="font-weight: bold">{{TOTAL}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 60px">P</th>
+                <th style="width: 60px">TP</th>
+                <th style="width: 60px">&lt;3kg</th>
+                <th style="width: 60px">3-5kg</th>
+                <th style="width: 60px">N</th>
+                <th style="width: 60px">T</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each accepted_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                <td>{{RUSAK_DIMAKAN_TIKUS}}</td>
+                <td>{{TANGKAI_PANJANG}}</td>
+                <td>{{BUAH_KECIL_DIBAWAH_3KG}}</td>
+                <td>{{BUAH_KECIL_DIBAWAH_5KG}}</td>
+                <td>{{NORMAL}}</td>
+                <td style="font-weight: bold">{{TOTAL}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
-      {{/if}}
-
-      <div style="height: 24px"></div>
-      {{#if rejected_result}}
+      {{/if}} {{#if rejected_result}}
       <div>
-        <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
-          Rekap Ditolak
-        </p>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Ditolak
+          </p>
 
-        <table>
-          <thead>
-            <tr style="font-weight: bold">
-              <th style="text-align: left">Klasifikasi</th>
-              <th style="width: 60px">P</th>
-              <th style="width: 60px">TP</th>
-              <th style="width: 60px">&lt;3kg</th>
-              <th style="width: 60px">3-5kg</th>
-              <th style="width: 60px">N</th>
-              <th style="width: 60px">T</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each rejected_result}}
-            <tr>
-              <td style="text-align: left; text-transform: capitalize">
-                {{label}}
-              </td>
-              <td>{{RUSAK_DIMAKAN_TIKUS}}</td>
-              <td>{{TANGKAI_PANJANG}}</td>
-              <td>{{BUAH_KECIL_DIBAWAH_3KG}}</td>
-              <td>{{BUAH_KECIL_DIBAWAH_5KG}}</td>
-              <td>{{NORMAL}}</td>
-              <td style="font-weight: bold">{{TOTAL}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 60px">P</th>
+                <th style="width: 60px">TP</th>
+                <th style="width: 60px">&lt;3kg</th>
+                <th style="width: 60px">3-5kg</th>
+                <th style="width: 60px">N</th>
+                <th style="width: 60px">T</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each rejected_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                <td>{{RUSAK_DIMAKAN_TIKUS}}</td>
+                <td>{{TANGKAI_PANJANG}}</td>
+                <td>{{BUAH_KECIL_DIBAWAH_3KG}}</td>
+                <td>{{BUAH_KECIL_DIBAWAH_5KG}}</td>
+                <td>{{NORMAL}}</td>
+                <td style="font-weight: bold">{{TOTAL}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
-      {{/if}}
-      <div style="height: 24px"></div>
-      {{#if fined_result}}
+      {{/if}} {{#if fined_result}}
       <div>
-        <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
-          Rekap Didenda
-        </p>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Didenda
+          </p>
 
-        <table>
-          <thead>
-            <tr style="font-weight: bold">
-              <th style="text-align: left">Klasifikasi</th>
-              <th style="width: 100px">Total</th>
-              <th style="width: 100px">Denda</th>
-              <th style="width: 100px">Total Denda</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each fined_result}}
-            <tr>
-              <td style="text-align: left; text-transform: capitalize">
-                {{label}}
-              </td>
-              <td>{{TOTAL}}</td>
-              <td>{{DENDA}}kg</td>
-              <td>{{TOTAL_DENDA}}kg</td>
-            </tr>
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 100px">Total</th>
+                <th style="width: 100px">Denda</th>
+                <th style="width: 100px">Total Denda</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each fined_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                <td>{{TOTAL}}</td>
+                <td>{{DENDA}}kg</td>
+                <td>{{TOTAL_DENDA}}kg</td>
+              </tr>
 
-            {{/each}}
-          </tbody>
-        </table>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
       {{/if}}
 
