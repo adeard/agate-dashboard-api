@@ -419,7 +419,7 @@ class InspectionDataController {
               inspections['grading_result']['total_accepted']
             )
           : 0;
-      let total_percent = total_rejected_percent + total_accepted_percent;
+      let total_percent = Number(total_rejected_percent) + Number(total_accepted_percent);
 
       let data = {
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
