@@ -197,6 +197,28 @@ class DashboardV2Controller {
 
       const inspections = await InspectionDataModel.find(q);
 
+      const totalAllTandon = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
+        0
+      );
+      const totalRejected = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_rejected || 0) + curr,
+        0
+      );
+      const totalPassed = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_accepted || 0) + curr,
+        0
+      );
+      const totalFined = inspections.reduce(
+        (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
+        0
+      );
+      const totalInspection = inspections.length;
+
+      const percentRejected = (totalRejected / totalAllTandon) * 100;
+      const percentAccepted = (totalPassed / totalAllTandon) * 100;
+      const percentFined = (totalFined / totalPassed) * 100;
+
       let byVendorIntiAccepted = {};
       let totalAcceptedInti = 0;
 
@@ -866,6 +888,16 @@ class DashboardV2Controller {
             by_inti_fruits_tp: byIntiFruitsTP,
             by_plasma_fruits_size: byPlasmaFruitsSize,
             by_plasma_fruits_tp: byPlasmaFruitsTP,
+            monitoring: {
+              total_tandan: totalAllTandon,
+              total_grading: totalInspection,
+              total_passed: totalPassed,
+              total_rejected: totalRejected,
+              total_fined: totalFined,
+              percent_rejected: percentRejected || 0,
+              percent_passed: percentAccepted || 0,
+              percent_fined: percentFined || 0,
+            },
           },
           {}
         )
