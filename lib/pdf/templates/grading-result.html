@@ -340,7 +340,11 @@
                 <td style="text-align: left; text-transform: capitalize">
                   {{label}}
                 </td>
+                {{#if (eq label "Total")}}
+                <td></td>
+                {{else}}
                 <td>{{DENDA}}kg</td>
+                {{/if}}
                 <td>{{TOTAL}}</td>
                 <td>{{[TOTAL DENDA]}}kg</td>
               </tr>
