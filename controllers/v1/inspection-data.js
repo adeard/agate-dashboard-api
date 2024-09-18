@@ -444,19 +444,31 @@ class InspectionDataController {
           'DD/MM/YYYY HH:mm:ss'
         ),
         grading_result: {
-          total_tandan: inspections['grading_result']['total_tandan'],
-          total_accepted: inspections['grading_result']['total_accepted'],
-          total_rejected: inspections['grading_result']['total_rejected'],
-          total_fined: inspections['grading_result']['total_fined'],
+          total_tandan:
+            inspections['grading_result']['total_tandan'].toLocaleString(),
+          total_accepted:
+            inspections['grading_result']['total_accepted'].toLocaleString(),
+          total_rejected:
+            inspections['grading_result']['total_rejected'].toLocaleString(),
+          total_fined:
+            inspections['grading_result']['total_fined'].toLocaleString(),
           total_accepted_percent: total_accepted_percent,
           total_rejected_percent: total_rejected_percent,
           total_fined_percent: total_fined_percent,
           total_percent: total_percent,
         },
-        classification_result: classificationData,
-        accepted_result: acceptedData.length ? acceptedData : null,
-        rejected_result: rejectedData.length ? rejectedData : null,
-        fined_result: finedData.length ? finedData : null,
+        classification_result: classificationData.map((e) =>
+          changeValueToLocalestring(e)
+        ),
+        accepted_result: acceptedData.length
+          ? acceptedData.map((e) => changeValueToLocalestring(e))
+          : null,
+        rejected_result: rejectedData.length
+          ? rejectedData.map((e) => changeValueToLocalestring(e))
+          : null,
+        fined_result: finedData.length
+          ? finedData.map((e) => changeValueToLocalestring(e))
+          : null,
       };
 
       let template = `lib/pdf/templates/grading-result.html`;
