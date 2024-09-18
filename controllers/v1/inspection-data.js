@@ -140,6 +140,14 @@ function generateClassificationResultArray(summary) {
   return calculateAndAppendTotals(result);
 }
 
+const changeValueToLocalestring = (obj) => {
+  return Object.keys(obj).reduce((o, k) => {
+    o[k] = typeof obj[k] === 'number' ? obj[k].toLocaleString() : obj[k];
+
+    return o;
+  }, {});
+};
+
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
@@ -419,7 +427,8 @@ class InspectionDataController {
               inspections['grading_result']['total_accepted']
             )
           : 0;
-      let total_percent = Number(total_rejected_percent) + Number(total_accepted_percent);
+      let total_percent =
+        Number(total_rejected_percent) + Number(total_accepted_percent);
 
       let data = {
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
@@ -713,6 +722,21 @@ class InspectionDataController {
         }
       );
 
+      const convertDataValue = (data) => {
+        return Object.keys(data).reduce((obj, key) => {
+          if (key === 'classification_summary') {
+            obj[key] = data[key].map((e) => changeValueToLocalestring(e));
+          }
+
+          obj[key] =
+            typeof data[key] === 'number'
+              ? data[key].toLocaleString()
+              : data[key];
+
+          return obj;
+        }, {});
+      };
+
       let data = {
         start_date: date_from
           ? dayjs(date_from).format('DD/MM/YYYY HH:mm')
@@ -725,12 +749,14 @@ class InspectionDataController {
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
         agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
-        summary: demografikSemua,
-        summary_inti: demografikInti,
-        summary_plasma: demografikPlasma,
-        vendor_inti: demografikVendorInti.length ? demografikVendorInti : null,
+        summary: convertDataValue(demografikSemua),
+        summary_inti: convertDataValue(demografikInti),
+        summary_plasma: convertDataValue(demografikPlasma),
+        vendor_inti: demografikVendorInti.length
+          ? demografikVendorInti.map((e) => changeValueToLocalestring(e))
+          : null,
         vendor_plasma: demografikVendorPlasma.length
-          ? demografikVendorPlasma
+          ? demografikVendorPlasma.map((e) => changeValueToLocalestring(e))
           : null,
       };
 
