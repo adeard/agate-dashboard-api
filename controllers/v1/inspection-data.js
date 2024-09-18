@@ -134,7 +134,9 @@ function generateClassificationResultArray(summary) {
   const result = [];
 
   for (const [key, value] of Object.entries(summary)) {
-    result.push({ label: capitalizeString(key), ...value });
+    if (key !== 'DENDA') {
+      result.push({ label: capitalizeString(key), ...value });
+    }
   }
 
   return calculateAndAppendTotals(result);
