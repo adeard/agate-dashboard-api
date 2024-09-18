@@ -110,7 +110,7 @@ function calculateAndAppendTotals(data, isFined = false) {
 
   // Initialize the keys with 0
   Object.keys(data[0]).forEach((key) => {
-    if (key !== 'label') {
+    if (key !== 'label' || key !== "DENDA") {
       totalCounts[key] = 0;
     }
   });
@@ -134,7 +134,7 @@ function generateClassificationResultArray(summary, isFined = false) {
   const result = [];
 
   for (const [key, value] of Object.entries(summary)) {
-    console.log({ key, value });
+    // console.log({ key, value });
     result.push({ label: capitalizeString(key), ...value });
   }
 
