@@ -457,17 +457,23 @@ class InspectionDataController {
           total_fined_percent: total_fined_percent,
           total_percent: total_percent,
         },
-        classification_result: classificationData.map((e) =>
-          changeValueToLocalestring(e)
-        ),
+        classification_result: generateClassificationResultArray(
+          classificationData
+        ).map((e) => changeValueToLocalestring(e)),
         accepted_result: acceptedData.length
-          ? acceptedData.map((e) => changeValueToLocalestring(e))
+          ? generateClassificationResultArray(acceptedData).map((e) =>
+              changeValueToLocalestring(e)
+            )
           : null,
         rejected_result: rejectedData.length
-          ? rejectedData.map((e) => changeValueToLocalestring(e))
+          ? generateClassificationResultArray(rejectedData).map((e) =>
+              changeValueToLocalestring(e)
+            )
           : null,
         fined_result: finedData.length
-          ? finedData.map((e) => changeValueToLocalestring(e))
+          ? generateClassificationResultArray(finedData).map((e) =>
+              changeValueToLocalestring(e)
+            )
           : null,
       };
 
