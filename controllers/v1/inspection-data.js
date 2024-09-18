@@ -105,12 +105,12 @@ const baseObjectPlasma = {
   },
 };
 
-function calculateAndAppendTotals(data, isFined = false) {
+function calculateAndAppendTotals(data) {
   const totalCounts = { label: 'Total' };
 
   // Initialize the keys with 0
   Object.keys(data[0]).forEach((key) => {
-    if (key !== 'label' || key !== 'DENDA') {
+    if (key !== 'label') {
       totalCounts[key] = 0;
     }
   });
@@ -118,7 +118,7 @@ function calculateAndAppendTotals(data, isFined = false) {
   // Sum up the values for each key
   data.forEach((entry) => {
     Object.keys(entry).forEach((key) => {
-      if (key !== 'label' || key !== 'DENDA') {
+      if (key !== 'label') {
         totalCounts[key] += entry[key];
       }
     });
@@ -130,15 +130,14 @@ function calculateAndAppendTotals(data, isFined = false) {
   return data;
 }
 
-function generateClassificationResultArray(summary, isFined = false) {
+function generateClassificationResultArray(summary) {
   const result = [];
 
   for (const [key, value] of Object.entries(summary)) {
-    // console.log({ key, value });
     result.push({ label: capitalizeString(key), ...value });
   }
 
-  return calculateAndAppendTotals(result, isFined);
+  return calculateAndAppendTotals(result);
 }
 
 const changeValueToLocalestring = (obj) => {
