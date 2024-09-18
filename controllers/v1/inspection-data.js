@@ -726,6 +726,8 @@ class InspectionDataController {
         return Object.keys(data).reduce((obj, key) => {
           if (key === 'classification_summary') {
             obj[key] = data[key].map((e) => changeValueToLocalestring(e));
+
+            return obj;
           }
 
           obj[key] =
@@ -749,9 +751,9 @@ class InspectionDataController {
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
         agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
-        summary: demografikSemua,
-        summary_inti: demografikInti,
-        summary_plasma: demografikPlasma,
+        summary: convertDataValue(demografikSemua),
+        summary_inti: convertDataValue(demografikInti),
+        summary_plasma: convertDataValue(demografikPlasma),
         vendor_inti: demografikVendorInti.length
           ? demografikVendorInti.map((e) => changeValueToLocalestring(e))
           : null,
