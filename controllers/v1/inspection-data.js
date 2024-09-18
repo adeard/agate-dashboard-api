@@ -110,8 +110,7 @@ function calculateAndAppendTotals(data) {
 
   // Initialize the keys with 0
   Object.keys(data[0]).forEach((key) => {
-    console.log({ key });
-    if (key !== 'label') {
+    if (key !== 'label' && key !== 'DENDA') {
       totalCounts[key] = 0;
     }
   });
@@ -119,7 +118,7 @@ function calculateAndAppendTotals(data) {
   // Sum up the values for each key
   data.forEach((entry) => {
     Object.keys(entry).forEach((key) => {
-      if (key !== 'label') {
+      if (key !== 'label' && key !== 'DENDA') {
         totalCounts[key] += entry[key];
       }
     });
