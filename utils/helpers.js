@@ -127,12 +127,20 @@ module.exports = {
   sortDataByKey: (data = [], key) => {
     return data.sort((a, b) => Number(b[key]) - Number(a[key]));
   },
-  
+
   capitalizeString: (string) => {
     return string
       .toLowerCase()
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  },
+
+  sleep: async (duration) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(function () {
+        resolve(true);
+      }, duration);
+    });
   },
 };
