@@ -15,6 +15,11 @@ const countPercentage = (number = 0, divider = 1) => {
   return percent < 100 && percent > 0 ? percent.toFixed(2) : percent;
 };
 
+let dictBuahKecil = {
+  'BUAH KECIL DIBAWAH 5KG': 'Buah 3-5kg',
+  'BUAH KECIL DIBAWAH 3KG': 'Buah <3kg',
+};
+
 const baseObjectInti = {
   total_tandan: 0,
   total_accepted: 0,
@@ -392,9 +397,12 @@ class InspectionDataController {
           ...rejectedSummary[k],
         };
       });
+
       let finedData = Object.keys(finedSummary).map((k) => {
         return {
-          label: capitalizeString(k),
+          label: k.includes('BUAH KECIL')
+            ? dictBuahKecil[k]
+            : capitalizeString(k),
           ...finedSummary[k],
           'TOTAL DENDA': finedSummary[k]['TOTAL'] * finedSummary[k]['DENDA'],
         };
