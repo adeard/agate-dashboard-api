@@ -42,6 +42,8 @@ class UserController {
             email: 1,
             status: 1,
             access_factory: 1,
+            whatsapp_number: 1,
+            subscribe_notification: 1,
             createdAt: 1,
             updatedAt: 1,
           },
