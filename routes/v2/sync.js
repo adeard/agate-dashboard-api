@@ -5,5 +5,5 @@ const { validateClientKey } = require('../../middlewares/authorization');
 module.exports = (express) =>
   new express.Router()
     .post('/vendor', validateClientKey, SyncDataController.syncVendor)
-    .post('/wa-status', validateClientKey, SyncDataController.syncWAStatus)
+    .post('/wa-status', SyncDataController.syncWAStatus)
     .post('/inspection', validateClientKey, SyncDataController.syncInspection);

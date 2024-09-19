@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const { hashPassword } = require('../lib/bcrypt');
+const { blastReportToUser } = require('../lib/cron/blast-report');
 const connectToDatabase = require('../lib/db-connect');
 const AfdelinkModel = require('../models/afdelink');
 const FactoryModel = require('../models/factory');
@@ -40,10 +41,12 @@ connectToDatabase().then(async (res) => {
   //   subscribe_notification: 1,
   // });
 
-  const users = await UserModel.find({
-    whatsapp_number: { $exists: true },
-    subscribe_notification: 1,
-  }).lean();
-  console.log({ users });
+  // const users = await UserModel.find({
+  //   whatsapp_number: { $exists: true },
+  //   subscribe_notification: 1,
+  // }).lean();
+  // console.log({ users });
+
+  await blastReportToUser();
   console.log('Done');
 });
