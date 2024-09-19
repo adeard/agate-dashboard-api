@@ -1,6 +1,7 @@
 const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
 const VendorV2Model = require('../../models/v2/vendor');
+const WABroadcastModel = require('../../models/wa-broadcast');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
@@ -120,6 +121,24 @@ class SyncDataController {
         );
     } catch (err) {
       console.log({ err });
+      next(err);
+    }
+  }
+
+  static async syncWAStatus(req, res, next) {
+    try {
+      const body = req.body;
+
+      await WABroadcastModel.findByIdAndUpdate(body.sendWhatsappId, {
+        $set: {
+          status: body['status'],
+        },
+      });
+
+      return res
+        .status(200)
+        .json(createResponseSuccess(200, 'Success', 'Done', { success: true }));
+    } catch (err) {
       next(err);
     }
   }

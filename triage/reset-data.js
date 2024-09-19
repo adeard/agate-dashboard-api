@@ -18,10 +18,10 @@ connectToDatabase().then(async (res) => {
   console.log(res);
   // await UserModel.deleteMany({});
 
-  await VendorModel.deleteMany({});
-  await VendorV2Model.deleteMany({});
+  // await VendorModel.deleteMany({});
+  // await VendorV2Model.deleteMany({});
   // await FactoryModel.deleteMany({});
-  await InspectionDataModel.deleteMany({});
+  // await InspectionDataModel.deleteMany({});
   // await InspectionHistoryModel.deleteMany({});
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
@@ -39,5 +39,11 @@ connectToDatabase().then(async (res) => {
   //   whatsapp_number: '6281385784854',
   //   subscribe_notification: 1,
   // });
+
+  const users = await UserModel.find({
+    whatsapp_number: { $exists: true },
+    subscribe_notification: 1,
+  }).lean();
+  console.log({ users });
   console.log('Done');
 });
