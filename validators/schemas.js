@@ -6,6 +6,8 @@ const schemas = {
     full_name: Joi.string().required(),
     status: Joi.number().default(1).required(),
     access_factory: Joi.array().items(Joi.string()).required(),
+    whatsapp_number: Joi.string().optional().allow('').allow(null),
+    subscribe_notification: Joi.number().valid(1, 2).optional().allow(null),
   }),
   'change-password': Joi.object({
     old_password: Joi.string().required(),
