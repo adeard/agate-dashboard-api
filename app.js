@@ -10,6 +10,7 @@ const server = require('http').createServer(app);
 
 const routes = require('./routes');
 const connectToDatabase = require('./lib/db-connect');
+const { runBlasReportCron } = require('./lib/cron/blast-report');
 
 (() => {
   connectToDatabase()
@@ -35,6 +36,8 @@ const connectToDatabase = require('./lib/db-connect');
       routes(app, express);
 
       app.set('port', PORT);
+
+      runBlasReportCron();
 
       server.listen(PORT, () => {
         console.log('App Connected on PORT:', PORT);
