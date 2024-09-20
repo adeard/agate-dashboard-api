@@ -20,6 +20,55 @@ let dictBuahKecil = {
   'BUAH KECIL DIBAWAH 3KG': 'Buah <3kg',
 };
 
+const baseObjectSemua = {
+  total_tandan: 0,
+  total_accepted: 0,
+  total_rejected: 0,
+  total_fined: 0,
+  classification_summary: {
+    MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'KURANG MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    MATANG: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'LEWAT MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'JANJANG KOSONG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+  },
+};
+
 const baseObjectInti = {
   total_tandan: 0,
   total_accepted: 0,
@@ -76,6 +125,97 @@ const baseObjectPlasma = {
   total_fined: 0,
   classification_summary: {
     MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    MATANG: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'LEWAT MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'JANJANG KOSONG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+  },
+};
+
+const baseObjectPlasmaVendor = {
+  total_tandan: 0,
+  total_accepted: 0,
+  total_rejected: 0,
+  total_fined: 0,
+  classification_summary: {
+    MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    MATANG: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'LEWAT MATANG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'JANJANG KOSONG': {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+  },
+};
+
+
+const baseObjectIntiVendor = {
+  total_tandan: 0,
+  total_accepted: 0,
+  total_rejected: 0,
+  total_fined: 0,
+  classification_summary: {
+    MENTAH: {
+      TOTAL: 0,
+      NORMAL: 0,
+      'RUSAK DIMAKAN TIKUS': 0,
+      'TANGKAI PANJANG': 0,
+      'BUAH KECIL DIBAWAH 3KG': 0,
+      'BUAH KECIL DIBAWAH 5KG': 0,
+    },
+    'KURANG MATANG': {
       TOTAL: 0,
       NORMAL: 0,
       'RUSAK DIMAKAN TIKUS': 0,
@@ -555,7 +695,7 @@ class InspectionDataController {
       }
 
       let demografikSemua = {
-        ...baseObjectInti,
+        ...baseObjectSemua,
       };
 
       let demografikInti = {
@@ -597,7 +737,7 @@ class InspectionDataController {
           demografikInti['total_rejected'] += totalRejected;
 
           if (!demografikVendorInti[vendorId]) {
-            demografikVendorInti[vendorId] = { ...baseObjectInti };
+            demografikVendorInti[vendorId] = { ...baseObjectIntiVendor };
             demografikVendorInti[vendorId]['vendor'] =
               inspection['vendor_name'];
           }
@@ -613,7 +753,7 @@ class InspectionDataController {
           demografikPlasma['total_rejected'] += totalRejected;
 
           if (!demografikVendorPlasma[vendorId]) {
-            demografikVendorPlasma[vendorId] = { ...baseObjectInti };
+            demografikVendorPlasma[vendorId] = { ...baseObjectPlasmaVendor };
             demografikVendorPlasma[vendorId]['vendor'] =
               inspection['vendor_name'];
           }
@@ -626,11 +766,13 @@ class InspectionDataController {
 
         Object.keys(classificationSummary).forEach((k) => {
           const item = classificationSummary[k];
+          // console.log({ item });
           Object.keys(item).forEach((ks) => {
             const value = item[ks];
-            demografikSemua['classification_summary'][k][ks] += value;
 
+            demografikSemua['classification_summary'][k][ks] += value;
             if (Number(inspection['vendor_type']) === 1) {
+              // console.log({ vendorType: inspection['vendor_type'] });
               demografikInti['classification_summary'][k][ks] += value;
               demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
                 value;
@@ -643,6 +785,12 @@ class InspectionDataController {
           });
         });
       });
+
+      // console.log({
+      //   semua: demografikSemua['classification_summary'],
+      //   inti: demografikInti['classification_summary'],
+      //   plasma: demografikPlasma['classification_summary'],
+      // });
 
       demografikSemua['total_accepted_percent'] = countPercentage(
         demografikSemua['total_accepted'],
