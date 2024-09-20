@@ -48,10 +48,10 @@ connectToDatabase().then(async (res) => {
   // }).lean();
   // console.log({ users });
 
-  // await blastReportToUser();
+  await blastReportToUser();
 
-  const response = await WABroadcastModel.find({}).lean();
+  // const response = await WABroadcastModel.find({}).lean();
 
-  console.log({ response });
+  // console.log({ response });
   console.log('Done');
 });
