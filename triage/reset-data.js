@@ -12,6 +12,7 @@ const UserModel = require('../models/user');
 const VendorV2Model = require('../models/v2/vendor');
 const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
+const WABroadcastModel = require('../models/wa-broadcast');
 
 // console.log(generateRandomPassword(6));
 
@@ -47,6 +48,10 @@ connectToDatabase().then(async (res) => {
   // }).lean();
   // console.log({ users });
 
-  await blastReportToUser();
+  // await blastReportToUser();
+
+  const response = await WABroadcastModel.find({}).lean();
+
+  console.log({ response });
   console.log('Done');
 });
