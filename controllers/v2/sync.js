@@ -129,6 +129,8 @@ class SyncDataController {
     try {
       const body = req.body;
 
+      console.log({ body });
+
       await WABroadcastModel.findByIdAndUpdate(body.sendWhatsAppId, {
         $set: {
           status: body['status'],
