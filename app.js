@@ -37,7 +37,7 @@ const { runBlasReportCron } = require('./lib/cron/blast-report');
 
       app.set('port', PORT);
 
-      runBlasReportCron();
+      runBlasReportCron().start();
 
       server.listen(PORT, () => {
         console.log('App Connected on PORT:', PORT);
