@@ -180,7 +180,15 @@ class DashboardV2Controller {
 
       let q = {};
 
-      if (date_from && date_to) {
+      if (date_from && !date_to) {
+        q['date'] = {
+          $gte: dayjs(date_from).startOf('day'),
+        };
+      } else if (date_to && !date_from) {
+        q['date'] = {
+          $lte: dayjs(date_to).endOf('day'),
+        };
+      } else if (date_from && date_to) {
         q['date'] = {
           $gte: dayjs(date_from).startOf('day'),
           $lte: dayjs(date_to).endOf('day'),
