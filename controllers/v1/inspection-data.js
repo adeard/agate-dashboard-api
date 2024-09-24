@@ -200,7 +200,6 @@ const baseObjectPlasmaVendor = {
   },
 };
 
-
 const baseObjectIntiVendor = {
   total_tandan: 0,
   total_accepted: 0,
@@ -326,10 +325,19 @@ class InspectionDataController {
       if (vendor_id) {
         q['vendor'] = vendor_id;
       }
-      if (date_from && date_to) {
+
+      if (date_from && !date_to) {
         q['date'] = {
-          $gte: new Date(date_from),
-          $lte: new Date(date_to),
+          $gte: dayjs(date_from).startOf('day'),
+        };
+      } else if (date_to && !date_from) {
+        q['date'] = {
+          $lte: dayjs(date_to).endOf('day'),
+        };
+      } else if (date_from && date_to) {
+        q['date'] = {
+          $gte: dayjs(date_from).startOf('day'),
+          $lte: dayjs(date_to).endOf('day'),
         };
       }
 
