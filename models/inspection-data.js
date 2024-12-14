@@ -133,6 +133,9 @@ const SCHEMA = new Schema(
       // type: String,
       required: true,
     },
+    engine_type: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
