@@ -133,6 +133,7 @@ const schemas = {
     grading_result: Joi.object().allow(null),
     year: Joi.number().required(),
     factory: Joi.string(),
+    engine_type: Joi.string(),
   }),
 
   'vendor-2': Joi.object({
