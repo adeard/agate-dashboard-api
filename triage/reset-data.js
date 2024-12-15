@@ -23,7 +23,7 @@ connectToDatabase().then(async (res) => {
   // await VendorModel.deleteMany({});
   // await VendorV2Model.deleteMany({});
   // await FactoryModel.deleteMany({});
-  // await InspectionDataModel.deleteMany({});
+  await InspectionDataModel.deleteOne({ delivery_number: 'gsdg' });
   // await InspectionHistoryModel.deleteMany({});
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
@@ -50,8 +50,8 @@ connectToDatabase().then(async (res) => {
 
   // await blastReportToUser();
 
-  const response = await WABroadcastModel.find({}).lean();
+  // const response = await WABroadcastModel.find({}).lean();
 
-  console.log({ response });
+  // console.log({ response });
   console.log('Done');
 });
