@@ -125,8 +125,8 @@ class SyncDataController {
         if (fined.length) {
           fined.forEach((key) => {
             if (!finedObject[key]) {
-              let total = fined[key]['TOTAL'];
-              let finedKg = fined[key]['DENDA'];
+              let total = finedSummary[key]['TOTAL'];
+              let finedKg = finedSummary[key]['DENDA'];
               finedObject[key] = `${total} Jjg / ${Math.round(
                 Number(total) * Number(finedKg)
               )}kg`;
