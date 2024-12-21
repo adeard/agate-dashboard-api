@@ -1,3 +1,4 @@
+const { default: axios } = require('axios');
 const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
 const VendorV2Model = require('../../models/v2/vendor');
@@ -54,6 +55,7 @@ class SyncDataController {
   static async syncInspection(req, res, next) {
     try {
       const body = req.body;
+      const { direct = null } = req.query;
 
       const factory = await FactoryModel.findOne({
         name: body['factory'],
@@ -103,11 +105,98 @@ class SyncDataController {
       body['factory'] = factory._id;
       body['vendor'] = vendor._id;
 
-      await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      });
+      const doc = await InspectionDataModel.findOneAndUpdate(
+        { id: body['id'] },
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
+
+      if (direct) {
+        const finedObject = {};
+        const finedSummary = doc.grading_result.fined_summary;
+        const fined = Object.keys(finedSummary);
+        const totalFined = 0;
+        const totalFinedKg = 0;
+
+        if (fined.length) {
+          fined.forEach((key) => {
+            if (!finedObject[key]) {
+              let total = fined[key]['TOTAL'];
+              let finedKg = fined[key]['DENDA'];
+              finedObject[key] = `${total} Jjg / ${Math.round(
+                Number(total) * Number(finedKg)
+              )}kg`;
+
+              totalFined += total;
+              totalFinedKg += finedKg;
+            }
+          });
+        }
+
+        const totalAccepted = Number(doc.grading_result.total_accepted);
+        const totalRejected = Number(doc.grading_result.total_rejected);
+        const totalTandan = Number(doc.grading_result.total_tandan);
+
+        const percentRejected =
+          totalTandan > 0
+            ? ((totalRejected || 0) / (totalTandan || 1)) * 100
+            : 0;
+        const percentAccepted =
+          totalTandan > 0
+            ? ((totalAccepted || 0) / (totalTandan || 1)) * 100
+            : 0;
+
+        const payload = {
+          sendWhatsAppId: 'direct',
+          template: 'agate_direct_report',
+          variable_qiscus: {
+            1: 'KDA Langling Mill',
+            2: dayjs(doc.date).format('DD MMMM YYYY'),
+            3: doc.vehicle_number,
+            4: doc.vendor_name,
+            5: doc.grading_result.total_tandan,
+            6: percentAccepted,
+            7: percentRejected,
+            8: `${totalFined} Jjg /  ${Math.round(
+              Number(totalFined) * Number(totalFinedKg)
+            )}kg`,
+            9: finedObject['TANGKAI PANJANG'],
+            10: finedObject['BUAH KECIL DIBAWAH 5KG'],
+            11:
+              doc.grading_result['classification_summary']['MENTAH']['TOTAL'] +
+              'Jjg',
+            12:
+              doc.grading_result['classification_summary']['JANJANG KOSONG'][
+                'TOTAL'
+              ] + 'Jjg',
+            13:
+              Object.values(
+                doc.grading_result['classification_summary']
+              ).reduce((total, category) => {
+                return total + category['BUAH KECIL DIBAWAH 3KG'];
+              }, 0) + 'Jjg',
+            14: `inspection-data/download-pdf/${doc._id}`,
+          },
+          redirect_url: `inspection-data/download-pdf/${doc._id}`,
+          origin: 'https://api-grading-hq.accelego.id/api/v2/sync/wa-status',
+          source: 'agate',
+        };
+
+        const responseWa = await axios.post(
+          `${process.env.WA_URI}/api/v2/broadcast`,
+          { ...payload, phone: '6282111161253' }
+        );
+        const responseWa2 = await axios.post(
+          `${process.env.WA_URI}/api/v2/broadcast`,
+          { ...payload, phone: '6281385784854' }
+        );
+
+        console.log({ responseWa, responseWa2 });
+      }
 
       return res
         .status(200)
