@@ -159,7 +159,7 @@ class SyncDataController {
 
         const payload = {
           sendWhatsAppId: 'direct',
-          template: 'agate_direct_report',
+          template: 'agate_direct_report_2',
           variable_qiscus: {
             1: 'KDA Langling Mill',
             2: dayjs(doc.date).format('DD MMMM YYYY'),
@@ -175,18 +175,18 @@ class SyncDataController {
             10: finedObject['BUAH KECIL DIBAWAH 5KG'],
             11:
               doc.grading_result['classification_summary']['MENTAH']['TOTAL'] +
-              'Jjg',
+              ' Jjg',
             12:
               doc.grading_result['classification_summary']['JANJANG KOSONG'][
                 'TOTAL'
-              ] + 'Jjg',
+              ] + ' Jjg',
             13:
               Object.values(
                 doc.grading_result['classification_summary']
               ).reduce((total, category) => {
                 return total + category['BUAH KECIL DIBAWAH 3KG'];
               }, 0) + 'Jjg',
-            14: `inspection-data/download-pdf/${doc._id}`,
+            14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
           },
           redirect_url: `inspection-data/download-pdf/${doc._id}`,
           origin: 'https://api-grading-hq.accelego.id/api/v2/sync/wa-status',
@@ -201,8 +201,12 @@ class SyncDataController {
           `${process.env.WA_URI}/api/v2/broadcast`,
           { ...payload, phone: '6281385784854' }
         );
+        const responseWa3 = await axios.post(
+          `${process.env.WA_URI}/api/v2/broadcast`,
+          { ...payload, phone: '6285295058857' }
+        );
 
-        console.log({ responseWa, responseWa2 });
+        console.log({ responseWa, responseWa2, responseWa3 });
       }
 
       return res
