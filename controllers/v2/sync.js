@@ -119,8 +119,9 @@ class SyncDataController {
         const finedObject = {};
         const finedSummary = doc.grading_result.fined_summary;
         const fined = Object.keys(finedSummary);
-        const totalFined = 0;
-        const totalFinedKg = 0;
+
+        let totalFined = 0;
+        let totalFinedKg = 0;
 
         if (fined.length) {
           fined.forEach((key) => {
