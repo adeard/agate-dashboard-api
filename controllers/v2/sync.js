@@ -8,6 +8,11 @@ const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const dayjs = require('dayjs');
 
+const formatter = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
 class SyncDataController {
   static async syncVendor(req, res, next) {
     try {
@@ -161,8 +166,8 @@ class SyncDataController {
             3: doc.vehicle_number,
             4: doc.vendor_name,
             5: doc.grading_result.total_tandan,
-            6: percentAccepted,
-            7: percentRejected,
+            6: formatter.format(percentAccepted) + '%',
+            7: formatter.format(percentRejected) + '%',
             8: `${totalFined} Jjg /  ${Math.round(
               Number(totalFined) * Number(totalFinedKg)
             )}kg`,
