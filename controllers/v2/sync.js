@@ -6,6 +6,7 @@ const WABroadcastModel = require('../../models/wa-broadcast');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
+const dayjs = require('dayjs');
 
 class SyncDataController {
   static async syncVendor(req, res, next) {
