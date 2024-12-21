@@ -32,7 +32,9 @@ class SyncDataController {
         };
       }
 
-      const founded = VendorV2Model.findOne({ name: body['name'] }).lean();
+      const founded = await VendorV2Model.findOne({
+        name: body['name'],
+      }).lean();
 
       if (!founded) {
         throw {
