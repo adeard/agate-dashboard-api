@@ -170,24 +170,33 @@ class SyncDataController {
             5: doc.grading_result.total_tandan,
             6: formatter.format(percentAccepted) + '%',
             7: formatter.format(percentRejected) + '%',
-            8: `${totalFined} Jjg /  ${Math.round(
+            8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
               Number(totalFined) * Number(totalFinedKg)
-            )}kg`,
-            9: finedObject['TANGKAI PANJANG'],
-            10: finedObject['BUAH KECIL DIBAWAH 5KG'],
+            ).toLocaleString('en')}kg`,
+            9: Number(finedObject['TANGKAI PANJANG'] || 0).toLocaleString('en'),
+            10: Number(
+              finedObject['BUAH KECIL DIBAWAH 5KG'] || 0
+            ).toLocaleString('en'),
             11:
-              doc.grading_result['classification_summary']['MENTAH']['TOTAL'] +
-              ' Jjg',
+              Number(
+                doc.grading_result['classification_summary']['MENTAH'][
+                  'TOTAL'
+                ] || 0
+              ).toLocaleString('en') + ' Jjg',
             12:
-              doc.grading_result['classification_summary']['JANJANG KOSONG'][
-                'TOTAL'
-              ] + ' Jjg',
+              Number(
+                doc.grading_result['classification_summary']['JANJANG KOSONG'][
+                  'TOTAL'
+                ] || 0
+              ).toLocaleString('en') + ' Jjg',
             13:
-              Object.values(
-                doc.grading_result['classification_summary']
-              ).reduce((total, category) => {
-                return total + category['BUAH KECIL DIBAWAH 3KG'];
-              }, 0) + 'Jjg',
+              Number(
+                Object.values(
+                  doc.grading_result['classification_summary']
+                ).reduce((total, category) => {
+                  return total + category['BUAH KECIL DIBAWAH 3KG'];
+                }, 0)
+              ).toLocaleString('en') + 'Jjg',
             14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
           },
           redirect_url: `inspection-data/download-pdf/${doc._id}`,
