@@ -223,7 +223,7 @@
       </div>
     </section>
 
-    <section class="container">
+    <section class="container page">
       <div style="display: table; table-layout: fixed; width: 100%">
         <div class="left">
           <img
@@ -375,6 +375,109 @@
           <p>N = Buah Normal</p>
           <p>T = Total</p>
         </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div style="display: table; table-layout: fixed; width: 100%">
+        <div class="left">
+          <img
+            src="data:image/png;base64,{{ sinarmas_logo_img }}"
+            width="auto"
+            height="50"
+          />
+        </div>
+        <div class="right">
+          <img
+            src="data:image/png;base64,{{ agate_logo_img }}"
+            width="auto"
+            height="80"
+          />
+        </div>
+      </div>
+
+      <div style="height: 24px"></div>
+      <div>
+        <div>
+          <p style="font-weight: bold; font-size: 24px; text-align: center">
+            Data Grading Lapangan
+          </p>
+        </div>
+        <div style="height: 24px"></div>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            font-weight: 400;
+            font-size: 16px;
+            gap: 4px;
+          "
+        >
+          <p>Tanggal</p>
+          <p style="text-align: right">{{date_string}}</p>
+          <!-- <p>No Surat Jalan</p>
+          <p style="text-align: right">{{delivery_number}}</p> -->
+          <p>No Plat Kendaraan</p>
+          <p style="text-align: right">{{vehicle_number}}</p>
+          <p>Nama Vendor ({{vendor_type}})</p>
+          <p style="text-align: right">{{vendor}}</p>
+          <p>Waktu Mulai</p>
+          <p style="text-align: right">{{date}}</p>
+          <p>Waktu Selesai</p>
+          <p style="text-align: right">{{finish_date}}</p>
+        </div>
+      </div>
+
+      <div style="height: 24px"></div>
+
+      <div>
+        <table>
+          <thead>
+            <tr style="font-weight: bold">
+              <th style="text-align: left"></th>
+              <th style="width: 60px"></th>
+              <th style="width: 60px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="font-weight: bold">
+              <td style="text-align: left">Total Tandan</td>
+              <td>{{report.total_tandan}}</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Tandan Kosong</td>
+              <td>{{report.tandan_kosong}}</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">BJR < 3kg</td>
+              <td>{{report.bjr_3}}</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Mentah</td>
+              <td>{{report.mentah}}</td>
+              <td>-</td>
+            </tr>
+            <tr></tr>
+            <tr>
+              <td style="text-align: left">BJR 3-5kg</td>
+              <td>{{report.bjr_5}}</td>
+              <td>{{report.bjr_5_denda}}kg</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Tangkai Panjang</td>
+              <td>{{report.tangkai_panjang}}</td>
+              <td>{{report.tangkai_panjang_denda}}kg</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Sampah</td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
   </body>

@@ -586,6 +586,14 @@ class InspectionDataController {
       let total_percent =
         Number(total_rejected_percent) + Number(total_accepted_percent);
 
+      let classificationResult = generateClassificationResultArray(
+        classificationData
+      ).map((e) => changeValueToLocalestring(e));
+      let totalResult = classificationResult.find(
+        (e) => e.label.toLowerCase() === 'total'
+      );
+      // console.log({ totalResult });
+
       let data = {
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
         agate_logo_img: getImageFile('agate-logo.png'),
@@ -599,6 +607,7 @@ class InspectionDataController {
         finish_date: dayjs(inspections['finish_date']).format(
           'DD/MM/YYYY HH:mm:ss'
         ),
+        date_string: dayjs(inspections['date']).format('DD/MM/YYYY'),
         grading_result: {
           total_tandan:
             inspections['grading_result']['total_tandan'].toLocaleString(),
@@ -613,9 +622,7 @@ class InspectionDataController {
           total_fined_percent: total_fined_percent,
           total_percent: total_percent,
         },
-        classification_result: generateClassificationResultArray(
-          classificationData
-        ).map((e) => changeValueToLocalestring(e)),
+        classification_result: classificationResult,
         accepted_result: acceptedData.length
           ? generateClassificationResultArray(acceptedData).map((e) =>
               changeValueToLocalestring(e)
@@ -631,6 +638,28 @@ class InspectionDataController {
               changeValueToLocalestring(e)
             )
           : null,
+
+        report: {
+          total_tandan:
+            inspections['grading_result']['total_tandan'].toLocaleString(),
+          tandan_kosong: Number(
+            classificationSummary['JANJANG KOSONG']['TOTAL']
+          ).toLocaleString(),
+          bjr_3: totalResult['BUAH KECIL DIBAWAH 3KG'],
+          mentah: Number(
+            classificationSummary['MENTAH']['TOTAL']
+          ).toLocaleString(),
+          bjr_5: totalResult['BUAH KECIL DIBAWAH 5KG'],
+          bjr_5_denda: (
+            Number(totalResult['BUAH KECIL DIBAWAH 5KG']) *
+            Number(inspections['small_fruit_5_fined_in_kg'])
+          ).toLocaleString(),
+          tangkai_panjang: totalResult['TANGKAI PANJANG'],
+          tangkai_panjang_denda: (
+            Number(totalResult['TANGKAI PANJANG']) *
+            Number(inspections['long_stash_fined_in_kg'])
+          ).toLocaleString(),
+        },
       };
 
       let template = `lib/pdf/templates/grading-result.html`;
