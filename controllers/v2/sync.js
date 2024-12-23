@@ -32,18 +32,6 @@ class SyncDataController {
         };
       }
 
-      const founded = await VendorV2Model.findOne({
-        name: body['name'],
-      }).lean();
-
-      if (!founded) {
-        throw {
-          code: 400,
-          title: 'Founded',
-          message: 'Vendor already exist',
-        };
-      }
-
       body['factory'] = factory._id;
 
       await VendorV2Model.findOneAndUpdate({ name: body['name'] }, body, {
