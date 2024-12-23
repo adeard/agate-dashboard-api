@@ -595,9 +595,18 @@ class InspectionDataController {
             changeValueToLocalestring(e)
           )
         : null;
+      let rejectedResult = rejectedData.length
+        ? generateClassificationResultArray(rejectedData).map((e) =>
+            changeValueToLocalestring(e)
+          )
+        : null;
 
-      let totalResult = acceptedResult
-        ? acceptedResult.find((e) => e.label.toLowerCase() === 'total')
+      // let totalResult = acceptedResult
+      //   ? acceptedResult.find((e) => e.label.toLowerCase() === 'total')
+      //   : null;
+
+      let totalResultRejected = rejectedResult
+        ? rejectedResult.find((e) => e.label.toLowerCase() === 'total')
         : null;
       // console.log({ totalResult });
 
@@ -646,21 +655,20 @@ class InspectionDataController {
           total_tandan:
             inspections['grading_result']['total_tandan'].toLocaleString(),
           tandan_kosong: Number(
-            classificationSummary['JANJANG KOSONG']['TOTAL']
+            rejectedSummary['JANJANG KOSONG']['TOTAL']
           ).toLocaleString(),
-          bjr_3: totalResult['BUAH KECIL DIBAWAH 3KG'],
-          mentah: Number(
-            classificationSummary['MENTAH']['TOTAL']
-          ).toLocaleString(),
-          bjr_5: totalResult['BUAH KECIL DIBAWAH 5KG'],
+          bjr_3: totalResultRejected['BUAH KECIL DIBAWAH 3KG'],
+          mentah: Number(rejectedSummary['MENTAH']['TOTAL']).toLocaleString(),
+
+          bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
           bjr_5_denda: (
-            Number(totalResult['BUAH KECIL DIBAWAH 5KG']) *
-            Number(inspections['small_fruit_5_fined_in_kg'])
+            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
+            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']["DENDA"])
           ).toLocaleString(),
-          tangkai_panjang: totalResult['TANGKAI PANJANG'],
+          tangkai_panjang: finedSummary['TANGKAI PANJANG']['TOTAL'],
           tangkai_panjang_denda: (
-            Number(totalResult['TANGKAI PANJANG']) *
-            Number(inspections['long_stash_fined_in_kg'])
+            Number(finedSummary['TANGKAI PANJANG']['TOTAL']) *
+            Number(finedSummary['TANGKAI PANJANG']["DENDA"])
           ).toLocaleString(),
         },
       };
