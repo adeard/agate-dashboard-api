@@ -589,9 +589,16 @@ class InspectionDataController {
       let classificationResult = generateClassificationResultArray(
         classificationData
       ).map((e) => changeValueToLocalestring(e));
-      let totalResult = classificationResult.find(
-        (e) => e.label.toLowerCase() === 'total'
-      );
+
+      let acceptedResult = acceptedData.length
+        ? generateClassificationResultArray(acceptedData).map((e) =>
+            changeValueToLocalestring(e)
+          )
+        : null;
+
+      let totalResult = acceptedResult
+        ? acceptedResult.find((e) => e.label.toLowerCase() === 'total')
+        : null;
       // console.log({ totalResult });
 
       let data = {
@@ -623,11 +630,7 @@ class InspectionDataController {
           total_percent: total_percent,
         },
         classification_result: classificationResult,
-        accepted_result: acceptedData.length
-          ? generateClassificationResultArray(acceptedData).map((e) =>
-              changeValueToLocalestring(e)
-            )
-          : null,
+        accepted_result: acceptedResult,
         rejected_result: rejectedData.length
           ? generateClassificationResultArray(rejectedData).map((e) =>
               changeValueToLocalestring(e)
