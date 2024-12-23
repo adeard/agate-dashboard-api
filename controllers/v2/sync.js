@@ -134,11 +134,17 @@ class SyncDataController {
         if (fined.length) {
           fined.forEach((key) => {
             if (!finedObject[key]) {
-              let total = finedSummary[key]['TOTAL'];
-              let finedKg = finedSummary[key]['DENDA'];
-              finedObject[key] = `${total} Jjg / ${Math.round(
-                Number(total) * Number(finedKg)
-              )}kg`;
+              let total = finedSummary[key]['TOTAL']
+                ? finedSummary[key]['TOTAL']
+                : 0;
+              let finedKg = finedSummary[key]['DENDA']
+                ? finedSummary[key]['DENDA']
+                : 0;
+              finedObject[key] = `${Number(
+                total
+              ).toLocaleString()} Jjg / ${Math.round(
+                Number(total || 0) * Number(finedKg || 0)
+              ).toLocaleString()}kg`;
 
               totalFined += total;
               totalFinedKg += finedKg;
@@ -173,10 +179,8 @@ class SyncDataController {
             8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
               Number(totalFined) * Number(totalFinedKg)
             ).toLocaleString('en')}kg`,
-            9: Number(finedObject['TANGKAI PANJANG'] || 0).toLocaleString('en'),
-            10: Number(
-              finedObject['BUAH KECIL DIBAWAH 5KG'] || 0
-            ).toLocaleString('en'),
+            9: finedObject['TANGKAI PANJANG'],
+            10: finedObject['BUAH KECIL DIBAWAH 5KG'],
             11:
               Number(
                 doc.grading_result['classification_summary']['MENTAH'][
