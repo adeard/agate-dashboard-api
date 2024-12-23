@@ -65,16 +65,16 @@ class SyncDataController {
         };
       }
 
-      const vendor = await VendorV2Model.findOne({
+      let vendor = await VendorV2Model.findOne({
         id: body['vendor_id'],
       }).lean();
 
       if (!vendor) {
-        throw {
-          code: 404,
-          title: 'Not Found',
-          message: 'Vendor not found',
-        };
+        vendor = await VendorV2Model.create({
+          id: body['vendor_id'],
+          name: body['vendor_name'],
+          type: body['vendor_type'],
+        });
       }
 
       const founded = await InspectionDataModel.findOne({
