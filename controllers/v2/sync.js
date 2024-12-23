@@ -135,7 +135,7 @@ class SyncDataController {
               ).toLocaleString()}kg`;
 
               totalFined += total;
-              totalFinedKg += finedKg;
+              totalFinedKg += total * finedKg;
             }
           });
         }
@@ -165,7 +165,7 @@ class SyncDataController {
             6: formatter.format(percentAccepted) + '%',
             7: formatter.format(percentRejected) + '%',
             8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
-              Number(totalFined) * Number(totalFinedKg)
+              totalFinedKg
             ).toLocaleString('en')}kg`,
             9: finedObject['TANGKAI PANJANG'],
             10: finedObject['BUAH KECIL DIBAWAH 5KG'],
