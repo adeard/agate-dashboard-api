@@ -311,16 +311,12 @@ class InspectionDataController {
       }
       if (name) {
         const regexPattern = new RegExp(name || '', 'i');
-        q['name'] = {
-          name: { $regex: regexPattern },
-        };
+        q['name'] = { $regex: regexPattern };
       }
 
       if (delivery_number) {
         const regexPattern = new RegExp(delivery_number || '', 'i');
-        q['delivery_number'] = {
-          delivery_number: { $regex: regexPattern },
-        };
+        q['delivery_number'] = { $regex: regexPattern };
       }
       if (vehicle_number) {
         q['vehicle_number'] = String(vehicle_number).trim();
