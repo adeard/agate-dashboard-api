@@ -317,7 +317,10 @@ class InspectionDataController {
       }
 
       if (delivery_number) {
-        q['delivery_number'] = String(delivery_number).trim();
+        const regexPattern = new RegExp(delivery_number || '', 'i');
+        q['delivery_number'] = {
+          delivery_number: { $regex: regexPattern },
+        };
       }
       if (vehicle_number) {
         q['vehicle_number'] = String(vehicle_number).trim();
@@ -663,12 +666,12 @@ class InspectionDataController {
           bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
           bjr_5_denda: (
             Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
-            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']["DENDA"])
+            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
           ).toLocaleString(),
           tangkai_panjang: finedSummary['TANGKAI PANJANG']['TOTAL'],
           tangkai_panjang_denda: (
             Number(finedSummary['TANGKAI PANJANG']['TOTAL']) *
-            Number(finedSummary['TANGKAI PANJANG']["DENDA"])
+            Number(finedSummary['TANGKAI PANJANG']['DENDA'])
           ).toLocaleString(),
         },
       };
