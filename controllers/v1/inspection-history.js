@@ -33,6 +33,13 @@ class InspectionHistoryControllers {
         };
       }
 
+      if (req.body.delivery_number) {
+        const regexPattern = new RegExp(req.body.delivery_number || '', 'i');
+        payload['delivery_number'] = {
+          $regex: regexPattern,
+        };
+      }
+
       const results = await InspectionHistoryModel.aggregate([
         {
           $match: {
