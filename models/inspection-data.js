@@ -136,6 +136,9 @@ const SCHEMA = new Schema(
     engine_type: {
       type: String,
     },
+    machine: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

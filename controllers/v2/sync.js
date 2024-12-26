@@ -77,22 +77,22 @@ class SyncDataController {
         });
       }
 
-      const founded = await InspectionDataModel.findOne({
-        id: body['id'],
-      }).lean();
+      // const founded = await InspectionDataModel.findOne({
+      //   id: body['id'],
+      // }).lean();
 
-      if (founded) {
-        return res.status(200).json(
-          createResponseSuccess(
-            200,
-            'Success',
-            'Inspection already integrated',
-            {
-              data: true,
-            }
-          )
-        );
-      }
+      // if (founded) {
+      //   return res.status(200).json(
+      //     createResponseSuccess(
+      //       200,
+      //       'Success',
+      //       'Inspection already integrated',
+      //       {
+      //         data: true,
+      //       }
+      //     )
+      //   );
+      // }
 
       delete body['is_integrated'];
 
@@ -218,7 +218,7 @@ class SyncDataController {
           createResponseSuccess(
             200,
             'Success',
-            'Success create new inspection',
+            'Success create integrate inspection',
             {}
           )
         );

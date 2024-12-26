@@ -134,6 +134,7 @@ const schemas = {
     year: Joi.number().required(),
     factory: Joi.string(),
     engine_type: Joi.string().allow(null),
+    machine: Joi.number().allow(null).optional(),
   }),
 
   'vendor-2': Joi.object({
