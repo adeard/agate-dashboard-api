@@ -327,10 +327,13 @@ class DashboardV2Controller {
         },
       };
 
-      // console.log({ byDemographyInti });
+      console.log({ inspections });
 
       inspections.forEach((inspection) => {
-        const { day, monthYear } = getDateMonthYearDay(inspection['date']);
+        const { day, monthYear } = getDateMonthYearDay(
+          inspection['date'],
+          true
+        );
         const week = getWeekNumber(inspection['date']);
 
         if (inspection.vendor_type === '1') {
