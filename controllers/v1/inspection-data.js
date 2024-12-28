@@ -319,7 +319,8 @@ class InspectionDataController {
         q['delivery_number'] = { $regex: regexPattern };
       }
       if (vehicle_number) {
-        q['vehicle_number'] = String(vehicle_number).trim();
+        const regexPattern = new RegExp(vehicle_number || '', 'i');
+        q['vehicle_number'] = { $regex: regexPattern };
       }
       if (vendor_id) {
         q['vendor'] = vendor_id;
