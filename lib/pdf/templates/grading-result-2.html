@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/assets/fonts/open-sans.css" />
+    <style>
+      * {
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      body {
+        position: relative;
+        padding: 0;
+        margin: 20px;
+        height: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .container {
+        display: flex;
+        max-width: 100vw;
+        height: auto;
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px;
+      }
+
+      .left {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: left;
+      }
+      .right {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: right;
+      }
+
+      table {
+        border: none;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+      }
+      th {
+        font-weight: bold;
+        text-align: center;
+        padding: 8px;
+        background-color: #ffffff;
+      }
+      td {
+        border-left: none !important;
+        border-right: none !important;
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #b6b6b6;
+      }
+      tr:nth-child(odd) {
+        background-color: #f2f4f3;
+      }
+      tr:nth-child(even) {
+        background-color: #ffffff;
+      }
+      .page {
+        page-break-after: always;
+      }
+
+      @media print {
+        .page {
+          page-break-after: always;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="container">
+      <div style="display: table; table-layout: fixed; width: 100%">
+        <div class="left">
+          <img
+            src="data:image/png;base64,{{ sinarmas_logo_img }}"
+            width="auto"
+            height="50"
+          />
+        </div>
+        <div class="right">
+          <img
+            src="data:image/png;base64,{{ agate_logo_img }}"
+            width="auto"
+            height="80"
+          />
+        </div>
+      </div>
+
+      <div style="height: 16px"></div>
+
+      <div>
+        <div>
+          <p style="font-weight: bold; font-size: 24px; text-align: center">
+            Laporan Grading TBS {{location}}
+          </p>
+        </div>
+        <div style="height: 24px"></div>
+
+        <div
+          style="
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+            font-weight: 400;
+            font-size: 16px;
+          "
+        >
+          <div class="left" style="vertical-align: top; padding-right: 32px">
+            <table>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; font-weight: 700">
+                    Vendor ({{vendor_type}})
+                  </td>
+                  <td style="text-align: right">{{vendor}}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 700">
+                    Surat Jalan
+                  </td>
+                  <td style="text-align: right">{{delivery_number}}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 700">No Plat</td>
+                  <td style="text-align: right">{{vehicle_number}}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 700">Mulai</td>
+                  <td style="text-align: right">{{date}}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 700">Selesai</td>
+                  <td style="text-align: right">{{finish_date}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="right" style="vertical-align: top">
+            <table>
+              <tbody>
+                <tr>
+                  <td style="text-align: left">Diterima</td>
+                  <td style="text-align: right">
+                    {{grading_result.total_accepted}}
+                    ({{grading_result.total_accepted_percent}}%)
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: left">Ditolak</td>
+                  <td style="text-align: right">
+                    {{grading_result.total_rejected}}
+                    ({{grading_result.total_rejected_percent}}%)
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: left">Didenda</td>
+                  <td style="text-align: right">
+                    {{grading_result.total_fined}}
+                    ({{grading_result.total_fined_percent}}%)
+                  </td>
+                </tr>
+                <tr style="font-weight: bold">
+                  <td style="text-align: left">Total</td>
+                  <td style="text-align: right">
+                    {{grading_result.total_tandan}}
+                    ({{grading_result.total_percent}}%)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 24px"></div>
+
+      {{#if accepted_result}}
+      <div>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Diterima
+          </p>
+
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 60px">P</th>
+                <th style="width: 60px">TP</th>
+                <th style="width: 60px">&lt;3kg</th>
+                <th style="width: 60px">3-5kg</th>
+                <th style="width: 60px">N</th>
+                <th style="width: 60px">T</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each accepted_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                <td>{{[RUSAK DIMAKAN TIKUS]}}</td>
+                <td>{{[TANGKAI PANJANG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
+                <td>{{NORMAL}}</td>
+                <td style="font-weight: bold">{{TOTAL}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {{/if}} {{#if rejected_result}}
+      <div>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Ditolak
+          </p>
+
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 60px">P</th>
+                <th style="width: 60px">TP</th>
+                <th style="width: 60px">&lt;3kg</th>
+                <th style="width: 60px">3-5kg</th>
+                <th style="width: 60px">N</th>
+                <th style="width: 60px">T</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each rejected_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                <td>{{[RUSAK DIMAKAN TIKUS]}}</td>
+                <td>{{[TANGKAI PANJANG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
+                <td>{{NORMAL}}</td>
+                <td style="font-weight: bold">{{TOTAL}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {{/if}} {{#if fined_result}}
+      <div>
+        <div style="height: 24px"></div>
+        <div>
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 18px">
+            Rekap Didenda
+          </p>
+
+          <table>
+            <thead>
+              <tr style="font-weight: bold">
+                <th style="text-align: left">Klasifikasi</th>
+                <th style="width: 100px">Denda</th>
+                <th style="width: 100px">Total</th>
+                <th style="width: 100px">Total Denda</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each fined_result}}
+              <tr>
+                <td style="text-align: left; text-transform: capitalize">
+                  {{label}}
+                </td>
+                {{#if (eq label "Total")}}
+                <td></td>
+                {{else}}
+                <td>{{DENDA}}kg</td>
+                {{/if}}
+                <td>{{TOTAL}}</td>
+                <td>{{[TOTAL DENDA]}}kg</td>
+              </tr>
+
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {{/if}}
+
+      <div
+        style="
+          display: table;
+          table-layout: fixed;
+          width: 100%;
+          margin-top: 24px;
+        "
+      >
+        <div class="left" style="font-size: 14px; line-height: 1.5">
+          <p style="font-weight: bold">Keterangan:</p>
+          <p>P = Rusak Dimakan Tikus</p>
+          <p>TP = Tangkai Panjang</p>
+          <p>&lt;3kg = Buah kecil dibawah 3kg</p>
+          <p>3-5kg = Buah kecil 3-5kg</p>
+          <p>N = Buah Normal</p>
+          <p>T = Total</p>
+        </div>
+        <div class="right">
+          <p style="font-size: 18px; text-align: center; font-weight: bold">
+            Penanggung Jawab
+          </p>
+          <p style="width: 100%; margin-top: 160px; text-align: center">
+            <span style="margin-right: 120px">(</span>
+            <span style="margin-left: 120px">)</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -673,7 +673,7 @@ class InspectionDataController {
         },
       };
 
-      let template = `lib/pdf/templates/grading-result.html`;
+      let template = `lib/pdf/templates/grading-result-2.html`;
 
       return generatePdf(data, template, res);
 
