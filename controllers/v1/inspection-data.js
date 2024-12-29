@@ -717,18 +717,20 @@ class InspectionDataController {
       }
 
       if (delivery_number) {
-        q['delivery_number'] = String(delivery_number).trim();
+        const regexPattern = new RegExp(delivery_number || '', 'i');
+        q['delivery_number'] = { $regex: regexPattern };
       }
       if (vehicle_number) {
-        q['vehicle_number'] = String(vehicle_number).trim();
+        const regexPattern = new RegExp(vehicle_number || '', 'i');
+        q['vehicle_number'] = { $regex: regexPattern };
       }
       if (vendor_id) {
         q['vendor'] = vendor_id;
       }
       if (date_from && date_to) {
         q['date'] = {
-          $gte: new Date(date_from),
-          $lte: new Date(date_to),
+          $gte: dayjs(date_from).startOf('day'),
+          $lte: dayjs(date_to).endOf('day'),
         };
       }
 
@@ -970,6 +972,291 @@ class InspectionDataController {
           : dayjs(inspections[inspections.length - 1]['date']).format(
               'DD/MM/YYYY HH:mm:ss'
             ),
+        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        agate_logo_img: getImageFile('agate-logo.png'),
+        location: 'Langling, Jambi',
+        summary: convertDataValue(demografikSemua),
+        summary_inti: convertDataValue(demografikInti),
+        summary_plasma: convertDataValue(demografikPlasma),
+        vendor_inti: demografikVendorInti.length
+          ? demografikVendorInti.map((e) => changeValueToLocalestring(e))
+          : null,
+        vendor_plasma: demografikVendorPlasma.length
+          ? demografikVendorPlasma.map((e) => changeValueToLocalestring(e))
+          : null,
+      };
+
+      let template = `lib/pdf/templates/grading-summary.html`;
+
+      return generatePdf(data, template, res);
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get detail inspections',
+            data,
+            {}
+          )
+        );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async downloadPdfSummaryDaily(req, res, next) {
+    try {
+      const { factoryId } = req.params;
+
+      let q = {};
+
+      let yesterday = dayjs().add(-1, 'day');
+
+      if (factoryId) {
+        q['factory'] = factoryId;
+      }
+
+      q['date'] = {
+        $gte: yesterday.startOf('day'),
+        $lte: yesterday.endOf('day'),
+      };
+
+      const inspections = await InspectionDataModel.find(q).lean();
+
+      if (!inspections.length) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Pemeriksaan tidak ditemukan.',
+        };
+      }
+
+      let demografikSemua = {
+        ...baseObjectSemua,
+      };
+
+      let demografikInti = {
+        ...baseObjectInti,
+      };
+
+      let demografikPlasma = {
+        ...baseObjectPlasma,
+      };
+
+      let demografikVendorInti = {};
+      let demografikVendorPlasma = {};
+
+      inspections.forEach((inspection) => {
+        const totalTandan = inspection['grading_result']['total_tandan'];
+        const totalAccepted = inspection['grading_result']['total_accepted'];
+        const totalRejected = inspection['grading_result']['total_rejected'];
+        const totalFined = inspection['grading_result']['total_fined'];
+
+        const classificationSummary =
+          inspection['grading_result']['classification_summary'];
+        const acceptedSummary =
+          inspection['grading_result']['accepted_summary'];
+        const rejectedSummary =
+          inspection['grading_result']['rejected_summary'];
+        const finedSummary = inspection['grading_result']['fined_summary'];
+
+        const vendorId = inspection['vendor_id'];
+
+        demografikSemua['total_tandan'] += totalTandan;
+        demografikSemua['total_accepted'] += totalAccepted;
+        demografikSemua['total_fined'] += totalFined;
+        demografikSemua['total_rejected'] += totalRejected;
+
+        if (Number(inspection['vendor_type']) === 1) {
+          demografikInti['total_tandan'] += totalTandan;
+          demografikInti['total_accepted'] += totalAccepted;
+          demografikInti['total_fined'] += totalFined;
+          demografikInti['total_rejected'] += totalRejected;
+
+          if (!demografikVendorInti[vendorId]) {
+            demografikVendorInti[vendorId] = { ...baseObjectIntiVendor };
+            demografikVendorInti[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorInti[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorInti[vendorId]['total_fined'] += totalFined;
+          demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
+        } else {
+          demografikPlasma['total_tandan'] += totalTandan;
+          demografikPlasma['total_accepted'] += totalAccepted;
+          demografikPlasma['total_fined'] += totalFined;
+          demografikPlasma['total_rejected'] += totalRejected;
+
+          if (!demografikVendorPlasma[vendorId]) {
+            demografikVendorPlasma[vendorId] = { ...baseObjectPlasmaVendor };
+            demografikVendorPlasma[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorPlasma[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorPlasma[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorPlasma[vendorId]['total_fined'] += totalFined;
+          demografikVendorPlasma[vendorId]['total_rejected'] += totalRejected;
+        }
+
+        Object.keys(classificationSummary).forEach((k) => {
+          const item = classificationSummary[k];
+          // console.log({ item });
+          Object.keys(item).forEach((ks) => {
+            const value = item[ks];
+
+            demografikSemua['classification_summary'][k][ks] += value;
+            if (Number(inspection['vendor_type']) === 1) {
+              // console.log({ vendorType: inspection['vendor_type'] });
+              demografikInti['classification_summary'][k][ks] += value;
+              demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
+                value;
+            } else {
+              demografikPlasma['classification_summary'][k][ks] += value;
+              demografikVendorPlasma[vendorId]['classification_summary'][k][
+                ks
+              ] += value;
+            }
+          });
+        });
+      });
+
+      // console.log({
+      //   semua: demografikSemua['classification_summary'],
+      //   inti: demografikInti['classification_summary'],
+      //   plasma: demografikPlasma['classification_summary'],
+      // });
+
+      demografikSemua['total_accepted_percent'] = countPercentage(
+        demografikSemua['total_accepted'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['total_rejected_percent'] = countPercentage(
+        demografikSemua['total_rejected'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['total_fined_percent'] = countPercentage(
+        demografikSemua['total_fined'],
+        demografikSemua['total_accepted']
+      );
+      demografikSemua['total_percent'] = countPercentage(
+        demografikSemua['total_accepted'] + demografikSemua['total_rejected'],
+        demografikSemua['total_tandan']
+      );
+      demografikSemua['classification_summary'] =
+        generateClassificationResultArray(
+          demografikSemua['classification_summary']
+        );
+
+      demografikInti['total_accepted_percent'] = countPercentage(
+        demografikInti['total_accepted'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['total_rejected_percent'] = countPercentage(
+        demografikInti['total_rejected'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['total_fined_percent'] = countPercentage(
+        demografikInti['total_fined'],
+        demografikInti['total_accepted']
+      );
+      demografikInti['total_percent'] = countPercentage(
+        demografikInti['total_accepted'] + demografikInti['total_rejected'],
+        demografikInti['total_tandan']
+      );
+      demografikInti['classification_summary'] =
+        generateClassificationResultArray(
+          demografikInti['classification_summary']
+        );
+
+      demografikPlasma['total_accepted_percent'] = countPercentage(
+        demografikPlasma['total_accepted'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['total_rejected_percent'] = countPercentage(
+        demografikPlasma['total_rejected'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['total_fined_percent'] = countPercentage(
+        demografikPlasma['total_fined'],
+        demografikPlasma['total_accepted']
+      );
+      demografikPlasma['total_percent'] = countPercentage(
+        demografikPlasma['total_accepted'] + demografikPlasma['total_rejected'],
+        demografikPlasma['total_tandan']
+      );
+      demografikPlasma['classification_summary'] =
+        generateClassificationResultArray(
+          demografikPlasma['classification_summary']
+        );
+
+      demografikVendorInti = Object.keys(demografikVendorInti).map((key) => {
+        const data = demografikVendorInti[key];
+        return {
+          label: data['vendor'],
+          total_tandan: data['total_tandan'],
+          percent_accepted: countPercentage(
+            data['total_accepted'],
+            data['total_tandan']
+          ),
+          percent_rejected: countPercentage(
+            data['total_rejected'],
+            data['total_tandan']
+          ),
+          percent_fined: countPercentage(
+            data['total_fined'],
+            data['total_accepted']
+          ),
+        };
+      });
+      demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
+        (key) => {
+          const data = demografikVendorPlasma[key];
+          return {
+            label: data['vendor'],
+            total_tandan: data['total_tandan'],
+            percent_accepted: countPercentage(
+              data['total_accepted'],
+              data['total_tandan']
+            ),
+            percent_rejected: countPercentage(
+              data['total_rejected'],
+              data['total_tandan']
+            ),
+            percent_fined: countPercentage(
+              data['total_fined'],
+              data['total_accepted']
+            ),
+          };
+        }
+      );
+
+      const convertDataValue = (data) => {
+        return Object.keys(data).reduce((obj, key) => {
+          if (key === 'classification_summary') {
+            obj[key] = data[key].map((e) => changeValueToLocalestring(e));
+
+            return obj;
+          }
+
+          obj[key] =
+            typeof data[key] === 'number'
+              ? data[key].toLocaleString()
+              : data[key];
+
+          return obj;
+        }, {});
+      };
+
+      let data = {
+        start_date: dayjs(yesterday.startOf('day')).format(
+          'DD/MM/YYYY HH:mm:ss'
+        ),
+        end_date: dayjs(yesterday.endOf('day')).format('DD/MM/YYYY HH:mm:ss'),
         sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
         agate_logo_img: getImageFile('agate-logo.png'),
         location: 'Langling, Jambi',
