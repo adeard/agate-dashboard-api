@@ -20,235 +20,6 @@ let dictBuahKecil = {
   'BUAH KECIL DIBAWAH 3KG': 'Buah <3kg',
 };
 
-const baseObjectSemua = {
-  total_tandan: 0,
-  total_accepted: 0,
-  total_rejected: 0,
-  total_fined: 0,
-  classification_summary: {
-    MENTAH: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'KURANG MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    MATANG: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'LEWAT MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'JANJANG KOSONG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-  },
-};
-
-const baseObjectInti = {
-  total_tandan: 0,
-  total_accepted: 0,
-  total_rejected: 0,
-  total_fined: 0,
-  classification_summary: {
-    MENTAH: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'KURANG MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    MATANG: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'LEWAT MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'JANJANG KOSONG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-  },
-};
-
-const baseObjectPlasma = {
-  total_tandan: 0,
-  total_accepted: 0,
-  total_rejected: 0,
-  total_fined: 0,
-  classification_summary: {
-    MENTAH: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    MATANG: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'LEWAT MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'JANJANG KOSONG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-  },
-};
-
-const baseObjectPlasmaVendor = {
-  total_tandan: 0,
-  total_accepted: 0,
-  total_rejected: 0,
-  total_fined: 0,
-  classification_summary: {
-    MENTAH: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    MATANG: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'LEWAT MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'JANJANG KOSONG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-  },
-};
-
-const baseObjectIntiVendor = {
-  total_tandan: 0,
-  total_accepted: 0,
-  total_rejected: 0,
-  total_fined: 0,
-  classification_summary: {
-    MENTAH: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'KURANG MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    MATANG: {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'LEWAT MATANG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-    'JANJANG KOSONG': {
-      TOTAL: 0,
-      NORMAL: 0,
-      'RUSAK DIMAKAN TIKUS': 0,
-      'TANGKAI PANJANG': 0,
-      'BUAH KECIL DIBAWAH 3KG': 0,
-      'BUAH KECIL DIBAWAH 5KG': 0,
-    },
-  },
-};
-
 function calculateAndAppendTotals(data) {
   const totalCounts = { label: 'Total' };
 
@@ -694,6 +465,234 @@ class InspectionDataController {
   }
 
   static async downloadPdfSummary(req, res, next) {
+    const baseObjectSemua = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectInti = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectPlasma = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectPlasmaVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectIntiVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
     try {
       const {
         name = '',
@@ -1007,6 +1006,234 @@ class InspectionDataController {
   }
 
   static async downloadPdfSummaryDaily(req, res, next) {
+    const baseObjectSemua = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectInti = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectPlasma = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectPlasmaVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectIntiVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
     try {
       const { factoryId } = req.params;
 
