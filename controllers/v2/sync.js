@@ -18,6 +18,8 @@ class SyncDataController {
     try {
       const body = req.body;
 
+      delete body["is_integrated"]
+
       await vBody('vendor-2', body);
 
       const factory = await FactoryModel.findOne({
@@ -44,6 +46,7 @@ class SyncDataController {
         .status(200)
         .json(createResponseSuccess(200, 'Success', 'Success sync vendor', {}));
     } catch (err) {
+      console.log(err);
       next(err);
     }
   }
