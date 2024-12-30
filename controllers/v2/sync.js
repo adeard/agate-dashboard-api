@@ -46,7 +46,6 @@ class SyncDataController {
         .status(200)
         .json(createResponseSuccess(200, 'Success', 'Success sync vendor', {}));
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }
