@@ -168,7 +168,7 @@ class DashboardV2Controller {
   static async getDataDashboard(req, res, next) {
     try {
       const {
-        year = '2024',
+        year = new Date().getFullYear(),
         factory = '',
         date_to = null,
         date_from = null,
