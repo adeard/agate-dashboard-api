@@ -199,9 +199,9 @@ class DashboardV2Controller {
         q['factory'] = factory;
       }
 
-      if (year) {
-        q['year'] = Number(year);
-      }
+      // if (year) {
+      //   q['year'] = Number(year);
+      // }
 
       const inspections = await InspectionDataModel.find(q);
 
