@@ -346,11 +346,14 @@ class DashboardV2Controller {
               total: 0,
               percent: 0,
               demography: {},
+              total_tandan: 0,
             };
           }
 
           byVendorIntiAccepted[vendorName]['total'] +=
             inspection['grading_result']['total_accepted'];
+          byVendorIntiAccepted[vendorName]['total_tandan'] +=
+            inspection['grading_result']['total_tandan'];
 
           byVendorIntiAccepted[vendorName]['demography'] =
             KLASIFIKASI_INTI.reduce((curr, k) => {
@@ -551,11 +554,14 @@ class DashboardV2Controller {
               total: 0,
               percent: 0,
               demography: {},
+              total_tandan: 0,
             };
           }
 
           byVendorPlasmaAccepted[vendorName]['total'] +=
             inspection['grading_result']['total_accepted'];
+          byVendorPlasmaAccepted[vendorName]['total_tandan'] +=
+            inspection['grading_result']['total_tandan'];
 
           byVendorPlasmaAccepted[vendorName]['demography'] =
             KLASIFIKASI_PLASMA.reduce((curr, k) => {
@@ -753,10 +759,11 @@ class DashboardV2Controller {
         .map((key) => {
           const demography = byVendorIntiAccepted[key]['demography'];
           const total = byVendorIntiAccepted[key]['total'];
+          const totalTandan = byVendorIntiAccepted[key]['total_tandan'];
           return {
             label: key,
             total: total,
-            percent: countPercentage(total, totalAcceptedInti),
+            percent: countPercentage(total, totalTandan),
             demography: Object.keys(demography)
               .map((kd) => ({
                 label: kd,
@@ -775,12 +782,13 @@ class DashboardV2Controller {
         .map((key) => {
           const demography = byVendorPlasmaAccepted[key]['demography'];
           const total = byVendorPlasmaAccepted[key]['total'];
+          const totalTandan = byVendorPlasmaAccepted[key]['total_tandan'];
           return {
             label: key,
             total: byVendorPlasmaAccepted[key]['total'],
             percent: countPercentage(
               byVendorPlasmaAccepted[key]['total'],
-              totalAcceptedPlasma
+              totalTandan
             ),
             demography: Object.keys(demography)
               .map((kd) => ({
