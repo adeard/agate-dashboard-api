@@ -327,14 +327,14 @@ class DashboardV2Controller {
         },
       };
 
-      console.log({ inspections });
-
       inspections.forEach((inspection) => {
         const { day, monthYear } = getDateMonthYearDay(
           inspection['date'],
           true
         );
         const week = getWeekNumber(inspection['date']);
+
+        console.log({ grading_result: inspection['grading_result'] });
 
         if (inspection.vendor_type === '1') {
           totalAcceptedInti +=
@@ -365,7 +365,7 @@ class DashboardV2Controller {
               }
 
               curr[k]['total'] +=
-                inspection['grading_result']['accepted_summary']?.[k]?.[
+                inspection['grading_result']['classification_summary']?.[k]?.[
                   'TOTAL'
                 ] || 0;
 
@@ -433,7 +433,7 @@ class DashboardV2Controller {
                 }
 
                 curr[sub]['total'] +=
-                  inspection['grading_result']['accepted_summary']?.[k]?.[
+                  inspection['grading_result']['classification_summary']?.[k]?.[
                     sub
                   ] || 0;
 
@@ -573,7 +573,7 @@ class DashboardV2Controller {
               }
 
               curr[k]['total'] +=
-                inspection['grading_result']['accepted_summary']?.[k]?.[
+                inspection['grading_result']['classification_summary']?.[k]?.[
                   'TOTAL'
                 ] || 0;
 
@@ -641,7 +641,7 @@ class DashboardV2Controller {
                 }
 
                 curr[sub]['total'] +=
-                  inspection['grading_result']['accepted_summary']?.[k]?.[
+                  inspection['grading_result']['classification_summary']?.[k]?.[
                     sub
                   ] || 0;
 
@@ -768,7 +768,7 @@ class DashboardV2Controller {
               .map((kd) => ({
                 label: kd,
                 total: demography[kd]['total'],
-                percent: countPercentage(demography[kd]['total'], total),
+                percent: countPercentage(demography[kd]['total'], totalTandan),
               }))
               .sort(
                 (a, b) =>
@@ -794,7 +794,7 @@ class DashboardV2Controller {
               .map((kd) => ({
                 label: kd,
                 total: demography[kd]['total'],
-                percent: countPercentage(demography[kd]['total'], total),
+                percent: countPercentage(demography[kd]['total'], totalTandan),
               }))
               .sort(
                 (a, b) =>
@@ -899,8 +899,11 @@ class DashboardV2Controller {
           {
             by_demography_plasma: byDemographyPlasma,
             by_demography_inti: byDemographyInti,
-            by_inti_accepted: sortDataByKey(byVendorIntiAccepted, 'total'),
-            by_plasma_accepted: sortDataByKey(byVendorPlasmaAccepted, 'total'),
+            by_inti_accepted: sortDataByKey(byVendorIntiAccepted, 'percent'),
+            by_plasma_accepted: sortDataByKey(
+              byVendorPlasmaAccepted,
+              'percent'
+            ),
             by_inti_fruits: byIntiFruits,
             by_plasma_fruits: byPlasmaFruits,
             by_inti_fruits_size: byIntiFruitsSize,
