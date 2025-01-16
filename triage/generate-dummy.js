@@ -8,6 +8,7 @@ const InspectionHistoryModel = require('../models/inspection-history');
 const UserModel = require('../models/user');
 const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
+const { generateRandomPassword } = require('../utils/helpers');
 
 // console.log(generateRandomPassword(6));
 
@@ -246,5 +247,19 @@ connectToDatabase().then(async (res) => {
 
   await blastReportToUser();
 
+  // const password = generateRandomPassword(6);
+
+  // await UserModel.findOneAndUpdate(
+  //   { email: 'gustyhamdani772@gmail.com' },
+  //   {
+  //     $set: {
+  //       password: hashPassword(password),
+  //     },
+  //   }
+  // );
+
+  // console.log({ password });
+
   console.log('Done');
+  process.exit(1);
 });
