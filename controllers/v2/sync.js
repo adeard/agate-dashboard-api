@@ -18,7 +18,7 @@ class SyncDataController {
     try {
       const body = req.body;
 
-      delete body["is_integrated"]
+      delete body['is_integrated'];
 
       await vBody('vendor-2', body);
 
@@ -172,16 +172,30 @@ class SyncDataController {
             9: finedObject['TANGKAI PANJANG'],
             10: finedObject['BUAH KECIL DIBAWAH 5KG'],
             11:
-              Number(
-                doc.grading_result['classification_summary']['MENTAH'][
-                  'TOTAL'
-                ] || 0
+              (
+                Number(
+                  doc.grading_result['classification_summary']['MENTAH'][
+                    'TOTAL'
+                  ] || 0
+                ) -
+                Number(
+                  doc.grading_result['classification_summary']['MENTAH'][
+                    'BUAH KECIL DIBAWAH 3KG'
+                  ] || 0
+                )
               ).toLocaleString('en') + ' Jjg',
             12:
-              Number(
-                doc.grading_result['classification_summary']['JANJANG KOSONG'][
-                  'TOTAL'
-                ] || 0
+              (
+                Number(
+                  doc.grading_result['classification_summary'][
+                    'JANJANG KOSONG'
+                  ]['TOTAL'] || 0
+                ) -
+                Number(
+                  doc.grading_result['classification_summary'][
+                    'JANJANG KOSONG'
+                  ]['BUAH KECIL DIBAWAH 3KG'] || 0
+                )
               ).toLocaleString('en') + ' Jjg',
             13:
               Number(
