@@ -728,8 +728,8 @@ class InspectionDataController {
       }
       if (date_from && date_to) {
         q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-          $lte: dayjs(date_to).endOf('day'),
+          $gte: dayjs(date_from),
+          $lte: dayjs(date_to),
         };
       }
 
