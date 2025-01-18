@@ -964,10 +964,10 @@ class InspectionDataController {
 
       let data = {
         start_date: date_from
-          ? dayjs(date_from).startOf('day').format('DD/MM/YYYY HH:mm')
+          ? dayjs(date_from).format('DD/MM/YYYY HH:mm')
           : dayjs(inspections[0]['date']).format('DD/MM/YYYY HH:mm:ss'),
         end_date: date_to
-          ? dayjs(date_to).endOf('day').format('DD/MM/YYYY HH:mm')
+          ? dayjs(date_to).format('DD/MM/YYYY HH:mm')
           : dayjs(inspections[inspections.length - 1]['date']).format(
               'DD/MM/YYYY HH:mm:ss'
             ),
