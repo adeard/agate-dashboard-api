@@ -394,7 +394,7 @@ class InspectionDataController {
         finish_date: dayjs(inspections['finish_date']).format(
           'DD/MM/YYYY HH:mm:ss'
         ),
-        machine: inspection['machine'],
+        machine: inspections['machine'],
         date_string: dayjs(inspections['date']).format('DD/MM/YYYY'),
         grading_result: {
           total_tandan:
