@@ -9,6 +9,7 @@ const UserModel = require('../models/user');
 const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
 const { generateRandomPassword } = require('../utils/helpers');
+const InspectionDataModel = require('../models/inspection-data');
 
 // console.log(generateRandomPassword(6));
 
@@ -245,7 +246,7 @@ connectToDatabase().then(async (res) => {
   //   });
   // }, Promise.resolve());
 
-  await blastReportToUser();
+  // await blastReportToUser();
 
   // const password = generateRandomPassword(6);
 
@@ -259,6 +260,12 @@ connectToDatabase().then(async (res) => {
   // );
 
   // console.log({ password });
+
+  const vendor3 = await InspectionDataModel.find({
+    engine_type: '2',
+  }).lean();
+
+  console.log({ vendor3 });
 
   console.log('Done');
   process.exit(1);

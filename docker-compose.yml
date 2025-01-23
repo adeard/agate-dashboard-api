@@ -9,6 +9,24 @@ services:
       - '3079:3079'
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules # Prevent overwriting node_modules
     environment:
       - NODE_ENV=development
-    command: ['nodemon', 'app.js']
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+    env_file:
+      - .env # Add environment variables from .env file
+    command: npm run start:dev # Consider adding a dev script to package.json
+    restart: unless-stopped
+    init: true # Proper init process handling
+    stdin_open: true # Improve interaction with the container
+    tty: true # Improve terminal output
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

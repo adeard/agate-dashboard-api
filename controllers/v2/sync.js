@@ -171,40 +171,45 @@ class SyncDataController {
             ).toLocaleString('en')}kg`,
             9: finedObject['TANGKAI PANJANG'],
             10: finedObject['BUAH KECIL DIBAWAH 5KG'],
-            11:
-              (
-                Number(
-                  doc.grading_result['classification_summary']['MENTAH'][
-                    'TOTAL'
-                  ] || 0
-                ) -
-                Number(
-                  doc.grading_result['classification_summary']['MENTAH'][
-                    'BUAH KECIL DIBAWAH 3KG'
-                  ] || 0
-                )
-              ).toLocaleString('en') + ' Jjg',
-            12:
-              (
-                Number(
-                  doc.grading_result['classification_summary'][
-                    'JANJANG KOSONG'
-                  ]['TOTAL'] || 0
-                ) -
-                Number(
-                  doc.grading_result['classification_summary'][
-                    'JANJANG KOSONG'
-                  ]['BUAH KECIL DIBAWAH 3KG'] || 0
-                )
-              ).toLocaleString('en') + ' Jjg',
+            11: doc.grading_result['rejected_summary']?.['MENTAH']
+              ? (
+                  Number(
+                    doc.grading_result['rejected_summary']['MENTAH']['TOTAL'] ||
+                      0
+                  ) -
+                  Number(
+                    doc.grading_result['rejected_summary']['MENTAH'][
+                      'BUAH KECIL DIBAWAH 3KG'
+                    ] || 0
+                  )
+                ).toLocaleString('en') + ' Jjg'
+              : '0 Jjg',
+            12: doc.grading_result['rejected_summary']?.['JANJANG KOSONG']
+              ? (
+                  Number(
+                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
+                      'TOTAL'
+                    ] || 0
+                  ) -
+                  Number(
+                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
+                      'BUAH KECIL DIBAWAH 3KG'
+                    ] || 0
+                  )
+                ).toLocaleString('en') + ' Jjg'
+              : '0 Jjg',
             13:
               Number(
-                Object.values(
-                  doc.grading_result['classification_summary']
-                ).reduce((total, category) => {
-                  return total + category['BUAH KECIL DIBAWAH 3KG'];
-                }, 0)
-              ).toLocaleString('en') + 'Jjg',
+                Object.values(doc.grading_result['rejected_summary']).reduce(
+                  (total, category) => {
+                    return (
+                      total +
+                      ((category && category?.['BUAH KECIL DIBAWAH 3KG']) || 0)
+                    );
+                  },
+                  0
+                )
+              ).toLocaleString('en') + ' Jjg',
             14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
           },
           redirect_url: `inspection-data/download-pdf/${doc._id}`,

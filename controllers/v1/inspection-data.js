@@ -425,11 +425,17 @@ class InspectionDataController {
         report: {
           total_tandan:
             inspections['grading_result']['total_tandan'].toLocaleString(),
-          tandan_kosong: Number(
-            rejectedSummary['JANJANG KOSONG']['TOTAL']
-          ).toLocaleString(),
-          bjr_3: totalResultRejected['BUAH KECIL DIBAWAH 3KG'],
-          mentah: Number(rejectedSummary['MENTAH']['TOTAL']).toLocaleString(),
+          tandan_kosong: rejectedSummary?.['JANJANG KOSONG']
+            ? Number(
+                rejectedSummary['JANJANG KOSONG']['TOTAL']
+              ).toLocaleString()
+            : 0,
+          bjr_3: totalResultRejected?.['BUAH KECIL DIBAWAH 3KG']
+            ? totalResultRejected['BUAH KECIL DIBAWAH 3KG']
+            : 0,
+          mentah: rejectedSummary?.['MENTAH']
+            ? Number(rejectedSummary['MENTAH']['TOTAL']).toLocaleString()
+            : 0,
 
           bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
           bjr_5_denda: (
@@ -460,6 +466,7 @@ class InspectionDataController {
           )
         );
     } catch (err) {
+      console.log({ err });
       next(err);
     }
   }
