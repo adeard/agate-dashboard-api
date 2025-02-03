@@ -192,6 +192,11 @@ class SyncDataController {
                     doc.grading_result['rejected_summary']['MENTAH'][
                       'BUAH KECIL DIBAWAH 3KG'
                     ] || 0
+                  ) -
+                  Number(
+                    doc.grading_result['rejected_summary']['MENTAH'][
+                      'BUAH KECIL DIBAWAH 5KG'
+                    ] || 0
                   )
                 ).toLocaleString('en') + ' Jjg'
               : '0 Jjg',
@@ -205,6 +210,11 @@ class SyncDataController {
                   Number(
                     doc.grading_result['rejected_summary']['JANJANG KOSONG'][
                       'BUAH KECIL DIBAWAH 3KG'
+                    ] || 0
+                  ) -
+                  Number(
+                    doc.grading_result['rejected_summary']['MENTAH'][
+                      'BUAH KECIL DIBAWAH 5KG'
                     ] || 0
                   )
                 ).toLocaleString('en') + ' Jjg'
