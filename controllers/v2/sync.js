@@ -157,7 +157,7 @@ class SyncDataController {
 
         const payload = {
           sendWhatsAppId: 'direct',
-          template: 'agate_direct_report_2',
+          template: 'agate_direct_report_3',
           variable_qiscus: {
             1: 'KDA Langling Mill',
             2: dayjs(doc.date).format('DD MMMM YYYY'),
@@ -170,7 +170,18 @@ class SyncDataController {
               totalFinedKg
             ).toLocaleString('en')}kg`,
             9: finedObject['TANGKAI PANJANG'],
-            10: finedObject['BUAH KECIL DIBAWAH 5KG'],
+            10:
+              Number(
+                Object.values(doc.grading_result['rejected_summary']).reduce(
+                  (total, category) => {
+                    return (
+                      total +
+                      ((category && category?.['BUAH KECIL DIBAWAH 5KG']) || 0)
+                    );
+                  },
+                  0
+                )
+              ).toLocaleString('en') + ' Jjg',
             11: doc.grading_result['rejected_summary']?.['MENTAH']
               ? (
                   Number(
