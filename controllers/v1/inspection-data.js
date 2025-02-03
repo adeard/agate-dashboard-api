@@ -438,11 +438,11 @@ class InspectionDataController {
             ? Number(rejectedSummary['MENTAH']['TOTAL']).toLocaleString()
             : 0,
 
-          bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
-          bjr_5_denda: (
-            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
-            Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
-          ).toLocaleString(),
+          // bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
+          // bjr_5_denda: (
+          //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
+          //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
+          // ).toLocaleString(),
           tangkai_panjang: finedSummary['TANGKAI PANJANG']['TOTAL'],
           tangkai_panjang_denda: (
             Number(finedSummary['TANGKAI PANJANG']['TOTAL']) *
