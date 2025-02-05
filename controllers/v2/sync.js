@@ -159,7 +159,7 @@ class SyncDataController {
           sendWhatsAppId: 'direct',
           template: 'agate_direct_report_3',
           variable_qiscus: {
-            1: 'KDA Langling Mill',
+            1: `KDA Langling Mill (Mesin ${doc.machine})`,
             2: dayjs(doc.date).format('DD MMMM YYYY'),
             3: doc.vehicle_number,
             4: doc.vendor_name,
