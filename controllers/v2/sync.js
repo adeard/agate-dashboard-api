@@ -238,20 +238,18 @@ class SyncDataController {
           source: 'agate',
         };
 
-        const responseWa = await axios.post(
-          `${process.env.WA_URI}/api/v2/broadcast`,
-          { ...payload, phone: '6282111161253' }
-        );
-        const responseWa2 = await axios.post(
-          `${process.env.WA_URI}/api/v2/broadcast`,
-          { ...payload, phone: '6281385784854' }
-        );
-        const responseWa3 = await axios.post(
-          `${process.env.WA_URI}/api/v2/broadcast`,
-          { ...payload, phone: '6285295058857' }
-        );
-
-        console.log({ responseWa, responseWa2, responseWa3 });
+        await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+          ...payload,
+          phone: '6285266900607',
+        });
+        await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+          ...payload,
+          phone: '6281385784854',
+        });
+        await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+          ...payload,
+          phone: '6285295058857',
+        });
       }
 
       return res
