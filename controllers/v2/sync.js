@@ -213,7 +213,7 @@ class SyncDataController {
                     ] || 0
                   ) -
                   Number(
-                    doc.grading_result['rejected_summary']['MENTAH'][
+                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
                       'BUAH KECIL DIBAWAH 5KG'
                     ] || 0
                   )
