@@ -934,6 +934,41 @@ class DashboardV2Controller {
         };
       });
 
+      let summaryPerformances = converToObjectData(
+        allChartData.summary_performance
+      );
+
+      let modifyDataToPercent = (data) =>
+        data.map((sp) => {
+          let total =
+            sp?.['data']?.reduce(
+              (curr, acc) => curr + Number(acc.total || 0),
+              0
+            ) || 0;
+          return {
+            ...sp,
+            data:
+              sp?.data?.map((dt) => ({
+                ...dt,
+                total: Number(
+                  countPercentage(dt.total, total).toLocaleString('en', {
+                    maximumFractionDigits: 2,
+                  })
+                ),
+              })) || [],
+          };
+        });
+
+      summaryPerformances['monthly'] = modifyDataToPercent(
+        summaryPerformances['monthly']
+      );
+      summaryPerformances['weekly'] = modifyDataToPercent(
+        summaryPerformances['weekly']
+      );
+      summaryPerformances['daily'] = modifyDataToPercent(
+        summaryPerformances['daily']
+      );
+
       return res.status(200).json(
         createResponseSuccess(
           200,
@@ -998,9 +1033,7 @@ class DashboardV2Controller {
                 },
                 {}
               ),
-              summary_performance: converToObjectData(
-                allChartData.summary_performance
-              ),
+              summary_performance: summaryPerformances,
               durations: Object.keys(allChartData.durations).reduce(
                 (o, key) => {
                   if (!o[key]) {
@@ -1166,9 +1199,18 @@ class DashboardV2Controller {
                 }
 
                 o[key] = Object.keys(allChartData.rejected[key]).map((k) => {
-                  const { average, highest, lowest } = getStats(
-                    allChartData.rejected[key][k]['reject']?.data || []
-                  );
+                  let totalSum =
+                    allChartData.rejected[key][k]['reject']?.data?.reduce(
+                      (curr, acc) => curr + Number(acc || 0),
+                      0
+                    ) || 0;
+
+                  let usedData =
+                    allChartData.rejected[key][k]['reject']?.data?.map((dt) =>
+                      countPercentage(dt, totalSum)
+                    ) || [];
+
+                  const { average, highest, lowest } = getStats(usedData);
 
                   return {
                     title: k,
@@ -1176,15 +1218,27 @@ class DashboardV2Controller {
                       ? [
                           {
                             name: 'Highest',
-                            total: Math.ceil(highest),
+                            total: Number(
+                              highest.toLocaleString('en', {
+                                maximumFractionDigits: 2,
+                              })
+                            ),
                           },
                           {
                             name: 'Average',
-                            total: Math.ceil(average),
+                            total: Number(
+                              average.toLocaleString('en', {
+                                maximumFractionDigits: 2,
+                              })
+                            ),
                           },
                           {
                             name: 'Lowest',
-                            total: Math.ceil(lowest),
+                            total: Number(
+                              lowest.toLocaleString('en', {
+                                maximumFractionDigits: 2,
+                              })
+                            ),
                           },
                         ]
                       : [],
