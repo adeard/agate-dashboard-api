@@ -940,16 +940,16 @@ class DashboardV2Controller {
           'Success',
           'Success get all data',
           {
-            // average: {
-            //   accepted: `${Number(averageAccepted).toFixed(1)}%`,
-            //   rejected: `${Number(averageRejected).toFixed(1)}%`,
-            //   fined: `${Number(averageFined).toFixed(1)}%`,
-            //   duration:
-            //     Math.ceil(
-            //       Math.ceil(totalDurationInspection / totalInspection) / 60
-            //     ) + ' Min',
-            // },
-            // machine_utility: machineUtility,
+            average: {
+              accepted: `${Number(averageAccepted).toFixed(1)}%`,
+              rejected: `${Number(averageRejected).toFixed(1)}%`,
+              fined: `${Number(averageFined).toFixed(1)}%`,
+              duration:
+                Math.ceil(
+                  Math.ceil(totalDurationInspection / totalInspection) / 60
+                ) + ' Min',
+            },
+            machine_utility: machineUtility,
             charts_data: {
               machine_utility: Object.keys(allChartData.machine_utility).reduce(
                 (mObj, kTime) => {
