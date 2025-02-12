@@ -1,24 +1,7 @@
 const XLSX = require('xlsx');
 const dayjs = require('dayjs');
 const InspectionDataModel = require('../models/inspection-data');
-
-function countPercentage(number, total) {
-  return Number(((number || 0) / (total || 1)) * 100);
-}
-
-function getStats(data) {
-  const total = data.reduce((sum, value) => sum + value, 0);
-  const average = total / data.length;
-  const lowest = Math.min(...data);
-  const highest = Math.max(...data);
-
-  return {
-    total: total,
-    average: average,
-    lowest: lowest,
-    highest: highest,
-  };
-}
+const { countPercentage, getStats, formatTime } = require('./helpers');
 
 async function generateExcel(date) {
   try {
@@ -330,16 +313,6 @@ async function generateExcel(date) {
   } catch (err) {
     throw err;
   }
-}
-
-// Helper function to format time (minutes to HH:MM:SS)
-function formatTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${hours.toString().padStart(2, '0')}:${mins
-    .toString()
-    .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 module.exports = { generateExcel };
