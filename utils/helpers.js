@@ -143,4 +143,30 @@ module.exports = {
       }, duration);
     });
   },
+
+  countPercentage(number, total) {
+    return Number(((number || 0) / (total || 1)) * 100);
+  },
+
+  getStats(data) {
+    const total = data.reduce((sum, value) => sum + value, 0);
+    const average = total / data.length;
+    const lowest = Math.min(...data);
+    const highest = Math.max(...data);
+
+    return {
+      total: total,
+      average: average,
+      lowest: lowest,
+      highest: highest,
+    };
+  },
+  formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hours.toString().padStart(2, '0')}:${mins
+      .toString()
+      .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  },
 };
