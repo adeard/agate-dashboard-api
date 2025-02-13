@@ -73,10 +73,12 @@ class InspectionDataController {
         vendor_id = '',
         date_from = '',
         date_to = '',
+        limit_minimum = 0,
       } = req.query;
       const { factoryId } = req.params;
 
-      let q = {};
+      let q = { 'grading_result.total_tandan': { $gte: limit_minimum } };
+      
       if (factoryId) {
         q['factory'] = factoryId;
       }
