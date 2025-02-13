@@ -164,12 +164,8 @@ const setChartDataTruckGap = (
 
 const convertDemographyChartToArray = (object, main, time, divider = 1) => {
   let x = object[main][time];
-  return Object.keys(x).map((key) => {
-    // let total = Object.keys(x[key]).reduce(
-    //   (tot, acc) => Number(tot) + Number(x[key][acc] || 0),
-    //   0
-    // );
 
+  return Object.keys(x).map((key) => {
     let data = Object.keys(x[key]).reduce((curr, acc) => {
       let val = curr[acc]['value'];
       let percent = countPercentage(val, divider);
@@ -178,23 +174,26 @@ const convertDemographyChartToArray = (object, main, time, divider = 1) => {
       return curr;
     }, x[key]);
 
+    let finalData = Object.keys(data).map((k) => {
+      let vendorData = Object.keys(data[k]['vendors']).map((kv) => {
+        return {
+          name: kv,
+          percent: countPercentage(data[k]['vendors'][kv], data[k]['value']),
+          total: data[k]['vendors'][kv],
+        };
+      });
+
+      return {
+        name: k,
+        total: data[k]['value'],
+        vendors: vendorData.filter((e) => e.total > 0),
+      };
+    });
+
     return {
       title: key,
-      data: Object.keys(data).map((k) => {
-        let vendorData = Object.keys(data[k]['vendors']).map((kv) => {
-          return {
-            name: kv,
-            percent: countPercentage(data[k]['vendors'][kv], data[k]['value']),
-            total: data[k]['vendors'][kv],
-          };
-        });
-
-        return {
-          name: k,
-          total: data[k]['value'],
-          vendors: vendorData.filter((e) => e.total > 0),
-        };
-      }),
+      data: finalData,
+      // percent,
       // total: countPercentage(total, divider),
     };
   });
@@ -252,6 +251,7 @@ class DashboardV2Controller {
         factory = '',
         date_to = null,
         date_from = null,
+        vendor_type = null,
       } = req.query;
 
       const weeks = generateWeeks(year);
@@ -277,6 +277,10 @@ class DashboardV2Controller {
 
       if (factory) {
         q['factory'] = factory;
+      }
+
+      if (vendor_type) {
+        q['vendor_type'] = vendor_type;
       }
 
       // if (year) {
@@ -389,6 +393,8 @@ class DashboardV2Controller {
           daily: generateTemplate(days),
         },
       };
+
+      // console.log(allChartData.durations);
 
       let totalDurationInspection = 0;
       let acceptedPercents = [];
@@ -910,6 +916,7 @@ class DashboardV2Controller {
           vendors: mapVendorData(vendors, total),
         };
       });
+
       byDemographyInti = Object.keys(byDemographyInti).reduce((curr, key) => {
         Object.keys(curr[key]).forEach((k) => {
           curr[key][k] = convertDemographyChartToArray(
@@ -969,6 +976,60 @@ class DashboardV2Controller {
         summaryPerformances['daily']
       );
 
+      // console.log(allChartData.truck_gaps);
+      let duplicateDemografiIntiMain = { ...byDemographyInti['main'] };
+      duplicateDemografiIntiMain = Object.entries(
+        duplicateDemografiIntiMain
+      ).reduce((obj, [key, value]) => {
+        obj[key] = value.map(({ title, data }) => {
+          return {
+            title,
+            data,
+            total: data.reduce((curr, acc) => curr + Number(acc.total || 0), 0),
+          };
+        });
+
+        return obj;
+      }, duplicateDemografiIntiMain);
+
+      // console.log({ duplicateDemografiIntiMain });
+
+      byDemographyInti = Object.entries(byDemographyInti).reduce(
+        (obj, [key, value]) => {
+          obj[key] = Object.entries(obj[key]).reduce((o, [k, v]) => {
+            // console.log(o[k], v);
+            // console.log({ key, k });
+            o[k] = v.map((e) => {
+              const sameTitle = duplicateDemografiIntiMain[k].find(
+                (x) => x.title === e.title
+              );
+
+              // console.log({ sameTitle });
+
+              return {
+                ...e,
+                data: e.data.map((d) => {
+                  return {
+                    ...d,
+                    total: Number(
+                      countPercentage(
+                        d?.total || 0,
+                        sameTitle?.total || 1
+                      ).toFixed(2)
+                    ),
+                  };
+                }),
+              };
+            });
+
+            return o;
+          }, obj[key]);
+
+          return obj;
+        },
+        byDemographyInti
+      );
+
       return res.status(200).json(
         createResponseSuccess(
           200,
@@ -976,13 +1037,14 @@ class DashboardV2Controller {
           'Success get all data',
           {
             average: {
-              accepted: `${Number(averageAccepted).toFixed(1)}%`,
-              rejected: `${Number(averageRejected).toFixed(1)}%`,
-              fined: `${Number(averageFined).toFixed(1)}%`,
-              duration:
-                Math.ceil(
-                  Math.ceil(totalDurationInspection / totalInspection) / 60
-                ) + ' Min',
+              accepted: `${Number(averageAccepted || 0).toFixed(1)}%`,
+              rejected: `${Number(averageRejected || 0).toFixed(1)}%`,
+              fined: `${Number(averageFined || 0).toFixed(1)}%`,
+              duration: totalInspection
+                ? Math.ceil(
+                    Math.ceil(totalDurationInspection / totalInspection) / 60
+                  ) + ' Min'
+                : '0 Min',
             },
             machine_utility: machineUtility,
             charts_data: {
@@ -1092,35 +1154,37 @@ class DashboardV2Controller {
                       }, {});
 
                       // Calculate stats for each machine and store in object
-                      const machineStats = {
-                        All: (() => {
-                          const allDifferences = gapData.map(
-                            (item) => item.value
-                          );
-                          // const highest = Math.max(...allDifferences);
-                          // const lowest = Math.min(...allDifferences);
-                          // const average =
-                          //   allDifferences.reduce((a, b) => a + b, 0) /
-                          //   allDifferences.length;
-                          const { average, highest, lowest } =
-                            getStats(allDifferences);
+                      const machineStats = gapData.length
+                        ? {
+                            All: (() => {
+                              const allDifferences = gapData.map(
+                                (item) => item.value
+                              );
+                              // const highest = Math.max(...allDifferences);
+                              // const lowest = Math.min(...allDifferences);
+                              // const average =
+                              //   allDifferences.reduce((a, b) => a + b, 0) /
+                              //   allDifferences.length;
+                              const { average, highest, lowest } =
+                                getStats(allDifferences);
 
-                          return [
-                            {
-                              name: 'Highest',
-                              total: Math.ceil(Math.abs(highest)),
-                            },
-                            {
-                              name: 'Average',
-                              total: Math.ceil(Math.abs(average)),
-                            },
-                            {
-                              name: 'Lowest',
-                              total: Math.ceil(Math.abs(lowest)),
-                            },
-                          ];
-                        })(),
-                      };
+                              return [
+                                {
+                                  name: 'Highest',
+                                  total: Math.ceil(Math.abs(highest)),
+                                },
+                                {
+                                  name: 'Average',
+                                  total: Math.ceil(Math.abs(average)),
+                                },
+                                {
+                                  name: 'Lowest',
+                                  total: Math.ceil(Math.abs(lowest)),
+                                },
+                              ];
+                            })(),
+                          }
+                        : {};
 
                       // Add individual machine stats
                       Object.keys(machineGroups).forEach((machineNumber) => {
