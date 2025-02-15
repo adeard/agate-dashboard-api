@@ -155,11 +155,11 @@ const setChartDataTruckGap = (
     if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
       object[key][time][String(timeKey)][x] = { data: [] };
     }
+    object[key][time][String(timeKey)][x]['data'].push({
+      value: duration,
+      machine,
+    });
   }
-  object[key][time][String(timeKey)][x]['data'].push({
-    value: duration,
-    machine,
-  });
 };
 
 const convertDemographyChartToArray = (object, main, time, divider = 1) => {
@@ -1049,8 +1049,8 @@ class DashboardV2Controller {
           'Success',
           'Success get all data',
           {
-            vendor_supply: Object.entries(byVendorSupply).map(
-              ([key, value]) => {
+            vendor_supply: Object.entries(byVendorSupply)
+              .map(([key, value]) => {
                 return {
                   label: key,
                   total: value.total,
@@ -1058,8 +1058,8 @@ class DashboardV2Controller {
                     countPercentage(value.total, totalInspection).toFixed(2)
                   ),
                 };
-              }
-            ).sort((a, b) => b.total - a.total),
+              })
+              .sort((a, b) => b.total - a.total),
             average: {
               accepted: `${Number(averageAccepted || 0).toFixed(1)}%`,
               rejected: `${Number(averageRejected || 0).toFixed(1)}%`,
