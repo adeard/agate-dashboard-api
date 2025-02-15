@@ -407,6 +407,8 @@ class DashboardV2Controller {
       let usageMachine = {};
       let lastFinishMachine = {};
 
+      let byVendorSupply = {};
+
       inspections.forEach((inspection) => {
         const { day, monthYear } = getDateMonthYearDay(
           inspection['date'],
@@ -449,6 +451,14 @@ class DashboardV2Controller {
 
         totalAcceptedInti +=
           inspection['grading_result']['total_accepted'] || 0;
+
+        if (!byVendorSupply[inspection.vendor_name]) {
+          byVendorSupply[inspection.vendor_name] = {
+            total: 0,
+          };
+        }
+
+        byVendorSupply[inspection.vendor_name]['total'] += 1;
 
         if (lastFinishMachine?.[inspection.machine]) {
           const different = dayjs(lastFinishMachine[inspection.machine]).diff(
@@ -1039,6 +1049,17 @@ class DashboardV2Controller {
           'Success',
           'Success get all data',
           {
+            vendor_supply: Object.entries(byVendorSupply).map(
+              ([key, value]) => {
+                return {
+                  label: key,
+                  total: value.total,
+                  percent: Number(
+                    countPercentage(value.total, totalInspection).toFixed(2)
+                  ),
+                };
+              }
+            ).sort((a, b) => b.total - a.total),
             average: {
               accepted: `${Number(averageAccepted || 0).toFixed(1)}%`,
               rejected: `${Number(averageRejected || 0).toFixed(1)}%`,
