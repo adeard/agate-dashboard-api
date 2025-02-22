@@ -77,7 +77,9 @@ class InspectionDataController {
       } = req.query;
       const { factoryId } = req.params;
 
-      let q = { 'grading_result.total_tandan': { $gte: Number(limit_minimum) } };
+      let q = {
+        'grading_result.total_tandan': { $gte: Number(limit_minimum) },
+      };
 
       if (factoryId) {
         q['factory'] = factoryId;
@@ -245,6 +247,7 @@ class InspectionDataController {
         [
           'No',
           'Waktu',
+          'Mesin',
           'Vendor',
           'Nomor Surat Jalan',
           'Nomor Plat Kendaraan',
@@ -258,7 +261,10 @@ class InspectionDataController {
       inspections.forEach((ins, index) => {
         template.push([
           index + 1,
-          dayjs(ins.date).format('DD/MM/YYYY HH:mm'),
+          `${dayjs(ins.date).format('DD/MM/YYYY HH:mm')} - ${dayjs(
+            ins.finish_date
+          ).format('HH:mm')}`,
+          ins.machine || '-',
           ins.vendor_name,
           ins.delivery_number,
           ins.vehicle_number,
