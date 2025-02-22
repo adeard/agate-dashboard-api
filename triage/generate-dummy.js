@@ -250,22 +250,22 @@ connectToDatabase().then(async (res) => {
 
   // const password = generateRandomPassword(6);
 
-  // await UserModel.findOneAndUpdate(
-  //   { email: 'gustyhamdani772@gmail.com' },
-  //   {
-  //     $set: {
-  //       password: hashPassword(password),
-  //     },
-  //   }
-  // );
+  await UserModel.findOneAndUpdate(
+    { email: 'tes1@gmail.com' },
+    {
+      $set: {
+        password: hashPassword('iqsyalganteng666'),
+      },
+    }
+  );
 
   // console.log({ password });
 
-  const vendor3 = await InspectionDataModel.find({
-    engine_type: '2',
-  }).lean();
+  // const vendor3 = await InspectionDataModel.find({
+  //   engine_type: '2',
+  // }).lean();
 
-  console.log({ vendor3 });
+  // console.log({ vendor3 });
 
   console.log('Done');
   process.exit(1);
