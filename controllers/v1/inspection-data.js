@@ -246,7 +246,10 @@ class InspectionDataController {
       let template = [
         [
           'No',
-          'Waktu',
+          'Tanggal',
+          'Waktu Mulai',
+          'Waktu Selesai',
+          'Durasi',
           'Mesin',
           'Vendor',
           'Nomor Surat Jalan',
@@ -261,9 +264,10 @@ class InspectionDataController {
       inspections.forEach((ins, index) => {
         template.push([
           index + 1,
-          `${dayjs(ins.date).format('DD/MM/YYYY HH:mm')} - ${dayjs(
-            ins.finish_date
-          ).format('HH:mm')}`,
+          dayjs(ins.date).format('DD/MM/YYYY'),
+          dayjs(ins.date).format('HH:mm'),
+          dayjs(ins.finish_date).format('HH:mm'),
+          dayjs(ins.finish_date).diff(dayjs(ins.date), 'minutes'),
           ins.machine || '-',
           ins.vendor_name,
           ins.delivery_number,

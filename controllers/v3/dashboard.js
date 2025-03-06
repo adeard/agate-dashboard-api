@@ -697,19 +697,37 @@ class DashboardV2Controller {
             }
 
             curr[k]['total'] +=
-              inspection['grading_result']['classification_summary']?.[k]?.[
+              (inspection['grading_result']['classification_summary']?.[k]?.[
                 'TOTAL'
-              ] || 0;
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0);
 
             byIntiFruits[k]['total'] +=
-              inspection['grading_result']['classification_summary']?.[k]?.[
+              (inspection['grading_result']['classification_summary']?.[k]?.[
                 'TOTAL'
-              ] || 0;
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0);
 
             totalIntiFruits +=
-              inspection['grading_result']['classification_summary']?.[k]?.[
+              (inspection['grading_result']['classification_summary']?.[k]?.[
                 'TOTAL'
-              ] || 0;
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0);
 
             if (!Object.keys(byIntiFruits[k]['vendors']).includes(vendorName)) {
               byIntiFruits[k]['vendors'][vendorName] = {
@@ -719,9 +737,15 @@ class DashboardV2Controller {
             }
 
             byIntiFruits[k]['vendors'][vendorName]['total'] +=
-              inspection['grading_result']['classification_summary']?.[k]?.[
+              (inspection['grading_result']['classification_summary']?.[k]?.[
                 'TOTAL'
-              ] || 0;
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0) -
+              (inspection['grading_result']['classification_summary']?.[k]?.[
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0);
 
             setChartData(
               inspection,
@@ -762,14 +786,13 @@ class DashboardV2Controller {
                 };
               }
 
-              curr[sub]['total'] +=
-                inspection['grading_result']['classification_summary']?.[k]?.[
-                  sub
-                ] || 0;
-
               if (sub === 'TANGKAI PANJANG') {
+                curr[sub]['total'] +=
+                  inspection['grading_result']['accepted_summary']?.[k]?.[
+                    sub
+                  ] || 0;
                 byIntiFruitsTP[sub]['total'] +=
-                  inspection['grading_result']['classification_summary']?.[k]?.[
+                  inspection['grading_result']['accepted_summary']?.[k]?.[
                     sub
                   ] || 0;
 
@@ -784,7 +807,7 @@ class DashboardV2Controller {
                   };
                 }
                 byIntiFruitsTP[sub]['vendors'][vendorName]['total'] +=
-                  inspection['grading_result']['classification_summary']?.[k]?.[
+                  inspection['grading_result']['accepted_summary']?.[k]?.[
                     sub
                   ] || 0;
 
@@ -819,6 +842,10 @@ class DashboardV2Controller {
                   true
                 );
               } else {
+                curr[sub]['total'] +=
+                  inspection['grading_result']['classification_summary']?.[k]?.[
+                    sub
+                  ] || 0;
                 byIntiFruitsSize[sub]['total'] +=
                   inspection['grading_result']['classification_summary']?.[k]?.[
                     sub
@@ -889,7 +916,10 @@ class DashboardV2Controller {
               .map((kd) => ({
                 label: kd,
                 total: demography[kd]['total'],
-                percent: countPercentage(demography[kd]['total'], totalTandan),
+                percent: countPercentage(
+                  demography[kd]['total'],
+                  kd === 'TANGKAI PANJANG' ? total : totalTandan
+                ),
               }))
               .sort(
                 (a, b) =>
@@ -1104,7 +1134,8 @@ class DashboardV2Controller {
                         ([machine, value]) => {
                           return {
                             name: machine,
-                            total:
+                            total: value,
+                            percent:
                               sumValue > 0
                                 ? Math.round(countPercentage(value, sumValue))
                                 : 0,
@@ -1135,18 +1166,18 @@ class DashboardV2Controller {
                       title: k,
                       data: allChartData.durations[key][k]['duration']?.data
                         ? [
-                            {
-                              name: 'Highest',
-                              total: Math.ceil(highest / 60),
-                            },
+                            // {
+                            //   name: 'Highest',
+                            //   total: Math.ceil(highest / 60),
+                            // },
                             {
                               name: 'Average',
                               total: Math.ceil(average / 60),
                             },
-                            {
-                              name: 'Lowest',
-                              total: Math.ceil(lowest / 60),
-                            },
+                            // {
+                            //   name: 'Lowest',
+                            //   total: Math.ceil(lowest / 60),
+                            // },
                           ]
                         : [],
                     };
@@ -1156,93 +1187,93 @@ class DashboardV2Controller {
                 },
                 {}
               ),
-              truck_gaps: Object.keys(allChartData.truck_gaps).reduce(
-                (output, key) => {
-                  if (!output[key]) {
-                    output[key] = {};
-                  }
+              // truck_gaps: Object.keys(allChartData.truck_gaps).reduce(
+              //   (output, key) => {
+              //     if (!output[key]) {
+              //       output[key] = {};
+              //     }
 
-                  output[key] = Object.keys(allChartData.truck_gaps[key]).map(
-                    (timeKey) => {
-                      const gapData =
-                        allChartData.truck_gaps[key][timeKey]?.machines?.data ||
-                        [];
+              //     output[key] = Object.keys(allChartData.truck_gaps[key]).map(
+              //       (timeKey) => {
+              //         const gapData =
+              //           allChartData.truck_gaps[key][timeKey]?.machines?.data ||
+              //           [];
 
-                      // Group by machine
-                      const machineGroups = gapData.reduce((groups, item) => {
-                        if (!groups[item.machine]) {
-                          groups[item.machine] = [];
-                        }
-                        groups[item.machine].push(item.value);
-                        return groups;
-                      }, {});
+              //         // Group by machine
+              //         const machineGroups = gapData.reduce((groups, item) => {
+              //           if (!groups[item.machine]) {
+              //             groups[item.machine] = [];
+              //           }
+              //           groups[item.machine].push(item.value);
+              //           return groups;
+              //         }, {});
 
-                      // Calculate stats for each machine and store in object
-                      const machineStats = gapData.length
-                        ? {
-                            All: (() => {
-                              const allDifferences = gapData.map(
-                                (item) => item.value
-                              );
-                              // const highest = Math.max(...allDifferences);
-                              // const lowest = Math.min(...allDifferences);
-                              // const average =
-                              //   allDifferences.reduce((a, b) => a + b, 0) /
-                              //   allDifferences.length;
-                              const { average, highest, lowest } =
-                                getStats(allDifferences);
+              //         // Calculate stats for each machine and store in object
+              //         const machineStats = gapData.length
+              //           ? {
+              //               All: (() => {
+              //                 const allDifferences = gapData.map(
+              //                   (item) => item.value
+              //                 );
+              //                 // const highest = Math.max(...allDifferences);
+              //                 // const lowest = Math.min(...allDifferences);
+              //                 // const average =
+              //                 //   allDifferences.reduce((a, b) => a + b, 0) /
+              //                 //   allDifferences.length;
+              //                 const { average, highest, lowest } =
+              //                   getStats(allDifferences);
 
-                              return [
-                                {
-                                  name: 'Highest',
-                                  total: Math.ceil(Math.abs(highest)),
-                                },
-                                {
-                                  name: 'Average',
-                                  total: Math.ceil(Math.abs(average)),
-                                },
-                                {
-                                  name: 'Lowest',
-                                  total: Math.ceil(Math.abs(lowest)),
-                                },
-                              ];
-                            })(),
-                          }
-                        : {};
+              //                 return [
+              //                   {
+              //                     name: 'Highest',
+              //                     total: Math.ceil(Math.abs(highest)),
+              //                   },
+              //                   {
+              //                     name: 'Average',
+              //                     total: Math.ceil(Math.abs(average)),
+              //                   },
+              //                   {
+              //                     name: 'Lowest',
+              //                     total: Math.ceil(Math.abs(lowest)),
+              //                   },
+              //                 ];
+              //               })(),
+              //             }
+              //           : {};
 
-                      // Add individual machine stats
-                      Object.keys(machineGroups).forEach((machineNumber) => {
-                        const differences = machineGroups[machineNumber];
-                        const { average, highest, lowest } =
-                          getStats(differences);
+              //         // Add individual machine stats
+              //         Object.keys(machineGroups).forEach((machineNumber) => {
+              //           const differences = machineGroups[machineNumber];
+              //           const { average, highest, lowest } =
+              //             getStats(differences);
 
-                        machineStats[`${machineNumber}`] = [
-                          {
-                            name: 'Highest',
-                            total: Math.ceil(Math.abs(highest)),
-                          },
-                          {
-                            name: 'Average',
-                            total: Math.ceil(Math.abs(average)),
-                          },
-                          {
-                            name: 'Lowest',
-                            total: Math.ceil(Math.abs(lowest)),
-                          },
-                        ];
-                      });
+              //           machineStats[`${machineNumber}`] = [
+              //             {
+              //               name: 'Highest',
+              //               total: Math.ceil(Math.abs(highest)),
+              //             },
+              //             {
+              //               name: 'Average',
+              //               total: Math.ceil(Math.abs(average)),
+              //             },
+              //             {
+              //               name: 'Lowest',
+              //               total: Math.ceil(Math.abs(lowest)),
+              //             },
+              //           ];
+              //         });
 
-                      return {
-                        title: timeKey,
-                        data: machineStats,
-                      };
-                    }
-                  );
+              //         return {
+              //           title: timeKey,
+              //           data: machineStats,
+              //         };
+              //       }
+              //     );
 
-                  return output;
-                },
-                {}
-              ),
+              //     return output;
+              //   },
+              //   {}
+              // ),
               truck_fines: Object.keys(allChartData.truck_fines).reduce(
                 (o, key) => {
                   if (!o[key]) {
