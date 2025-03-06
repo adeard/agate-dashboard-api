@@ -169,4 +169,32 @@ module.exports = {
       .toString()
       .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   },
+  analyzeVendors(vendorData) {
+    let bestVendor = null;
+    let bestScore = -1;
+    let mostProductiveVendor = null;
+    let highestProductivity = -1;
+
+    for (const [vendorCode, data] of Object.entries(vendorData)) {
+      if (data.final_score > bestScore) {
+        bestScore = data.final_score;
+        bestVendor = { code: vendorCode, data: data, score: data.final_score };
+      }
+
+      const productivity = data.total_tandan / data.jumlah_truk;
+      if (productivity > highestProductivity) {
+        highestProductivity = productivity;
+        mostProductiveVendor = {
+          code: vendorCode,
+          data: data,
+          productivity: productivity,
+        };
+      }
+    }
+
+    return {
+      bestVendor,
+      mostProductiveVendor,
+    };
+  },
 };
