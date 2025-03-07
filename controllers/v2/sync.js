@@ -323,7 +323,7 @@ class SyncDataController {
             sendWhatsAppId: 'direct-warning-lm',
             template: 'agate_warning_lewat_matang_050325_1007',
             variable_qiscus: {
-              1: doc.machine,
+              1: String(doc.machine).padStart(2, "0"),
               2: dayjs(doc.date).format('DD MMMM YYYY'),
               3: dayjs(doc.date).format('HH:mm'),
               4: doc.vehicle_number,
@@ -414,7 +414,7 @@ class SyncDataController {
             sendWhatsAppId: 'direct-warning-lm',
             template: 'agate_warning_reject_050325_1012',
             variable_qiscus: {
-              1: doc.machine,
+              1: String(doc.machine).padStart(2, "0"),
               2: dayjs(doc.date).format('DD MMMM YYYY'),
               3: dayjs(doc.date).format('HH:mm'),
               4: doc.vehicle_number,
