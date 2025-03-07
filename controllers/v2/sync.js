@@ -29,6 +29,10 @@ const broadcastReport = async (payload) => {
     ...payload,
     phone: '6285295058857',
   });
+  await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+    ...payload,
+    phone: '6282111161253',
+  });
 };
 
 class SyncDataController {
