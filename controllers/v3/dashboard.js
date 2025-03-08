@@ -288,8 +288,9 @@ class DashboardV2Controller {
       // }
 
       let inspections = await InspectionDataModel.find(q);
+
       inspections = inspections.filter(
-        (e) => e.grading_result['total_tandan'] > 200
+        (e) => Number(e.grading_result['total_tandan']) > 200
       );
 
       const totalAllTandon = inspections.reduce(

@@ -250,16 +250,16 @@ connectToDatabase().then(async (res) => {
 
   // const password = generateRandomPassword(6);
 
-  // await UserModel.findOneAndUpdate(
-  //   { email: 'tes1@gmail.com' },
-  //   {
-  //     $set: {
-  //       password: hashPassword('iqsyalganteng666'),
-  //     },
-  //   }
-  // );
+  await UserModel.findOneAndUpdate(
+    { email: 'reg.mis.bnge@sinarmas-agri.com' },
+    {
+      $set: {
+        password: hashPassword('Sinarmas321'),
+      },
+    }
+  );
 
-  await blastReportToUser();
+  // await blastReportToUser();
 
   // console.log({ password });
 

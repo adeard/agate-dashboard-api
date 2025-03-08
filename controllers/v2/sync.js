@@ -135,7 +135,7 @@ class SyncDataController {
         }
       );
 
-      if (direct) {
+      if (direct && doc.grading_result["total_tandan"] > 100) {
         // const finedObject = {};
         // const finedSummary = doc.grading_result.fined_summary;
         // const fined = Object.keys(finedSummary);
