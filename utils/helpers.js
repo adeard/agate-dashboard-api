@@ -181,7 +181,7 @@ module.exports = {
         bestVendor = { code: vendorCode, data: data, score: data.final_score };
       }
 
-      const productivity = data.total_tandan / data.jumlah_truk;
+      const productivity = data.jumlah_truk;
       if (productivity > highestProductivity) {
         highestProductivity = productivity;
         mostProductiveVendor = {
