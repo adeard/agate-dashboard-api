@@ -12,8 +12,8 @@ const { vBody } = require('../../validators/joi');
 const dayjs = require('dayjs');
 
 const formatter = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
 });
 
 const broadcastReport = async (payload) => {
@@ -282,25 +282,25 @@ class SyncDataController {
             8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
               totalFinedKg
             ).toLocaleString('en')}kg`,
-            9: `${totalMatang} (${countPercentage(totalMatang, totalTandan)})`,
-            10: `${totalLewatMatang} (${countPercentage(
-              totalLewatMatang,
-              totalTandan
-            )})`,
+            9: `${totalMatang} (${formatter.format(
+              countPercentage(totalMatang, totalTandan)
+            )}%)`,
+            10: `${totalLewatMatang} (${formatter.format(
+              countPercentage(totalLewatMatang, totalTandan)
+            )}%)`,
 
-            11: `${totalTangkaiPanjang} (${countPercentage(
-              totalTangkaiPanjang,
-              totalAccepted
-            )})`,
-            12: `${totalMentah} (${countPercentage(totalMentah, totalTandan)})`,
-            13: `${totalJanjangKosong} (${countPercentage(
-              totalJanjangKosong,
-              totalTandan
-            )})`,
-            14: `${totalBuahKecil} (${countPercentage(
-              totalBuahKecil,
-              totalTandan
-            )})`,
+            11: `${totalTangkaiPanjang} (${formatter.format(
+              countPercentage(totalTangkaiPanjang, totalAccepted)
+            )}%)`,
+            12: `${totalMentah} (${formatter.format(
+              countPercentage(totalMentah, totalTandan)
+            )}%)`,
+            13: `${totalJanjangKosong} (${formatter.format(
+              countPercentage(totalJanjangKosong, totalTandan)
+            )}%)`,
+            14: `${totalBuahKecil} (${formatter.format(
+              countPercentage(totalBuahKecil, totalTandan)
+            )}%)`,
             // 14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
           },
           redirect_url: `api/v1/inspection-data/download-pdf/${doc._id}`,
