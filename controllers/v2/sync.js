@@ -177,6 +177,94 @@ class SyncDataController {
             ? ((totalAccepted || 0) / (totalTandan || 1)) * 100
             : 0;
 
+        let totalMatang = doc.grading_result['accepted_summary']?.['MATANG']
+          ? Number(
+              doc.grading_result['accepted_summary']['MATANG']['TOTAL'] || 0
+            ) -
+            Number(
+              doc.grading_result['accepted_summary']['MATANG'][
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0
+            ) -
+            Number(
+              doc.grading_result['accepted_summary']['MATANG'][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            )
+          : 0;
+        let totalLewatMatang = doc.grading_result['accepted_summary']?.[
+          'LEWAT MATANG'
+        ]
+          ? Number(
+              doc.grading_result['accepted_summary']['LEWAT MATANG']['TOTAL'] ||
+                0
+            ) -
+            Number(
+              doc.grading_result['accepted_summary']['LEWAT MATANG'][
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0
+            ) -
+            Number(
+              doc.grading_result['accepted_summary']['LEWAT MATANG'][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            )
+          : 0;
+        let totalTangkaiPanjang = Number(
+          Object.values(doc.grading_result['accepted_summary']).reduce(
+            (total, category) => {
+              return total + ((category && category?.['TANGKAI PANJANG']) || 0);
+            },
+            0
+          )
+        );
+        let totalMentah = doc.grading_result['rejected_summary']?.['MENTAH']
+          ? Number(
+              doc.grading_result['rejected_summary']['MENTAH']['TOTAL'] || 0
+            ) -
+            Number(
+              doc.grading_result['rejected_summary']['MENTAH'][
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0
+            ) -
+            Number(
+              doc.grading_result['rejected_summary']['MENTAH'][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            )
+          : 0;
+        let totalJanjangKosong = doc.grading_result['rejected_summary']?.[
+          'JANJANG KOSONG'
+        ]
+          ? Number(
+              doc.grading_result['rejected_summary']['JANJANG KOSONG'][
+                'TOTAL'
+              ] || 0
+            ) -
+            Number(
+              doc.grading_result['rejected_summary']['JANJANG KOSONG'][
+                'BUAH KECIL DIBAWAH 3KG'
+              ] || 0
+            ) -
+            Number(
+              doc.grading_result['rejected_summary']['JANJANG KOSONG'][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            )
+          : 0;
+        let totalBuahKecil = Number(
+          Object.values(doc.grading_result['rejected_summary']).reduce(
+            (total, category) => {
+              return (
+                total +
+                ((category && category?.['BUAH KECIL DIBAWAH 3KG']) || 0) +
+                ((category && category?.['BUAH KECIL DIBAWAH 5KG']) || 0)
+              );
+            },
+            0
+          )
+        );
+
         const payload = {
           sendWhatsAppId: 'direct',
           template: 'agate_truk_100325_0810',
@@ -194,106 +282,25 @@ class SyncDataController {
             8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
               totalFinedKg
             ).toLocaleString('en')}kg`,
-            9: doc.grading_result['accepted_summary']?.['MATANG']
-              ? (
-                  Number(
-                    doc.grading_result['accepted_summary']['MATANG']['TOTAL'] ||
-                      0
-                  ) -
-                  Number(
-                    doc.grading_result['accepted_summary']['MATANG'][
-                      'BUAH KECIL DIBAWAH 3KG'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['accepted_summary']['MATANG'][
-                      'BUAH KECIL DIBAWAH 5KG'
-                    ] || 0
-                  )
-                ).toLocaleString('en') + ' Jjg'
-              : '0 Jjg',
-            10: doc.grading_result['accepted_summary']?.['LEWAT MATANG']
-              ? (
-                  Number(
-                    doc.grading_result['accepted_summary']['LEWAT MATANG'][
-                      'TOTAL'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['accepted_summary']['LEWAT MATANG'][
-                      'BUAH KECIL DIBAWAH 3KG'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['accepted_summary']['LEWAT MATANG'][
-                      'BUAH KECIL DIBAWAH 5KG'
-                    ] || 0
-                  )
-                ).toLocaleString('en') + ' Jjg'
-              : '0 Jjg',
+            9: `${totalMatang} (${countPercentage(totalMatang, totalTandan)})`,
+            10: `${totalLewatMatang} (${countPercentage(
+              totalLewatMatang,
+              totalTandan
+            )})`,
 
-            11:
-              Number(
-                Object.values(doc.grading_result['accepted_summary']).reduce(
-                  (total, category) => {
-                    return (
-                      total + ((category && category?.['TANGKAI PANJANG']) || 0)
-                    );
-                  },
-                  0
-                )
-              ).toLocaleString('en') + ' Jjg',
-            12: doc.grading_result['rejected_summary']?.['MENTAH']
-              ? (
-                  Number(
-                    doc.grading_result['rejected_summary']['MENTAH']['TOTAL'] ||
-                      0
-                  ) -
-                  Number(
-                    doc.grading_result['rejected_summary']['MENTAH'][
-                      'BUAH KECIL DIBAWAH 3KG'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['rejected_summary']['MENTAH'][
-                      'BUAH KECIL DIBAWAH 5KG'
-                    ] || 0
-                  )
-                ).toLocaleString('en') + ' Jjg'
-              : '0 Jjg',
-            13: doc.grading_result['rejected_summary']?.['JANJANG KOSONG']
-              ? (
-                  Number(
-                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
-                      'TOTAL'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
-                      'BUAH KECIL DIBAWAH 3KG'
-                    ] || 0
-                  ) -
-                  Number(
-                    doc.grading_result['rejected_summary']['JANJANG KOSONG'][
-                      'BUAH KECIL DIBAWAH 5KG'
-                    ] || 0
-                  )
-                ).toLocaleString('en') + ' Jjg'
-              : '0 Jjg',
-            14:
-              Number(
-                Object.values(doc.grading_result['rejected_summary']).reduce(
-                  (total, category) => {
-                    return (
-                      total +
-                      ((category && category?.['BUAH KECIL DIBAWAH 3KG']) ||
-                        0) +
-                      ((category && category?.['BUAH KECIL DIBAWAH 5KG']) || 0)
-                    );
-                  },
-                  0
-                )
-              ).toLocaleString('en') + ' Jjg',
+            11: `${totalTangkaiPanjang} (${countPercentage(
+              totalTangkaiPanjang,
+              totalAccepted
+            )})`,
+            12: `${totalMentah} (${countPercentage(totalMentah, totalTandan)})`,
+            13: `${totalJanjangKosong} (${countPercentage(
+              totalJanjangKosong,
+              totalTandan
+            )})`,
+            14: `${totalBuahKecil} (${countPercentage(
+              totalBuahKecil,
+              totalTandan
+            )})`,
             // 14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
           },
           redirect_url: `api/v1/inspection-data/download-pdf/${doc._id}`,
