@@ -12,8 +12,8 @@ const { vBody } = require('../../validators/joi');
 const dayjs = require('dayjs');
 
 const formatter = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
 });
 
 const broadcastReport = async (payload) => {
