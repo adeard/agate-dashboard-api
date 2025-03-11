@@ -144,8 +144,9 @@ module.exports = {
     });
   },
 
-  countPercentage(number, total) {
-    return Number(((number || 0) / (total || 1)) * 100);
+  countPercentage(number, total, round = false) {
+    let percent = Number(((number || 0) / (total || 1)) * 100);
+    return round ? Math.round(percent) : percent;
   },
 
   getStats(data) {
