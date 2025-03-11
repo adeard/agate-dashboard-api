@@ -267,38 +267,39 @@ class SyncDataController {
 
         const payload = {
           sendWhatsAppId: 'direct',
-          template: 'agate_truk_100325_0810',
+          template: 'agate_truk_110325_2036',
           variable_qiscus: {
             1: `KDA Langling Mill (AGATE Mesin ${String(doc.machine).padStart(
               2,
               '0'
             )})`,
             2: dayjs(doc.date).format('DD MMMM YYYY'),
-            3: doc.vehicle_number,
-            4: doc.vendor_name,
-            5: doc.grading_result.total_tandan,
-            6: formatter.format(percentAccepted) + '%',
-            7: formatter.format(percentRejected) + '%',
-            8: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
+            3: dayjs(doc.date).format('HH:mm:ss'),
+            4: dayjs(doc.finish_date).format('HH:mm:ss'),
+            5: `${doc.vehicle_number} (${doc.vendor_name})`,
+            6: doc.grading_result.total_tandan,
+            7: formatter.format(percentAccepted) + '%',
+            8: formatter.format(percentRejected) + '%',
+            9: `${totalFined.toLocaleString('en')} Jjg /  ${Math.round(
               totalFinedKg
             ).toLocaleString('en')}kg`,
-            9: `${totalMatang} (${formatter.format(
+            10: `${totalMatang} (${formatter.format(
               countPercentage(totalMatang, totalTandan)
             )}%)`,
-            10: `${totalLewatMatang} (${formatter.format(
+            11: `${totalLewatMatang} (${formatter.format(
               countPercentage(totalLewatMatang, totalTandan)
             )}%)`,
 
-            11: `${totalTangkaiPanjang} (${formatter.format(
+            12: `${totalTangkaiPanjang} (${formatter.format(
               countPercentage(totalTangkaiPanjang, totalAccepted)
             )}%)`,
-            12: `${totalMentah} (${formatter.format(
+            13: `${totalMentah} (${formatter.format(
               countPercentage(totalMentah, totalTandan)
             )}%)`,
-            13: `${totalJanjangKosong} (${formatter.format(
+            14: `${totalJanjangKosong} (${formatter.format(
               countPercentage(totalJanjangKosong, totalTandan)
             )}%)`,
-            14: `${totalBuahKecil} (${formatter.format(
+            15: `${totalBuahKecil} (${formatter.format(
               countPercentage(totalBuahKecil, totalTandan)
             )}%)`,
             // 14: `https://api-grading-hq.accelego.id/api/v1/inspection-data/download-pdf/${doc._id}`,
