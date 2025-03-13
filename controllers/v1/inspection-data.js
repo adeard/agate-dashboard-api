@@ -367,7 +367,7 @@ class InspectionDataController {
             )
           : 0;
       let total_percent =
-        Number(total_rejected_percent.toFixed(1)) + Number(total_accepted_percent.toFixed(1));
+        Number(Number(total_rejected_percent).toFixed(1)) + Number(Number(total_accepted_percent).toFixed(1));
 
       let classificationResult = generateClassificationResultArray(
         classificationData
