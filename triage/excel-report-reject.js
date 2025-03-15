@@ -3,7 +3,11 @@ const dayjs = require('dayjs');
 const InspectionDataModel = require('../models/inspection-data');
 const connectToDatabase = require('../lib/db-connect');
 const { countPercentage } = require('../utils/helpers');
+const { scoringMultiplier } = require('../utils/enum');
 require('dotenv').config();
+require('dayjs/locale/id');
+
+dayjs.locale('id');
 
 const getDurationString = (startDate, endDate) => {
   const start = dayjs(startDate);
@@ -62,53 +66,98 @@ async function generateExcel(targetDate) {
   );
 
   // Prepare the Excel data
-  const excelData = [];
+  const excelData = [
+    [
+      'Tanggal',
+      'Peringkat',
+      'Truk',
+      'Vendor',
+      'Total Tandan',
+      'Diterima',
+      'Ditolak',
+      'Didenda',
+      'Matang',
+      'Lewat Matang',
+      'Mentah',
+      'Janjang Kosong',
+      'Buah Kecil',
+      'Tangkai Panjang',
+    ],
+  ];
 
-  const byDated = {};
+  let byDated = {};
 
   data.forEach((item, index) => {
-    const date = dayjs(item.date).format('DD/MM/YYYY');
+    const date = dayjs(item.date).format('DD MMMM YYYY');
     const totalRejected = item['grading_result']['total_rejected'];
+    const totalAccepted = item['grading_result']['total_accepted'];
+    const totalFined = item['grading_result']['total_fined'];
+    const totalTandan = item['grading_result']['total_tandan'];
 
     if (!byDated[date]) {
-      byDated[date] = {
-        1: { rejected_percent: 0 },
-        2: { rejected_percent: 0 },
-        3: { rejected_percent: 0 },
-        4: { rejected_percent: 0 },
-        5: { rejected_percent: 0 },
-      };
+      byDated[date] = [];
     }
-    const rejectedPercent = countPercentage(
-      totalRejected,
-      item['grading_result']['total_tandan']
-    );
-    item['rejected_percent'] = rejectedPercent;
+    const rejectedPercent = countPercentage(totalRejected, totalTandan);
+    const acceptedPercent = countPercentage(totalAccepted, totalTandan);
+    const finedPercent = countPercentage(totalFined, totalAccepted);
 
-    let totalMentah = item['grading_result']['rejected_summary']?.['MENTAH']
-      ? item['grading_result']['rejected_summary']['MENTAH']?.['TOTAL'] -
-        item['grading_result']['rejected_summary']['MENTAH'][
+    item['rejected_percent'] = rejectedPercent;
+    item['accepted_percent'] = acceptedPercent;
+    item['fined_percent'] = finedPercent;
+
+    let totalMatang = item['grading_result']['classification_summary']?.[
+      'MATANG'
+    ]
+      ? item['grading_result']['classification_summary']['MATANG']?.['TOTAL'] -
+        item['grading_result']['classification_summary']['MATANG'][
           'BUAH KECIL DIBAWAH 3KG'
         ] -
-        item['grading_result']['rejected_summary']['MENTAH'][
+        item['grading_result']['classification_summary']['MATANG'][
           'BUAH KECIL DIBAWAH 5KG'
         ]
       : 0;
-    let totalJanjangKosong = item['grading_result']['rejected_summary']?.[
-      'JANJANG KOSONG'
+    let totalLewatMatang = item['grading_result']['classification_summary']?.[
+      'MATANG'
     ]
-      ? item['grading_result']['rejected_summary']['JANJANG KOSONG']['TOTAL'] -
-        item['grading_result']['rejected_summary']['JANJANG KOSONG'][
+      ? item['grading_result']['classification_summary']['LEWAT MATANG']?.[
+          'TOTAL'
+        ] -
+        item['grading_result']['classification_summary']['LEWAT MATANG'][
           'BUAH KECIL DIBAWAH 3KG'
         ] -
-        item['grading_result']['rejected_summary']['JANJANG KOSONG'][
+        item['grading_result']['classification_summary']['LEWAT MATANG'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+
+    let totalMentah = item['grading_result']['classification_summary']?.[
+      'MENTAH'
+    ]
+      ? item['grading_result']['classification_summary']['MENTAH']?.['TOTAL'] -
+        item['grading_result']['classification_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item['grading_result']['classification_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+    let totalJanjangKosong = item['grading_result']['classification_summary']?.[
+      'JANJANG KOSONG'
+    ]
+      ? item['grading_result']['classification_summary']['JANJANG KOSONG'][
+          'TOTAL'
+        ] -
+        item['grading_result']['classification_summary']['JANJANG KOSONG'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item['grading_result']['classification_summary']['JANJANG KOSONG'][
           'BUAH KECIL DIBAWAH 5KG'
         ]
       : 0;
     let totalBuahKecil = Object.keys(
-      item['grading_result']['rejected_summary']
+      item['grading_result']['classification_summary']
     ).reduce((num, key) => {
-      let curr = item['grading_result']['rejected_summary'][key];
+      let curr = item['grading_result']['classification_summary'][key];
 
       return (
         num +
@@ -116,66 +165,142 @@ async function generateExcel(targetDate) {
         Number(curr['BUAH KECIL DIBAWAH 5KG'])
       );
     }, 0);
+    let totalTangkaiPanjang = Object.keys(
+      item['grading_result']['classification_summary']
+    ).reduce((num, key) => {
+      let curr = item['grading_result']['classification_summary'][key];
+
+      return num + Number(curr['TANGKAI PANJANG']);
+    }, 0);
 
     const modifiedItem = {
       vehicle_number: item.vehicle_number,
       vendor_name: item.vendor_name,
+      total: totalTandan,
       rejected_percent: rejectedPercent.toFixed(2),
-      rejected: item['grading_result']['total_rejected'],
+      rejected: totalRejected,
+      fined_percent: finedPercent.toFixed(2),
+      fined: totalFined,
+      accepted_percent: acceptedPercent.toFixed(2),
+      accepted: totalAccepted,
       mentah: {
         count: totalMentah,
-        percentage: countPercentage(totalMentah, totalRejected).toFixed(1),
+        percentage: countPercentage(totalMentah, totalTandan).toFixed(1),
       },
       janjang_kosong: {
         count: totalJanjangKosong,
-        percentage: countPercentage(totalJanjangKosong, totalRejected).toFixed(
-          1
-        ),
+        percentage: countPercentage(totalJanjangKosong, totalTandan).toFixed(1),
       },
       buah_kecil: {
         count: totalBuahKecil,
-        percentage: countPercentage(totalBuahKecil, totalRejected).toFixed(1),
+        percentage: countPercentage(totalBuahKecil, totalTandan).toFixed(1),
+      },
+      matang: {
+        count: totalMatang,
+        percentage: countPercentage(totalMatang, totalTandan).toFixed(1),
+      },
+      lewat_matang: {
+        count: totalLewatMatang,
+        percentage: countPercentage(totalLewatMatang, totalTandan).toFixed(1),
+      },
+      tangkai_panjang: {
+        count: totalTangkaiPanjang,
+        percentage: countPercentage(totalTangkaiPanjang, totalTandan).toFixed(
+          1
+        ),
       },
     };
 
-    if (rejectedPercent > byDated[date][1]['rejected_percent']) {
-      byDated[date][1] = modifiedItem;
-    } else if (rejectedPercent > byDated[date][2]['rejected_percent']) {
-      byDated[date][2] = modifiedItem;
-    } else if (rejectedPercent > byDated[date][3]['rejected_percent']) {
-      byDated[date][3] = modifiedItem;
-    } else if (rejectedPercent > byDated[date][4]['rejected_percent']) {
-      byDated[date][4] = modifiedItem;
-    } else if (rejectedPercent > byDated[date][5]['rejected_percent']) {
-      byDated[date][5] = modifiedItem;
-    } else {
-      return;
-    }
+    let scoring = Object.keys(scoringMultiplier).reduce((obj, key) => {
+      if (!obj[key]) {
+        obj[key] =
+          Number(modifiedItem[key].count) * Number(scoringMultiplier[key]);
+      }
+      return obj;
+    }, {});
+    let finalScore = Object.keys(scoring).reduce(
+      (num, k) => num + Number(scoring[k]),
+      0
+    );
+
+    modifiedItem['final_score'] = finalScore;
+
+    byDated[date].push(modifiedItem);
+
+    // if (Number(finalScore) <= byDated[date][1]['final_score']) {
+    //   byDated[date][1] = modifiedItem;
+    // } else if (Number(finalScore) <= byDated[date][2]['final_score']) {
+    //   byDated[date][2] = modifiedItem;
+    // } else if (Number(finalScore) <= byDated[date][3]['final_score']) {
+    //   byDated[date][3] = modifiedItem;
+    // } else if (Number(finalScore) <= byDated[date][4]['final_score']) {
+    //   byDated[date][4] = modifiedItem;
+    // } else if (Number(finalScore) <= byDated[date][5]['final_score']) {
+    //   byDated[date][5] = modifiedItem;
+    // } else {
+    //   return;
+    // }
+
+    // if (rejectedPercent > byDated[date][1]['rejected_percent']) {
+    //   byDated[date][1] = modifiedItem;
+    // } else if (rejectedPercent > byDated[date][2]['rejected_percent']) {
+    //   byDated[date][2] = modifiedItem;
+    // } else if (rejectedPercent > byDated[date][3]['rejected_percent']) {
+    //   byDated[date][3] = modifiedItem;
+    // } else if (rejectedPercent > byDated[date][4]['rejected_percent']) {
+    //   byDated[date][4] = modifiedItem;
+    // } else if (rejectedPercent > byDated[date][5]['rejected_percent']) {
+    //   byDated[date][5] = modifiedItem;
+    // } else {
+    //   return;
+    // }
   });
+
+  byDated = Object.keys(byDated).reduce((obj, key) => {
+    obj[key] = byDated[key].sort((a, b) => a.final_score - b.final_score);
+
+    obj[key] = obj[key].slice(0, 5);
+    return obj;
+  }, byDated);
 
   // console.log({ byDated: JSON.stringify(byDated, null, 1) });
   // return;
+  // console.log({ byDated });
 
   Object.keys(byDated).forEach((keyDate) => {
     let rankData = byDated[keyDate];
 
-    excelData.push([keyDate]);
-    excelData.push([
-      'Peringkat',
-      'Truk',
-      'Ditolak',
-      'Mentah',
-      'Janjang Kosong',
-      'Buah Kecil',
-    ]);
+    // 'Tanggal',
+    // 'Peringkat',
+    // 'Truk',
+    // 'Vendor',
+    // 'Total Tandan',
+    // 'Diterima',
+    // 'Ditolak',
+    // 'Didenda',
+    // 'Matang',
+    // 'Lewat Matang',
+    // 'Mentah',
+    // 'Janjang Kosong',
+    // 'Buah Kecil',
+    // 'Tangkai Panjang',
 
-    Object.keys(rankData).forEach((keyRank) => {
-      const itemData = rankData[keyRank];
-
+    rankData.forEach((itemData, index) => {
       excelData.push([
-        `${keyRank}`,
-        `${itemData?.vehicle_number} (${itemData?.vendor_name})`,
+        keyDate,
+        `${index + 1}`,
+        `${itemData?.vehicle_number}`,
+        itemData?.vendor_name,
+        `${itemData?.total}`,
+        `${itemData?.accepted} (${itemData?.accepted_percent}%)`,
         `${itemData?.rejected} (${itemData?.rejected_percent}%)`,
+        `${itemData?.fined} (${itemData?.fined_percent}%)`,
+        `${itemData?.matang?.count || 0} (${
+          itemData?.matang?.percentage || 0
+        }%)`,
+        `${itemData?.lewat_matang?.count || 0} (${
+          itemData?.lewat_matang?.percentage || 0
+        }%)`,
         `${itemData?.mentah?.count || 0} (${
           itemData?.mentah?.percentage || 0
         }%)`,
@@ -185,10 +310,11 @@ async function generateExcel(targetDate) {
         `${itemData?.buah_kecil?.count || 0} (${
           itemData?.buah_kecil?.percentage || 0
         }%)`,
+        `${itemData?.tangkai_panjang?.count || 0} (${
+          itemData?.tangkai_panjang?.percentage || 0
+        }%)`,
       ]);
     });
-
-    excelData.push([]);
   });
 
   // console.log({ excelData });
