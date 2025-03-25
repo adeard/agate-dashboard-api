@@ -17,22 +17,24 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 const broadcastReport = async (payload) => {
-  await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
-    ...payload,
-    phone: '6285266900607',
-  });
-  await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
-    ...payload,
-    phone: '6281385784854',
-  });
-  await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
-    ...payload,
-    phone: '6285295058857',
-  });
-  await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
-    ...payload,
-    phone: '6282111161253',
-  });
+  await Promise.all([
+    axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+      ...payload,
+      phone: '6285266900607',
+    }),
+    axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+      ...payload,
+      phone: '6285295058857',
+    }),
+  ]);
+  // await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+  //   ...payload,
+  //   phone: '6281385784854',
+  // });
+  // await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
+  //   ...payload,
+  //   phone: '6282111161253',
+  // });
 };
 
 class SyncDataController {
