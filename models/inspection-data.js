@@ -139,6 +139,12 @@ const SCHEMA = new Schema(
     machine: {
       type: Number,
     },
+    notes: {
+      type: String,
+    },
+    images: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
