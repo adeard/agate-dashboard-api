@@ -1,9 +1,19 @@
 const SyncDataController = require('../../controllers/v2/sync');
-const VendorV2Controller = require('../../controllers/v2/vendor');
 const { validateClientKey } = require('../../middlewares/authorization');
+
+const { uploadSingleFile, upload } = require('../../middlewares/gcp');
+
+// let upload = upload.single("file")
 
 module.exports = (express) =>
   new express.Router()
-    .post('/vendor', validateClientKey, SyncDataController.syncVendor)
     .post('/wa-status', SyncDataController.syncWAStatus)
-    .post('/inspection', validateClientKey, SyncDataController.syncInspection);
+    .use(validateClientKey)
+    .post('/vendor', SyncDataController.syncVendor)
+    .post('/inspection', SyncDataController.syncInspection)
+    .post(
+      '/inspection/:id/image',
+      upload.single('file'),
+      uploadSingleFile,
+      SyncDataController.syncInspectionImage
+    );

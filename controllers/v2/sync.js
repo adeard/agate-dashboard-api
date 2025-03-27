@@ -493,7 +493,7 @@ class SyncDataController {
             200,
             'Success',
             'Success create integrate inspection',
-            {}
+            { success: true }
           )
         );
     } catch (err) {
@@ -518,6 +518,44 @@ class SyncDataController {
         .status(200)
         .json(createResponseSuccess(200, 'Success', 'Done', { success: true }));
     } catch (err) {
+      next(err);
+    }
+  }
+
+  static async syncInspectionImage(req, res, next) {
+    // return res.status(200).json({ success: true, url: null });
+    try {
+      const file = req.file;
+      const { id } = req.params;
+
+      console.log({ file, id });
+
+      if (!file.url) {
+        return res.status(200).json(
+          createResponseSuccess(200, 'Success', 'Success integrate image', {
+            url: null,
+          })
+        );
+      }
+
+      await InspectionDataModel.findByIdAndUpdate(id, {
+        $set: {
+          images: file.url,
+        },
+      });
+
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success create integrate inspection',
+            { url: file.url }
+          )
+        );
+    } catch (err) {
+      console.log({ err });
       next(err);
     }
   }
