@@ -10,16 +10,13 @@ const { getWeekNumber } = require('../utils/helpers');
 require('dayjs/locale/id');
 dayjs.locale('id');
 
-const getDurationString = (startDate, endDate) => {
-  const start = dayjs(startDate);
-  const end = dayjs(endDate);
+const millisecondsToMinutes = (ms) => {
+  return Math.floor(ms / (1000 * 60));
+};
 
-  // Calculate difference in milliseconds
-  const diffMs = end.diff(start, 'milliseconds');
-
-  // Convert to minutes and seconds
-  const minutes = Math.floor(diffMs / (1000 * 60));
-  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+const getDurationStringFromMs = (ms) => {
+  const minutes = Math.floor(ms / (1000 * 60));
+  const seconds = Math.floor((ms % (1000 * 60)) / 1000);
 
   // Build the duration string
   let durationString = '';
@@ -39,6 +36,17 @@ const getDurationString = (startDate, endDate) => {
   }
 
   return durationString;
+};
+
+const getDurationMs = (startDate, endDate) => {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  // Calculate difference in milliseconds
+  const diffMs = end.diff(start, 'milliseconds');
+
+  // Convert to minutes and seconds
+  return diffMs;
 };
 
 async function generateExcel(targetDate, targetEnd) {
@@ -128,6 +136,9 @@ async function generateExcel(targetDate, targetEnd) {
       matang: 0,
       lewat_matang: 0,
       tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
     },
     '<1000': {
       total_trucks: 0,
@@ -138,6 +149,9 @@ async function generateExcel(targetDate, targetEnd) {
       matang: 0,
       lewat_matang: 0,
       tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
     },
     '>1000': {
       total_trucks: 0,
@@ -148,10 +162,58 @@ async function generateExcel(targetDate, targetEnd) {
       matang: 0,
       lewat_matang: 0,
       tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
     },
   };
   const machineUtilityWeek = {};
   const avgVendor = {};
+
+  const totalJanjangObjDuration = {
+    '<600': {
+      total_trucks: 0,
+      trucks: {},
+      vendors: {},
+      total_janjang: 0,
+      total_accepted: 0,
+      matang: 0,
+      lewat_matang: 0,
+      tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
+      duration: 0,
+    },
+    '<1000': {
+      total_trucks: 0,
+      trucks: {},
+      vendors: {},
+      total_janjang: 0,
+      total_accepted: 0,
+      matang: 0,
+      lewat_matang: 0,
+      tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
+      duration: 0,
+    },
+    '>1000': {
+      total_trucks: 0,
+      trucks: {},
+      vendors: {},
+      total_janjang: 0,
+      total_accepted: 0,
+      matang: 0,
+      lewat_matang: 0,
+      tangkai_panjang: 0,
+      mentah: 0,
+      buah_kecil: 0,
+      janjang_kosong: 0,
+      duration: 0,
+    },
+  };
 
   data.forEach((item, index) => {
     const date = dayjs(item.date).format('DD/MM/YYYY');
@@ -407,6 +469,9 @@ async function generateExcel(targetDate, targetEnd) {
       totalTandan
     );
 
+    const duration = getDurationMs(item['date'], item['finish_date']);
+    const durationMinute = millisecondsToMinutes(duration);
+
     if (totalTandan < 600) {
       totalJanjangObj['<600']['total_trucks'] += 1;
       totalJanjangObj['<600']['total_janjang'] += totalTandan;
@@ -414,6 +479,11 @@ async function generateExcel(targetDate, targetEnd) {
       totalJanjangObj['<600']['matang'] += totalMatang;
       totalJanjangObj['<600']['lewat_matang'] += totalLewatMatang;
       totalJanjangObj['<600']['tangkai_panjang'] += totalTangkaiPanjang;
+
+      totalJanjangObj['<600']['mentah'] += totalMentah;
+      totalJanjangObj['<600']['janjang_kosong'] += totalJanjangKosong;
+      totalJanjangObj['<600']['buah_kecil'] +=
+        totalBuahKecil3 + totalBuahKecil5;
 
       if (!totalJanjangObj['<600']['trucks'][vehicleNumber]) {
         totalJanjangObj['<600']['trucks'][vehicleNumber] = {
@@ -430,6 +500,39 @@ async function generateExcel(targetDate, targetEnd) {
         };
       }
       totalJanjangObj['<600']['vendors'][vendorName]['count'] += 1;
+
+      if (durationMinute < 19) {
+        totalJanjangObjDuration['<600']['total_trucks'] += 1;
+        totalJanjangObjDuration['<600']['total_janjang'] += totalTandan;
+        totalJanjangObjDuration['<600']['total_accepted'] +=
+          totalAcceptedModified;
+        totalJanjangObjDuration['<600']['matang'] += totalMatang;
+        totalJanjangObjDuration['<600']['lewat_matang'] += totalLewatMatang;
+        totalJanjangObjDuration['<600']['tangkai_panjang'] +=
+          totalTangkaiPanjang;
+        totalJanjangObjDuration['<600']['duration'] += duration;
+
+        totalJanjangObjDuration['<600']['mentah'] += totalMentah;
+        totalJanjangObjDuration['<600']['janjang_kosong'] += totalJanjangKosong;
+        totalJanjangObjDuration['<600']['buah_kecil'] +=
+          totalBuahKecil3 + totalBuahKecil5;
+
+        if (!totalJanjangObjDuration['<600']['trucks'][vehicleNumber]) {
+          totalJanjangObjDuration['<600']['trucks'][vehicleNumber] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['<600']['trucks'][vehicleNumber]['count'] += 1;
+
+        if (!totalJanjangObjDuration['<600']['vendors'][vendorName]) {
+          totalJanjangObjDuration['<600']['vendors'][vendorName] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['<600']['vendors'][vendorName]['count'] += 1;
+      }
     } else if (totalTandan >= 600 && totalTandan <= 1000) {
       totalJanjangObj['<1000']['total_trucks'] += 1;
       totalJanjangObj['<1000']['total_janjang'] += totalTandan;
@@ -437,6 +540,11 @@ async function generateExcel(targetDate, targetEnd) {
       totalJanjangObj['<1000']['matang'] += totalMatang;
       totalJanjangObj['<1000']['lewat_matang'] += totalLewatMatang;
       totalJanjangObj['<1000']['tangkai_panjang'] += totalTangkaiPanjang;
+
+      totalJanjangObj['<1000']['mentah'] += totalMentah;
+      totalJanjangObj['<1000']['janjang_kosong'] += totalJanjangKosong;
+      totalJanjangObj['<1000']['buah_kecil'] +=
+        totalBuahKecil3 + totalBuahKecil5;
 
       if (!totalJanjangObj['<1000']['trucks'][vehicleNumber]) {
         totalJanjangObj['<1000']['trucks'][vehicleNumber] = {
@@ -453,6 +561,40 @@ async function generateExcel(targetDate, targetEnd) {
         };
       }
       totalJanjangObj['<1000']['vendors'][vendorName]['count'] += 1;
+
+      if (durationMinute < 28) {
+        totalJanjangObjDuration['<1000']['total_trucks'] += 1;
+        totalJanjangObjDuration['<1000']['total_janjang'] += totalTandan;
+        totalJanjangObjDuration['<1000']['total_accepted'] +=
+          totalAcceptedModified;
+        totalJanjangObjDuration['<1000']['matang'] += totalMatang;
+        totalJanjangObjDuration['<1000']['lewat_matang'] += totalLewatMatang;
+        totalJanjangObjDuration['<1000']['tangkai_panjang'] +=
+          totalTangkaiPanjang;
+        totalJanjangObjDuration['<1000']['duration'] += duration;
+
+        totalJanjangObjDuration['<1000']['mentah'] += totalMentah;
+        totalJanjangObjDuration['<1000']['janjang_kosong'] +=
+          totalJanjangKosong;
+        totalJanjangObjDuration['<1000']['buah_kecil'] +=
+          totalBuahKecil3 + totalBuahKecil5;
+
+        if (!totalJanjangObjDuration['<1000']['trucks'][vehicleNumber]) {
+          totalJanjangObjDuration['<1000']['trucks'][vehicleNumber] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['<1000']['trucks'][vehicleNumber]['count'] += 1;
+
+        if (!totalJanjangObjDuration['<1000']['vendors'][vendorName]) {
+          totalJanjangObjDuration['<1000']['vendors'][vendorName] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['<1000']['vendors'][vendorName]['count'] += 1;
+      }
     } else if (totalTandan > 1000) {
       totalJanjangObj['>1000']['total_trucks'] += 1;
       totalJanjangObj['>1000']['total_janjang'] += totalTandan;
@@ -460,6 +602,11 @@ async function generateExcel(targetDate, targetEnd) {
       totalJanjangObj['>1000']['matang'] += totalMatang;
       totalJanjangObj['>1000']['lewat_matang'] += totalLewatMatang;
       totalJanjangObj['>1000']['tangkai_panjang'] += totalTangkaiPanjang;
+
+      totalJanjangObj['>1000']['mentah'] += totalMentah;
+      totalJanjangObj['>1000']['janjang_kosong'] += totalJanjangKosong;
+      totalJanjangObj['>1000']['buah_kecil'] +=
+        totalBuahKecil3 + totalBuahKecil5;
 
       if (!totalJanjangObj['>1000']['trucks'][vehicleNumber]) {
         totalJanjangObj['>1000']['trucks'][vehicleNumber] = {
@@ -476,6 +623,40 @@ async function generateExcel(targetDate, targetEnd) {
         };
       }
       totalJanjangObj['>1000']['vendors'][vendorName]['count'] += 1;
+
+      if (durationMinute < 36) {
+        totalJanjangObjDuration['>1000']['total_trucks'] += 1;
+        totalJanjangObjDuration['>1000']['total_janjang'] += totalTandan;
+        totalJanjangObjDuration['>1000']['total_accepted'] +=
+          totalAcceptedModified;
+        totalJanjangObjDuration['>1000']['matang'] += totalMatang;
+        totalJanjangObjDuration['>1000']['lewat_matang'] += totalLewatMatang;
+        totalJanjangObjDuration['>1000']['tangkai_panjang'] +=
+          totalTangkaiPanjang;
+        totalJanjangObjDuration['>1000']['duration'] += duration;
+
+        totalJanjangObjDuration['>1000']['mentah'] += totalMentah;
+        totalJanjangObjDuration['>1000']['janjang_kosong'] +=
+          totalJanjangKosong;
+        totalJanjangObjDuration['>1000']['buah_kecil'] +=
+          totalBuahKecil3 + totalBuahKecil5;
+
+        if (!totalJanjangObjDuration['>1000']['trucks'][vehicleNumber]) {
+          totalJanjangObjDuration['>1000']['trucks'][vehicleNumber] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['>1000']['trucks'][vehicleNumber]['count'] += 1;
+
+        if (!totalJanjangObjDuration['>1000']['vendors'][vendorName]) {
+          totalJanjangObjDuration['>1000']['vendors'][vendorName] = {
+            vendor_name: item.vendor_name,
+            count: 0,
+          };
+        }
+        totalJanjangObjDuration['>1000']['vendors'][vendorName]['count'] += 1;
+      }
     }
 
     avgWeekDemography[week]['accepted']['matang'].push(percentMatang);
@@ -799,6 +980,9 @@ async function generateExcel(targetDate, targetEnd) {
       '% Matang',
       '% Lewat Matang',
       '% Tangkai Panjang',
+      '% Mentah',
+      '% Janjang Kosong',
+      '% Buah Kecil',
     ],
   ];
   totalJanjangData.push([
@@ -825,6 +1009,18 @@ async function generateExcel(targetDate, targetEnd) {
     countPercentage(
       totalJanjangObj['<600'].tangkai_panjang,
       totalJanjangObj['<600'].total_accepted
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<600'].mentah,
+      totalJanjangObj['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<600'].janjang_kosong,
+      totalJanjangObj['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<600'].buah_kecil,
+      totalJanjangObj['<600'].total_janjang
     ).toFixed(2),
   ]);
   totalJanjangData.push([
@@ -853,6 +1049,18 @@ async function generateExcel(targetDate, targetEnd) {
       totalJanjangObj['<1000'].tangkai_panjang,
       totalJanjangObj['<1000'].total_accepted
     ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<1000'].mentah,
+      totalJanjangObj['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<1000'].janjang_kosong,
+      totalJanjangObj['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['<1000'].buah_kecil,
+      totalJanjangObj['<1000'].total_janjang
+    ).toFixed(2),
   ]);
   totalJanjangData.push([
     3,
@@ -879,6 +1087,18 @@ async function generateExcel(targetDate, targetEnd) {
     countPercentage(
       totalJanjangObj['>1000'].tangkai_panjang,
       totalJanjangObj['>1000'].total_accepted
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['>1000'].mentah,
+      totalJanjangObj['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['>1000'].janjang_kosong,
+      totalJanjangObj['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObj['>1000'].buah_kecil,
+      totalJanjangObj['>1000'].total_janjang
     ).toFixed(2),
   ]);
   totalJanjangData.push(['']);
@@ -1042,6 +1262,160 @@ async function generateExcel(targetDate, targetEnd) {
       ]);
     });
 
+  const totalJanjangDurationData = [
+    [periodString],
+    [
+      'No',
+      'Kategori',
+      'Estimasi BJR',
+      'Total Truk',
+      'Kontribusi',
+      'Total Janjang',
+      '% Diterima',
+      '% Matang',
+      '% Lewat Matang',
+      '% Tangkai Panjang',
+      '% Mentah',
+      '% Janjang Kosong',
+      '% Buah Kecil',
+      'Avg Durasi',
+    ],
+  ];
+  totalJanjangDurationData.push([
+    1,
+    '400 - 600 Janjang',
+    '16 - 30kg',
+    totalJanjangObjDuration['<600'].total_trucks,
+    countPercentage(
+      totalJanjangObjDuration['<600'].total_trucks,
+      data?.length
+    ).toFixed(2),
+    totalJanjangObjDuration['<600'].total_janjang,
+    countPercentage(
+      totalJanjangObjDuration['<600'].total_accepted,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].matang,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].lewat_matang,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].tangkai_panjang,
+      totalJanjangObjDuration['<600'].total_accepted
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].mentah,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].janjang_kosong,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<600'].buah_kecil,
+      totalJanjangObjDuration['<600'].total_janjang
+    ).toFixed(2),
+    getDurationStringFromMs(
+      Math.round(
+        totalJanjangObjDuration['<600'].duration /
+          totalJanjangObjDuration['<600'].total_trucks
+      )
+    ),
+  ]);
+  totalJanjangDurationData.push([
+    2,
+    '601 - 1000 Janjang',
+    '10 - 15kg',
+    totalJanjangObjDuration['<1000'].total_trucks,
+    countPercentage(
+      totalJanjangObjDuration['<1000'].total_trucks,
+      data?.length
+    ).toFixed(2),
+    totalJanjangObjDuration['<1000'].total_janjang,
+    countPercentage(
+      totalJanjangObjDuration['<1000'].total_accepted,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].matang,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].lewat_matang,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].tangkai_panjang,
+      totalJanjangObjDuration['<1000'].total_accepted
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].mentah,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].janjang_kosong,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['<1000'].buah_kecil,
+      totalJanjangObjDuration['<1000'].total_janjang
+    ).toFixed(2),
+    getDurationStringFromMs(
+      Math.round(
+        totalJanjangObjDuration['<1000'].duration /
+          totalJanjangObjDuration['<1000'].total_trucks
+      )
+    ),
+  ]);
+  totalJanjangDurationData.push([
+    3,
+    '> 1000 Janjang',
+    '<10kg',
+    totalJanjangObjDuration['>1000'].total_trucks,
+    countPercentage(
+      totalJanjangObjDuration['>1000'].total_trucks,
+      data?.length
+    ).toFixed(2),
+    totalJanjangObjDuration['>1000'].total_janjang,
+    countPercentage(
+      totalJanjangObjDuration['>1000'].total_accepted,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].matang,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].lewat_matang,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].tangkai_panjang,
+      totalJanjangObjDuration['>1000'].total_accepted
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].mentah,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].janjang_kosong,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    countPercentage(
+      totalJanjangObjDuration['>1000'].buah_kecil,
+      totalJanjangObjDuration['>1000'].total_janjang
+    ).toFixed(2),
+    getDurationStringFromMs(
+      Math.round(
+        totalJanjangObjDuration['>1000'].duration /
+          totalJanjangObjDuration['>1000'].total_trucks
+      )
+    ),
+  ]);
   const workbook = XLSX.utils.book_new();
   // Create a worksheet
   const wsRaw = XLSX.utils.aoa_to_sheet(rawDataExcel);
@@ -1070,6 +1444,14 @@ async function generateExcel(targetDate, targetEnd) {
   XLSX.utils.book_append_sheet(workbook, wsMachineUtility, 'Machine Utilities');
   const wsAvgVendor = XLSX.utils.aoa_to_sheet(avgVendorData);
   XLSX.utils.book_append_sheet(workbook, wsAvgVendor, 'Average Vendor');
+  const wsTotalJanjangDuration = XLSX.utils.aoa_to_sheet(
+    totalJanjangDurationData
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    wsTotalJanjangDuration,
+    'Total Tandan Duration Recap'
+  );
 
   // Write the file
   XLSX.writeFile(workbook, 'Report.xlsx');
