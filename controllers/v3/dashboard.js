@@ -290,7 +290,7 @@ class DashboardV2Controller {
       let inspections = await InspectionDataModel.find(q);
 
       inspections = inspections.filter(
-        (e) => Number(e.grading_result['total_tandan']) > 200
+        (e) => Number(e.grading_result?.['total_tandan'] || 0) > 200
       );
 
       const totalAllTandon = inspections.reduce(
@@ -426,13 +426,13 @@ class DashboardV2Controller {
         acceptedPercents.push(
           countPercentage(
             inspection['grading_result']['total_accepted'],
-            inspection['grading_result']['total_tandan']
+            inspection['grading_result']?.['total_tandan'] || 0
           )
         );
         rejectedPercents.push(
           countPercentage(
             inspection['grading_result']['total_rejected'],
-            inspection['grading_result']['total_tandan']
+            inspection['grading_result']?.['total_tandan'] || 0
           )
         );
         finedPercents.push(
@@ -686,7 +686,7 @@ class DashboardV2Controller {
         byVendorIntiAccepted[vendorName]['total'] +=
           inspection['grading_result']['total_accepted'];
         byVendorIntiAccepted[vendorName]['total_tandan'] +=
-          inspection['grading_result']['total_tandan'];
+          inspection['grading_result']?.['total_tandan'] || 0;
 
         byVendorIntiAccepted[vendorName]['demography'] =
           KLASIFIKASI_INTI.reduce((curr, k) => {
@@ -908,7 +908,7 @@ class DashboardV2Controller {
         .map((key) => {
           const demography = byVendorIntiAccepted[key]['demography'];
           const total = byVendorIntiAccepted[key]['total'];
-          const totalTandan = byVendorIntiAccepted[key]['total_tandan'];
+          const totalTandan = byVendorIntiAccepted[key]?.['total_tandan'] || 0;
           return {
             label: key,
             total: total,
