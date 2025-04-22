@@ -49,6 +49,59 @@ const getDurationMs = (startDate, endDate) => {
   return diffMs;
 };
 
+function countWeekdaysInRange(startDateStr, endDateStr) {
+  const weekdays = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+  ];
+  const counts = {
+    Minggu: 0,
+    Senin: 0,
+    Selasa: 0,
+    Rabu: 0,
+    Kamis: 0,
+    Jumat: 0,
+    Sabtu: 0,
+    Minggu: 0,
+  };
+
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dayIndex = d.getDay(); // 0: Minggu, 1: Senin, dst
+    const dayName = weekdays[dayIndex];
+    counts[dayName]++;
+  }
+
+  return counts;
+}
+
+function countDays(daysDateArray) {
+  const dayCount = {
+    Senin: 0,
+    Selasa: 0,
+    Rabu: 0,
+    Kamis: 0,
+    Jumat: 0,
+    Sabtu: 0,
+    Minggu: 0,
+  };
+
+  for (const item of daysDateArray) {
+    if (dayCount[item.day] !== undefined) {
+      dayCount[item.day]++;
+    }
+  }
+
+  return dayCount;
+}
+
 async function generateExcel(targetDate, targetEnd) {
   // Parse the target date using dayjs
   const startDate = dayjs(targetDate).startOf('day').add(7, 'hour'); // 6 AM on the target date
@@ -71,7 +124,7 @@ async function generateExcel(targetDate, targetEnd) {
 
   data = data.filter(
     (e) =>
-      e.grading_result.total_tandan > 210 &&
+      e.grading_result?.total_tandan > 210 &&
       e.vehicle_number !== 'BH 1240 ALB' &&
       e.vendor_name !== 'Vendor 2 Plasma' &&
       e.vendor_name !== 'Vendor B'
@@ -215,11 +268,21 @@ async function generateExcel(targetDate, targetEnd) {
     },
   };
 
+  const dailyTruckCount = {};
+
+  let daysDateArray = [];
+
   data.forEach((item, index) => {
     const date = dayjs(item.date).format('DD/MM/YYYY');
     const month = dayjs(item.date).format('MMMM YYYY');
     const hour = dayjs(item.date).hour();
+    const minute = dayjs(item.date).minute();
     const week = getWeekNumber(item.date);
+    const day = dayjs(item.date).format('dddd');
+
+    if (!daysDateArray.some((e) => e?.date === date)) {
+      daysDateArray.push({ date: date, day });
+    }
 
     const vehicleNumber = item.vehicle_number;
     const vendorName = item.vendor_name;
@@ -228,6 +291,43 @@ async function generateExcel(targetDate, targetEnd) {
 
     const start = dayjs(item.date);
     const end = dayjs(item.finish_date);
+
+    if (!dailyTruckCount[day]) {
+      dailyTruckCount[day] = {
+        '00': 0,
+        '05': 0,
+        10: 0,
+        12: 0,
+        14: 0,
+        16: 0,
+        18: 0,
+        19: 0,
+        21: 0,
+        total_truk: 0,
+        total_hari: 0,
+      };
+    }
+
+    if (hour >= 0 && hour < 2) {
+      dailyTruckCount[day]['00'] += 1;
+    } else if (hour >= 5 && hour < 10) {
+      dailyTruckCount[day]['05'] += 1;
+    } else if (hour >= 10 && hour < 12) {
+      dailyTruckCount[day]['10'] += 1;
+    } else if (hour >= 12 && hour < 14) {
+      dailyTruckCount[day]['12'] += 1;
+    } else if (hour >= 14 && hour < 16) {
+      dailyTruckCount[day]['14'] += 1;
+    } else if (hour >= 16 && hour < 18) {
+      dailyTruckCount[day]['16'] += 1;
+    } else if (hour >= 18 && hour < 19) {
+      dailyTruckCount[day]['18'] += 1;
+    } else if (hour >= 19 && hour < 21) {
+      dailyTruckCount[day]['19'] += 1;
+    } else if (hour >= 19 && hour < 23 && minute < 59) {
+      dailyTruckCount[day]['21'] += 1;
+    }
+    dailyTruckCount[day]['total_truk'] += 1;
 
     if (!avgWeek[week]) {
       avgWeek[week] = { accepted: [], rejected: [], fined: [] };
@@ -1416,6 +1516,44 @@ async function generateExcel(targetDate, targetEnd) {
       )
     ),
   ]);
+
+  const orderDay = countDays(daysDateArray);
+  const dailyTruckCountData = [
+    [periodString],
+    ['Rata - Rata Grading Berdasarkan Hari Dan Waktu'],
+    [
+      'Hari',
+      '00 - 02',
+      '05 - 10',
+      '10 - 12',
+      '12 - 14',
+      '14 - 16',
+      '16 - 18',
+      '18 - 19',
+      '19 - 21',
+      '21 - 24',
+      // 'Total',
+    ],
+  ];
+  // console.log({ orderDay });
+  Object.keys(orderDay).forEach((d) => {
+    const item = dailyTruckCount[d];
+    const totalDay = orderDay[d];
+    dailyTruckCountData.push([
+      d,
+      Number(item['00'] / totalDay).toFixed(1),
+      Number(item['05'] / totalDay).toFixed(1),
+      Number(item['10'] / totalDay).toFixed(1),
+      Number(item['12'] / totalDay).toFixed(1),
+      Number(item['14'] / totalDay).toFixed(1),
+      Number(item['16'] / totalDay).toFixed(1),
+      Number(item['18'] / totalDay).toFixed(1),
+      Number(item['19'] / totalDay).toFixed(1),
+      Number(item['21'] / totalDay).toFixed(1),
+      // item['total'],
+    ]);
+  });
+
   const workbook = XLSX.utils.book_new();
   // Create a worksheet
   const wsRaw = XLSX.utils.aoa_to_sheet(rawDataExcel);
@@ -1452,9 +1590,11 @@ async function generateExcel(targetDate, targetEnd) {
     wsTotalJanjangDuration,
     'Total Tandan Duration Recap'
   );
+  const wsDailyTruck = XLSX.utils.aoa_to_sheet(dailyTruckCountData);
+  XLSX.utils.book_append_sheet(workbook, wsDailyTruck, 'Daily Truck Day Time');
 
   // Write the file
-  XLSX.writeFile(workbook, 'Report.xlsx');
+  XLSX.writeFile(workbook, `Report${new Date().toISOString()}.xlsx`);
   console.log('Excel file generated successfully!');
 }
 
@@ -1488,7 +1628,10 @@ function formatTime(seconds) {
 
 connectToDatabase().then(async (res) => {
   console.log(res);
-  await generateExcel('01/01/2025', '03/15/2025').catch(console.error);
+  await generateExcel('01/01/2025', '01/31/2025').catch(console.error);
+  await generateExcel('02/01/2025', '02/28/2025').catch(console.error);
+  await generateExcel('03/01/2025', '03/31/2025').catch(console.error);
+  await generateExcel('04/01/2025', '04/15/2025').catch(console.error);
   // await generateExcel('01/23/2025').catch(console.error);
   // await generateExcel('01/24/2025').catch(console.error);
   // await generateExcel('01/25/2025').catch(console.error);
