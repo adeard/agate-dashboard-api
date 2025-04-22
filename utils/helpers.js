@@ -198,4 +198,49 @@ module.exports = {
       mostProductiveVendor,
     };
   },
+  sortObjectByValues(dataObject, order = 'desc') {
+    // Validate input
+    if (
+      !dataObject ||
+      typeof dataObject !== 'object' ||
+      Array.isArray(dataObject)
+    ) {
+      throw new Error('Invalid data: must be a non-array object');
+    }
+
+    if (order !== 'asc' && order !== 'desc') {
+      throw new Error('Invalid order: must be either "asc" or "desc"');
+    }
+
+    // Convert object to array of [key, value] pairs
+    const entries = Object.entries(dataObject);
+
+    // Convert string values to numbers for proper numerical sorting
+    const entriesWithNumericValues = entries.map(([key, value]) => [
+      key,
+      typeof value === 'string' ? parseFloat(value) : value,
+    ]);
+
+    // Sort the array
+    entriesWithNumericValues.sort((a, b) => {
+      if (order === 'asc') {
+        return a[1] - b[1]; // Ascending order
+      } else {
+        return b[1] - a[1]; // Descending order
+      }
+    });
+
+    // Convert back to object
+    const sortedObject = entriesWithNumericValues.reduce(
+      (obj, [key, value]) => {
+        // Use the original string value if it was a string
+        obj[key] =
+          typeof dataObject[key] === 'string' ? dataObject[key] : value;
+        return obj;
+      },
+      {}
+    );
+
+    return sortedObject;
+  },
 };
