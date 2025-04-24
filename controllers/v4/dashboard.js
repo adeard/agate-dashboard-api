@@ -494,7 +494,12 @@ const generateChartArrayFromObject = (data = {}, isArrayValue = false) => {
                   name: k2,
                   total: isArrayValue
                     ? t / v2.length
-                    : countPercentage(t, data[key][k]['Total']),
+                    : countPercentage(
+                        t,
+                        k2 === 'Didenda'
+                          ? data[key][k]['Diterima']
+                          : data[key][k]['Total']
+                      ),
                 };
               })
               .filter(Boolean),
