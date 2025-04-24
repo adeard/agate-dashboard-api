@@ -801,6 +801,28 @@ class DashboardV4Controller {
 
       const averageVendor = {};
 
+      let avgClassificationTren = {
+        matang: [],
+        lewat_matang: [],
+        mentah: [],
+        janjang_kosong: [],
+        buah_kecil_3: [],
+        buah_kecil_5: [],
+        tangkai_panjang: [],
+      };
+      let avgClassificationVendor = {
+        matang: {},
+        lewat_matang: {},
+        mentah: {},
+        janjang_kosong: {},
+        buah_kecil_3: {},
+        buah_kecil_5: {},
+        tangkai_panjang: {},
+      };
+
+      let avgAcceptedVendorHistory = {};
+      let avgAcceptedVendorPerfomance = {};
+
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
         const { day, monthYear } = getDateMonthYearDay(item['date'], true);
@@ -836,6 +858,105 @@ class DashboardV4Controller {
         avgClassification['buah_kecil_3'].push(percentBuahKecil3);
         avgClassification['buah_kecil_5'].push(percentBuahKecil5);
         avgClassification['tangkai_panjang'].push(percentTangkaiPanjang);
+
+        avgClassificationTren['matang'].push({
+          date: item.date,
+          percent: percentMatang,
+        });
+        avgClassificationTren['lewat_matang'].push({
+          date: item.date,
+          percent: percentLewatMatang,
+        });
+        avgClassificationTren['mentah'].push({
+          date: item.date,
+          percent: percentMentah,
+        });
+        avgClassificationTren['janjang_kosong'].push({
+          date: item.date,
+          percent: percentJangkos,
+        });
+        avgClassificationTren['buah_kecil_3'].push({
+          date: item.date,
+          percent: percentBuahKecil3,
+        });
+        avgClassificationTren['buah_kecil_5'].push({
+          date: item.date,
+          percent: percentBuahKecil5,
+        });
+        avgClassificationTren['tangkai_panjang'].push({
+          date: item.date,
+          percent: percentTangkaiPanjang,
+        });
+
+        if (!avgClassificationVendor['matang'][vendorName]) {
+          avgClassificationVendor['matang'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['matang'][vendorName]['count'] += 1;
+        avgClassificationVendor['matang'][vendorName]['percent'] +=
+          percentMatang;
+
+        if (!avgClassificationVendor['lewat_matang'][vendorName]) {
+          avgClassificationVendor['lewat_matang'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['lewat_matang'][vendorName]['count'] += 1;
+        avgClassificationVendor['lewat_matang'][vendorName]['percent'] +=
+          percentLewatMatang;
+
+        if (!avgClassificationVendor['mentah'][vendorName]) {
+          avgClassificationVendor['mentah'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['mentah'][vendorName]['count'] += 1;
+        avgClassificationVendor['mentah'][vendorName]['percent'] +=
+          percentMentah;
+
+        if (!avgClassificationVendor['janjang_kosong'][vendorName]) {
+          avgClassificationVendor['janjang_kosong'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['janjang_kosong'][vendorName]['count'] += 1;
+        avgClassificationVendor['janjang_kosong'][vendorName]['percent'] +=
+          percentJangkos;
+
+        if (!avgClassificationVendor['buah_kecil_3'][vendorName]) {
+          avgClassificationVendor['buah_kecil_3'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['buah_kecil_3'][vendorName]['count'] += 1;
+        avgClassificationVendor['buah_kecil_3'][vendorName]['percent'] +=
+          percentBuahKecil3;
+
+        if (!avgClassificationVendor['buah_kecil_5'][vendorName]) {
+          avgClassificationVendor['buah_kecil_5'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['buah_kecil_5'][vendorName]['count'] += 1;
+        avgClassificationVendor['buah_kecil_5'][vendorName]['percent'] +=
+          percentBuahKecil5;
+
+        if (!avgClassificationVendor['tangkai_panjang'][vendorName]) {
+          avgClassificationVendor['tangkai_panjang'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['tangkai_panjang'][vendorName]['count'] += 1;
+        avgClassificationVendor['tangkai_panjang'][vendorName]['percent'] +=
+          percentTangkaiPanjang;
 
         if (!avgAcceptedVendor[vendorName]) {
           avgAcceptedVendor[vendorName] = [];
@@ -1078,7 +1199,7 @@ class DashboardV4Controller {
         averageVendor[vendorName]['janjang_kosong'] += percentJangkos;
         averageVendor[vendorName]['buah_kecil'] += percentBuahKecil;
 
-        return {
+        const payload = {
           _id: item._id,
           score: item.score,
           percent_accepted: percentAcceptedModified,
@@ -1092,7 +1213,50 @@ class DashboardV4Controller {
           vehicle_number: item['vehicle_number'],
           date: item.date,
           finish_date: item.finish_date,
+          mesin: item.machine,
+          delivery_number: item.delivery_number,
         };
+
+        if (!avgAcceptedVendorHistory[vendorName]) {
+          avgAcceptedVendorHistory[vendorName] = [];
+        }
+        avgAcceptedVendorHistory[vendorName].push(payload);
+
+        if (!avgAcceptedVendorHistory[vendorName]) {
+          avgAcceptedVendorHistory[vendorName] = {};
+        }
+        if (!avgAcceptedVendorHistory[vendorName][day]) {
+          avgAcceptedVendorHistory[vendorName][day] = {
+            trucks: 0,
+            avg_tandan: 0,
+            avg_accepted: 0,
+            avg_matang: 0,
+            avg_lewat_matang: 0,
+            avg_mentah: 0,
+            avg_janjang_kosong: 0,
+            avg_tangkai_panjang: 0,
+            avg_buah_kecil: 0,
+          };
+        }
+        avgAcceptedVendorHistory[vendorName][day]['trucks'] += 1;
+        avgAcceptedVendorHistory[vendorName][day]['avg_tandan'] +=
+          totalTandanItem;
+        avgAcceptedVendorHistory[vendorName][day]['avg_accepted'] +=
+          totalAcceptedModified;
+        avgAcceptedVendorHistory[vendorName][day]['avg_matang'] +=
+          percentLewatMatang;
+        avgAcceptedVendorHistory[vendorName][day]['avg_lewat_matang'] +=
+          percentLewatMatang;
+        avgAcceptedVendorHistory[vendorName][day]['avg_mentah'] +=
+          percentMentah;
+        avgAcceptedVendorHistory[vendorName][day]['avg_janjang_kosong'] +=
+          percentJangkos;
+        avgAcceptedVendorHistory[vendorName][day]['avg_buah_kecil'] +=
+          percentBuahKecil;
+        avgAcceptedVendorHistory[vendorName][day]['avg_tangkai_panjang'] +=
+          percentTangkaiPanjang;
+
+        return payload;
       });
 
       const { lowest, highest } = getTopScores(inspections, 10);
@@ -1219,10 +1383,53 @@ class DashboardV4Controller {
         {}
       );
 
-      // console.log({ summaryPerformanceModified });
+      const avgClassificationVendorData = Object.entries(
+        avgClassificationVendor
+      ).reduce((o, [key, value]) => {
+        o[key] = Object.entries(value)
+          .map(([k, v]) => {
+            return {
+              vendor_name: k,
+              supply: countPercentage(v.count, totalInspection),
+              percent: v.percent / v.count,
+            };
+          })
+          .sort((a, b) => b.percent - a.percent);
+
+        return o;
+      }, {});
+
+      const avgAcceptedVendorHistoryData = Object.entries(
+        avgAcceptedVendorHistory
+      ).reduce((obj, [vendor, data]) => {
+        obj[vendor] = Object.entries(data)
+          .map(([d, dayData]) => {
+            return {
+              date: d,
+              trucks: dayData['trucks'],
+              avg_tandan: Number(dayData['avg_tandan'] / dayData['trucks']),
+              avg_accepted: dayData['avg_accepted'] / dayData['trucks'],
+              avg_matang: dayData['avg_matang'] / dayData['trucks'],
+              avg_lewat_matang: dayData['avg_lewat_matang'] / dayData['trucks'],
+              avg_mentah: dayData['avg_mentah'] / dayData['trucks'],
+              avg_janjang_kosong:
+                dayData['avg_janjang_kosong'] / dayData['trucks'],
+              avg_tangkai_panjang:
+                dayData['avg_tangkai_panjang'] / dayData['trucks'],
+              avg_buah_kecil: dayData['avg_buah_kecil'] / dayData['trucks'],
+            };
+          })
+          .filter((e) => Boolean(e.avg_accepted));
+        return obj;
+      }, {});
 
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', {
+          inspections: inspections.map((i) => {
+            delete i['score'];
+
+            return i;
+          }),
           monitoring: {
             total_tandan: totalTandan,
             total_grading: totalInspection,
@@ -1234,7 +1441,11 @@ class DashboardV4Controller {
             percent_fined: percentFined || 0,
           },
           average_grading: averageGrading,
+          average_grading_trend: avgClassificationTren,
+          average_grading_vendor: avgClassificationVendorData,
           average_vendor_accepted: sortObjectByValues(averageVendorAccepted),
+          average_vendor_accepted_trucks_history: avgAcceptedVendorHistory,
+          average_vendor_accepted_daily: avgAcceptedVendorHistoryData,
           charts_data: {
             summary_performance:
               generateChartArrayFromObject(summaryPerformance),
