@@ -155,14 +155,40 @@ const utilsInspection = {
       (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
       0
     );
-    const totalRejected = inspections.reduce(
-      (curr, acc) => Number(acc.grading_result.total_rejected || 0) + curr,
-      0
-    );
-    const totalPassed = inspections.reduce(
-      (curr, acc) => Number(acc.grading_result.total_accepted || 0) + curr,
-      0
-    );
+
+    const totalRejected = inspections.reduce((curr, item) => {
+      return (
+        Object.keys(item.grading_result['accepted_summary']).reduce(
+          (n, k) =>
+            n +
+            Number(
+              item.grading_result['accepted_summary'][k][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            ),
+          0
+        ) +
+        Number(item.grading_result['total_rejected']) +
+        curr
+      );
+    }, 0);
+
+    const totalPassed = inspections.reduce((curr, item) => {
+      return (
+        Number(item.grading_result['total_accepted']) -
+        Object.keys(item.grading_result['accepted_summary']).reduce(
+          (n, k) =>
+            n +
+            Number(
+              item.grading_result['accepted_summary'][k][
+                'BUAH KECIL DIBAWAH 5KG'
+              ] || 0
+            ),
+          0
+        ) +
+        curr
+      );
+    }, 0);
     const totalFined = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
       0
