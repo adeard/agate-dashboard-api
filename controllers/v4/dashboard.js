@@ -13,6 +13,7 @@ const {
   countPercentage,
   getStats,
   sortObjectByValues,
+  isObjectEmpty,
 } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
@@ -948,14 +949,14 @@ class DashboardV4Controller {
           day,
           [
             'Mentah',
-            'Lewat Matang',
+            // 'Lewat Matang',
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
           ],
           [
             percentMentah,
-            percentLewatMatang,
+            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -968,14 +969,14 @@ class DashboardV4Controller {
           week,
           [
             'Mentah',
-            'Lewat Matang',
+            // 'Lewat Matang',
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
           ],
           [
             percentMentah,
-            percentLewatMatang,
+            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -988,14 +989,14 @@ class DashboardV4Controller {
           monthYear,
           [
             'Mentah',
-            'Lewat Matang',
+            // 'Lewat Matang',
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
           ],
           [
             percentMentah,
-            percentLewatMatang,
+            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -1140,6 +1141,55 @@ class DashboardV4Controller {
         }
       );
 
+      const rocSummaryPerformance = Object.entries(summaryPerformance).reduce(
+        (obj, [key, value]) => {
+          if (!obj[key]) {
+            obj[key] = {
+              diterima: 0,
+              ditolak: 0,
+              didenda: 0,
+            };
+          }
+          let arrayData = Object.entries(value)
+            .map(([k, v]) => {
+              if (!isObjectEmpty(v)) {
+                return {
+                  label: k,
+                  Diterima: countPercentage(v['Diterima'], v['Total']),
+                  Ditolak: countPercentage(v['Ditolak'], v['Total']),
+                  Didenda: countPercentage(v['Didenda'], v['Total']),
+                  Total: v['Total'],
+                };
+              }
+              return null;
+            }, [])
+            .filter(Boolean);
+
+          const rocTotal = {
+            diterima: 0,
+            ditolak: 0,
+            didenda: 0,
+          };
+
+          for (let i = 1; i < arrayData.length; i++) {
+            let current = arrayData[i];
+            let prev = arrayData[i - 1];
+            rocTotal['diterima'] += current['Diterima'] - prev['Diterima'];
+            rocTotal['ditolak'] += current['Ditolak'] - prev['Ditolak'];
+            rocTotal['didenda'] += current['Didenda'] - prev['Didenda'];
+          }
+
+          obj[key]['diterima'] = rocTotal['diterima'] / arrayData.length;
+          obj[key]['ditolak'] = rocTotal['ditolak'] / arrayData.length;
+          obj[key]['didenda'] = rocTotal['didenda'] / arrayData.length;
+
+          return obj;
+        },
+        {}
+      );
+
+      // console.log({ summaryPerformanceModified });
+
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', {
           monitoring: {
@@ -1165,6 +1215,7 @@ class DashboardV4Controller {
             highest_vendor: highestRanked,
             vendor: processVendorData(averageVendorData),
           },
+          rocs: rocSummaryPerformance,
         })
       );
     } catch (err) {
