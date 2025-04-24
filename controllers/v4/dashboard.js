@@ -1054,7 +1054,7 @@ class DashboardV4Controller {
           percent_mentah: percentMentah,
           percent_janjang_kosong: percentJangkos,
           percent_buah_kecil: percentBuahKecil,
-          total_tandan: totalTandanItem,
+          total_tandan: item['grading_result']['total_tandan'],
           vendor_name: vendorName,
           vehicle_number: item['vehicle_number'],
           date: item.date,
