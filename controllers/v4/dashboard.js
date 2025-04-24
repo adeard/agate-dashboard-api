@@ -542,6 +542,7 @@ function processInspectionData(inspections) {
     percent_mentah: false,
     percent_janjang_kosong: false,
     percent_buah_kecil: false,
+    percent_tangkai_panjang: false,
   };
 
   // Get all percentage metrics (excluding "percent_accepted" as it's not in the ranking criteria)
