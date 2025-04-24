@@ -243,4 +243,8 @@ module.exports = {
 
     return sortedObject;
   },
+
+  isObjectEmpty(obj) {
+    return Object.keys(obj).length === 0;
+  },
 };
