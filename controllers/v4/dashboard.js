@@ -559,8 +559,9 @@ function processInspectionData(inspections) {
 
     // Assign ranks
     sorted.forEach((inspection, index) => {
-      if (!rankedMetrics[inspection.vehicle_number]) {
-        rankedMetrics[inspection.vehicle_number] = {
+      if (!rankedMetrics[inspection._id]) {
+        rankedMetrics[inspection._id] = {
+          _id: inspection._id,
           vehicle_number: inspection.vehicle_number,
           vendor_name: inspection.vendor_name,
           score: inspection.score,
@@ -572,7 +573,7 @@ function processInspectionData(inspections) {
       }
 
       // Add this metric with its percent and rank
-      rankedMetrics[inspection.vehicle_number][metric] = {
+      rankedMetrics[inspection._id][metric] = {
         percent: inspection[metric],
         rank: index + 1, // Rank starts from 1
       };
@@ -580,6 +581,92 @@ function processInspectionData(inspections) {
   });
 
   return Object.values(rankedMetrics);
+}
+
+function processVendorData(vendors) {
+  // Define which metrics have higher values for better ranks
+  const higherIsBetter = {
+    avg_matang: true,
+    avg_lewat_matang: true,
+    avg_mentah: false,
+    avg_janjang_kosong: false,
+    avg_buah_kecil: false,
+    avg_tangkai_panjang: false,
+    avg_accepted: true,
+    count: true,
+    percent_supply: true,
+    avg_tandan: true,
+  };
+
+  // Convert string values to numbers
+  const normalizedVendors = vendors.map((vendor) => {
+    const normalizedVendor = { ...vendor };
+
+    Object.keys(vendor).forEach((key) => {
+      if (
+        typeof vendor[key] === 'string' &&
+        !isNaN(parseFloat(vendor[key].replace(/,/g, '')))
+      ) {
+        normalizedVendor[key] = parseFloat(vendor[key].replace(/,/g, ''));
+      }
+    });
+
+    return normalizedVendor;
+  });
+
+  // Get all metrics that need ranking
+  const metricsToRank = Object.keys(higherIsBetter);
+
+  // Create a new array to hold ranked vendors
+  const rankedVendors = normalizedVendors.map((vendor) => {
+    // Create base object with original data
+    const rankedVendor = {
+      vendor_name: vendor.vendor_name,
+    };
+
+    // Initialize each metric with its value
+    metricsToRank.forEach((metric) => {
+      if (vendor[metric] !== undefined) {
+        rankedVendor[metric] = {
+          percent: vendor[metric],
+        };
+      }
+    });
+
+    return rankedVendor;
+  });
+
+  // For each metric, calculate and assign ranks
+  metricsToRank.forEach((metric) => {
+    // Filter vendors that have this metric
+    const vendorsWithMetric = normalizedVendors.filter(
+      (v) => v[metric] !== undefined
+    );
+
+    if (vendorsWithMetric.length === 0) return;
+
+    // Sort vendors based on this metric
+    const sorted = [...vendorsWithMetric].sort((a, b) => {
+      return higherIsBetter[metric]
+        ? b[metric] - a[metric] // Higher values rank better
+        : a[metric] - b[metric]; // Lower values rank better
+    });
+
+    // Create a map of vendor_name to rank
+    const rankMap = {};
+    sorted.forEach((vendor, index) => {
+      rankMap[vendor.vendor_name] = index + 1; // Rank starts from 1
+    });
+
+    // Assign ranks to each vendor for this metric
+    rankedVendors.forEach((vendor) => {
+      if (vendor[metric]) {
+        vendor[metric].rank = rankMap[vendor.vendor_name];
+      }
+    });
+  });
+
+  return rankedVendors;
 }
 
 class DashboardV4Controller {
@@ -678,6 +765,8 @@ class DashboardV4Controller {
         weekly: generateTemplate(weeks),
         monthly: generateTemplate(months),
       };
+
+      const averageVendor = {};
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -932,7 +1021,32 @@ class DashboardV4Controller {
           return num + value;
         }, 0);
 
+        if (!averageVendor[vendorName]) {
+          averageVendor[vendorName] = {
+            count: 0,
+            tandan: 0,
+            accepted: 0,
+            matang: 0,
+            lewat_matang: 0,
+            tangkai_panjang: 0,
+            mentah: 0,
+            janjang_kosong: 0,
+            buah_kecil: 0,
+          };
+        }
+
+        averageVendor[vendorName]['count'] += 1;
+        averageVendor[vendorName]['tandan'] += totalTandanItem;
+        averageVendor[vendorName]['accepted'] += percentAccepted;
+        averageVendor[vendorName]['matang'] += percentMatang;
+        averageVendor[vendorName]['lewat_matang'] += percentLewatMatang;
+        averageVendor[vendorName]['tangkai_panjang'] += percentTangkaiPanjang;
+        averageVendor[vendorName]['mentah'] += percentMentah;
+        averageVendor[vendorName]['janjang_kosong'] += percentJangkos;
+        averageVendor[vendorName]['buah_kecil'] += percentBuahKecil;
+
         return {
+          _id: item._id,
           score: item.score,
           percent_accepted: percentAcceptedModified,
           percent_matang: percentMatang,
@@ -971,6 +1085,60 @@ class DashboardV4Controller {
         {}
       );
 
+      const lowestRanked = processInspectionData(lowest).sort(
+        (a, b) => a.score - b.score
+      );
+      const highestRanked = processInspectionData(highest).sort(
+        (a, b) => b.score - a.score
+      );
+
+      const averageVendorData = Object.entries(averageVendor).map(
+        ([key, value]) => {
+          return {
+            vendor_name: key,
+            count: value.count,
+            percent_supply: countPercentage(
+              value.count,
+              totalInspection
+            ).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_tandan: Math.round(Number(value.tandan) / Number(value.count)),
+            avg_accepted: (value.accepted / value.count).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_matang: (value.matang / value.count).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_lewat_matang: (value.lewat_matang / value.count).toLocaleString(
+              'en',
+              {
+                maximumFractionDigits: 2,
+              }
+            ),
+            avg_mentah: (value.mentah / value.count).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_janjang_kosong: (
+              value.janjang_kosong / value.count
+            ).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_buah_kecil: (value.buah_kecil / value.count).toLocaleString(
+              'en',
+              {
+                maximumFractionDigits: 2,
+              }
+            ),
+            avg_tangkai_panjang: (
+              value.tangkai_panjang / value.count
+            ).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+          };
+        }
+      );
+
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', {
           monitoring: {
@@ -992,12 +1160,9 @@ class DashboardV4Controller {
             fruit_accepted: generateChartArrayFromObject(fruitAccepted, true),
             fruit_rejected: generateChartArrayFromObject(fruitRejected, true),
             fruit_tangkai_panjang: generateChartArrayFromObject(fruitTp, true),
-            lowest_vendor: processInspectionData(lowest).sort(
-              (a, b) => a.score - b.score
-            ),
-            highest_vendor: processInspectionData(highest).sort(
-              (a, b) => b.score - a.score
-            ),
+            lowest_vendor: lowestRanked,
+            highest_vendor: highestRanked,
+            vendor: processVendorData(averageVendorData),
           },
         })
       );
