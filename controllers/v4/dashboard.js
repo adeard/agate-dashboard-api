@@ -17,6 +17,7 @@ const {
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const InspectionDataModel = require('../../models/inspection-data');
+const { scoringMultiplier } = require('../../utils/enum');
 
 const utilsInspection = {
   getTotalAndPercentClassification: (item) => {
@@ -524,6 +525,63 @@ const generateChartArrayFromObjectTrucks = (data = {}) => {
   );
 };
 
+function getTopScores(inspections, count = 10) {
+  const sorted = [...inspections].sort((a, b) => a.score - b.score);
+
+  return {
+    lowest: sorted.slice(0, count),
+    highest: sorted.slice(-count).reverse(),
+  };
+}
+
+function processInspectionData(inspections) {
+  // Define which metrics have higher values for better ranks
+  const higherIsBetter = {
+    percent_matang: true,
+    percent_lewat_matang: true,
+    percent_mentah: false,
+    percent_janjang_kosong: false,
+    percent_buah_kecil: false,
+  };
+
+  // Get all percentage metrics (excluding "percent_accepted" as it's not in the ranking criteria)
+  const percentMetrics = Object.keys(higherIsBetter);
+
+  // For each metric, calculate ranks
+  const rankedMetrics = {};
+  percentMetrics.forEach((metric) => {
+    // Sort inspections based on the metric value
+    const sorted = [...inspections].sort((a, b) => {
+      return higherIsBetter[metric]
+        ? b[metric] - a[metric] // Higher values rank better
+        : a[metric] - b[metric]; // Lower values rank better
+    });
+
+    // Assign ranks
+    sorted.forEach((inspection, index) => {
+      if (!rankedMetrics[inspection.vehicle_number]) {
+        rankedMetrics[inspection.vehicle_number] = {
+          vehicle_number: inspection.vehicle_number,
+          vendor_name: inspection.vendor_name,
+          score: inspection.score,
+          total_tandan: inspection.total_tandan,
+          date: inspection.date,
+          finish_date: inspection.finish_date,
+          percent_accepted: inspection.percent_accepted,
+        };
+      }
+
+      // Add this metric with its percent and rank
+      rankedMetrics[inspection.vehicle_number][metric] = {
+        percent: inspection[metric],
+        rank: index + 1, // Rank starts from 1
+      };
+    });
+  });
+
+  return Object.values(rankedMetrics);
+}
+
 class DashboardV4Controller {
   static async getDataDashboard(req, res, next) {
     try {
@@ -621,7 +679,7 @@ class DashboardV4Controller {
         monthly: generateTemplate(months),
       };
 
-      inspections.forEach((item) => {
+      inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
         const { day, monthYear } = getDateMonthYearDay(item['date'], true);
         const week = getWeekNumber(item['date']);
@@ -639,6 +697,14 @@ class DashboardV4Controller {
           totalRejectedModified,
           totalFined: totalFinedItem,
           totalTandan: totalTandanItem,
+          totalMatang,
+          totalMentah,
+          totalLewatMatang,
+          totalBuahKecil3,
+          totalBuahKecil5,
+          totalJanjangKosong,
+          totalTangkaiPanjang,
+          percentBuahKecil,
         } = utilsInspection.getTotalAndPercentClassification(item, totalTandan);
 
         avgClassification['matang'].push(percentMatang);
@@ -846,7 +912,43 @@ class DashboardV4Controller {
           ],
           true
         );
+
+        if (!item['score']) {
+          item['score'] = 0;
+        }
+
+        let scores = {
+          matang: scoringMultiplier.matang * totalMatang,
+          lewat_matang: scoringMultiplier.lewat_matang * totalLewatMatang,
+          mentah: scoringMultiplier.mentah * totalMentah,
+          janjang_kosong: scoringMultiplier.janjang_kosong * totalJanjangKosong,
+          buah_kecil:
+            scoringMultiplier.buah_kecil * (totalBuahKecil3 + totalBuahKecil5),
+          tangkai_panjang:
+            scoringMultiplier.tangkai_panjang * totalTangkaiPanjang,
+        };
+
+        item['score'] = Object.entries(scores).reduce((num, [key, value]) => {
+          return num + value;
+        }, 0);
+
+        return {
+          score: item.score,
+          percent_accepted: percentAcceptedModified,
+          percent_matang: percentMatang,
+          percent_lewat_matang: percentLewatMatang,
+          percent_mentah: percentMentah,
+          percent_janjang_kosong: percentJangkos,
+          percent_buah_kecil: percentBuahKecil,
+          total_tandan: totalTandanItem,
+          vendor_name: vendorName,
+          vehicle_number: item['vehicle_number'],
+          date: item.date,
+          finish_date: item.finish_date,
+        };
       });
+
+      const { lowest, highest } = getTopScores(inspections, 10);
 
       const averageGrading = Object.entries(avgClassification).reduce(
         (obj, [key, value]) => {
@@ -890,6 +992,12 @@ class DashboardV4Controller {
             fruit_accepted: generateChartArrayFromObject(fruitAccepted, true),
             fruit_rejected: generateChartArrayFromObject(fruitRejected, true),
             fruit_tangkai_panjang: generateChartArrayFromObject(fruitTp, true),
+            lowest_vendor: processInspectionData(lowest).sort(
+              (a, b) => a.score - b.score
+            ),
+            highest_vendor: processInspectionData(highest).sort(
+              (a, b) => b.score - a.score
+            ),
           },
         })
       );
