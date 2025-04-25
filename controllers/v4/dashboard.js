@@ -207,51 +207,6 @@ const utilsInspection = {
   },
 };
 
-const ObjectId = require('mongoose').Types.ObjectId;
-
-const KLASIFIKASI_SORTING = [
-  'MENTAH',
-  'KURANG MATANG',
-  'MATANG',
-  'LEWAT MATANG',
-  'JANJANG KOSONG',
-  'BUAH KECIL DIBAWAH 3KG',
-  'BUAH KECIL DIBAWAH 5KG',
-  'TANGKAI PANJANG',
-];
-
-const KLASIFIKASI_INTI = [
-  'MENTAH',
-  'KURANG MATANG',
-  'MATANG',
-  'LEWAT MATANG',
-  'JANJANG KOSONG',
-];
-
-const KLASIFIKASI_PLASMA = [
-  'MENTAH',
-  'MATANG',
-  'LEWAT MATANG',
-  'JANJANG KOSONG',
-];
-
-const SUB_KLASIFIKASI = [
-  'TANGKAI PANJANG',
-  'BUAH KECIL DIBAWAH 3KG',
-  'BUAH KECIL DIBAWAH 5KG',
-];
-
-const SUB_KLASIFIKASI_SIZE = [
-  'BUAH KECIL DIBAWAH 3KG',
-  'BUAH KECIL DIBAWAH 5KG',
-];
-
-const SUB_KLASIFIKASI_TP = ['TANGKAI PANJANG'];
-
-const ACCEPTED_PLASMA = ['MATANG', 'LEWAT MATANG'];
-const FINED_PLASMA = ['BUAH KECIL DIBAWAH 5KG', 'TANGKAI PANJANG'];
-const REJECTED_PLASMA = ['MENTAH', 'JANJANG KOSONG', 'BUAH KECIL DIBAWAH 3KG'];
-
 const generateTemplate = (array) => {
   return array.reduce((curr, m) => {
     if (!Object.keys(curr).includes(m)) {
@@ -260,148 +215,6 @@ const generateTemplate = (array) => {
 
     return curr;
   }, {});
-};
-
-const setChartData = (
-  inspection,
-  object,
-  key,
-  time,
-  timeKey,
-  mainClass,
-  subClass,
-  isSubClass = false
-) => {
-  let x = isSubClass ? subClass : mainClass;
-  let vendorName = inspection['vendor_name'];
-
-  if (Object.keys(object[key][time]).includes(String(timeKey))) {
-    if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
-      object[key][time][String(timeKey)][x] = { value: 0, vendors: {} };
-    }
-
-    let vendors = object[key][time][String(timeKey)][x]['vendors'];
-
-    if (!Object.keys(vendors).includes(vendorName)) {
-      vendors[vendorName] = 0;
-    }
-
-    vendors[vendorName] +=
-      inspection['grading_result']['classification_summary']?.[mainClass]?.[
-        isSubClass ? subClass : 'TOTAL'
-      ] || 0;
-
-    object[key][time][String(timeKey)][x]['vendors'] = vendors;
-    object[key][time][String(timeKey)][x]['value'] +=
-      inspection['grading_result']['classification_summary']?.[mainClass]?.[
-        isSubClass ? subClass : 'TOTAL'
-      ] || 0;
-  }
-};
-
-const setChartDataPerformance = (
-  inspection,
-  object,
-  key,
-  time,
-  timeKey,
-  status
-) => {
-  let x = status;
-
-  if (Object.keys(object[key][time]).includes(String(timeKey))) {
-    if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
-      object[key][time][String(timeKey)][x] = { value: 0 };
-    }
-
-    object[key][time][String(timeKey)][x]['value'] +=
-      inspection['grading_result']?.[x] || 0;
-  }
-};
-
-const setChartDataDuration = (duration, object, key, time, timeKey, status) => {
-  let x = status;
-
-  if (Object.keys(object[key][time]).includes(String(timeKey))) {
-    if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
-      object[key][time][String(timeKey)][x] = { data: [] };
-    }
-
-    object[key][time][String(timeKey)][x]['data'].push(duration);
-  }
-};
-
-const setChartDataTruckGap = (
-  duration,
-  object,
-  key,
-  time,
-  timeKey,
-  machine
-) => {
-  let x = 'machines';
-
-  if (Object.keys(object[key][time]).includes(String(timeKey))) {
-    if (!Object.keys(object[key][time][String(timeKey)]).includes(x)) {
-      object[key][time][String(timeKey)][x] = { data: [] };
-    }
-    object[key][time][String(timeKey)][x]['data'].push({
-      value: duration,
-      machine,
-    });
-  }
-};
-
-const convertDemographyChartToArray = (object, main, time, divider = 1) => {
-  let x = object[main][time];
-
-  return Object.keys(x).map((key) => {
-    let data = Object.keys(x[key]).reduce((curr, acc) => {
-      let val = curr[acc]['value'];
-      let percent = countPercentage(val, divider);
-      curr[acc]['percent'] = percent;
-
-      return curr;
-    }, x[key]);
-
-    let finalData = Object.keys(data).map((k) => {
-      let vendorData = Object.keys(data[k]['vendors']).map((kv) => {
-        return {
-          name: kv,
-          percent: countPercentage(data[k]['vendors'][kv], data[k]['value']),
-          total: data[k]['vendors'][kv],
-        };
-      });
-
-      return {
-        name: k,
-        total: data[k]['value'],
-        vendors: vendorData.filter((e) => e.total > 0),
-      };
-    });
-
-    return {
-      title: key,
-      data: finalData,
-      // percent,
-      // total: countPercentage(total, divider),
-    };
-  });
-};
-
-const mapVendorData = (vendors, total) => {
-  return sortDataByKey(
-    Object.keys(vendors)
-      .map((kv) => {
-        return {
-          label: kv,
-          total: vendors[kv]['total'],
-          percent: countPercentage(vendors[kv]['total'], total),
-        };
-      })
-      .filter((e) => e.total > 0),
-    'total'
-  );
 };
 
 const dictionaryPerformance = {
@@ -756,6 +569,116 @@ function countDays(daysDateArray) {
   return dayCount;
 }
 
+function addRankingsToVendorData(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return data;
+  }
+
+  // Create copies of the data for sorting
+  const forSupplyRanking = [...data];
+  const forPercentRanking = [...data];
+
+  // Sort by supply (descending)
+  forSupplyRanking.sort((a, b) => b.supply - a.supply);
+
+  // Sort by percent (descending)
+  forPercentRanking.sort((a, b) => b.percent - a.percent);
+
+  // Create maps to store the ranks
+  const supplyRanks = new Map();
+  const percentRanks = new Map();
+
+  // Assign supply ranks
+  forSupplyRanking.forEach((item, index) => {
+    supplyRanks.set(item.vendor_name, index + 1);
+  });
+
+  // Assign percent ranks
+  forPercentRanking.forEach((item, index) => {
+    percentRanks.set(item.vendor_name, index + 1);
+  });
+
+  // Add ranks to the original data
+  let final = data.map((item) => {
+    item.supply_rank = supplyRanks.get(item.vendor_name);
+    item.percent_rank = percentRanks.get(item.vendor_name);
+
+    return item;
+  });
+
+  console.log({ final });
+
+  return final;
+}
+
+function addRankingsWithTieHandling(data, classification) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return data;
+  }
+
+  // Define classification rules
+  const higherIsBetter = ['matang', 'lewat_matang'];
+  const lowerIsBetter = [
+    'janjang_kosong',
+    'mentah',
+    'tangkai_panjang',
+    'buah_kecil_3',
+    'buah_kecil_5',
+  ];
+
+  // Determine sort direction based on classification
+  const isLowerBetter = lowerIsBetter.includes(classification);
+
+  // Create copies of the data for sorting
+  const forSupplyRanking = [...data];
+  const forPercentRanking = [...data];
+
+  // Sort based on classification rule
+
+  forSupplyRanking.sort((a, b) => b.supply - a.supply);
+  if (isLowerBetter) {
+    // Ascending for lower is better
+    forPercentRanking.sort((a, b) => a.percent - b.percent);
+  } else {
+    // Descending for higher is better (default)
+    forPercentRanking.sort((a, b) => b.percent - a.percent);
+  }
+
+  // Assign supply ranks with tie handling
+  let currentRank = 1;
+  let currentValue = forSupplyRanking[0]?.supply;
+  const supplyRanks = new Map();
+
+  forSupplyRanking.forEach((item, index) => {
+    if (index > 0 && item.supply !== currentValue) {
+      currentRank = index + 1;
+      currentValue = item.supply;
+    }
+    supplyRanks.set(item.vendor_name, currentRank);
+  });
+
+  // Assign percent ranks with tie handling
+  currentRank = 1;
+  currentValue = forPercentRanking[0]?.percent;
+  const percentRanks = new Map();
+
+  forPercentRanking.forEach((item, index) => {
+    if (index > 0 && item.percent !== currentValue) {
+      currentRank = index + 1;
+      currentValue = item.percent;
+    }
+    percentRanks.set(item.vendor_name, currentRank);
+  });
+
+  // Add ranks to the original data
+  data.forEach((item) => {
+    item.supply_rank = supplyRanks.get(item.vendor_name);
+    item.percent_rank = percentRanks.get(item.vendor_name);
+  });
+
+  return data;
+}
+
 class DashboardV4Controller {
   static async getDataDashboard(req, res, next) {
     try {
@@ -803,7 +726,12 @@ class DashboardV4Controller {
       let inspections = await InspectionDataModel.find(q);
 
       inspections = inspections.filter(
-        (e) => Number(e.grading_result?.['total_tandan'] || 0) > 200
+        (e) =>
+          e.grading_result?.total_tandan > 210 &&
+          e.vehicle_number !== 'BH 1240 ALB' &&
+          e.vendor_name !== 'Vendor 2 Plasma' &&
+          e.vendor_name !== 'Vendor B' &&
+          e.vehicle_number !== 'BH 4321 ALB'
       );
 
       const {
@@ -856,13 +784,13 @@ class DashboardV4Controller {
       const averageVendor = {};
 
       let avgClassificationTren = {
-        matang: [],
-        lewat_matang: [],
-        mentah: [],
-        janjang_kosong: [],
-        buah_kecil_3: [],
-        buah_kecil_5: [],
-        tangkai_panjang: [],
+        matang: {},
+        lewat_matang: {},
+        mentah: {},
+        janjang_kosong: {},
+        buah_kecil_3: {},
+        buah_kecil_5: {},
+        tangkai_panjang: {},
       };
       let avgClassificationVendor = {
         matang: {},
@@ -875,7 +803,6 @@ class DashboardV4Controller {
       };
 
       let avgAcceptedVendorHistory = {};
-      let avgAcceptedVendorPerfomance = {};
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -913,34 +840,42 @@ class DashboardV4Controller {
         avgClassification['buah_kecil_5'].push(percentBuahKecil5);
         avgClassification['tangkai_panjang'].push(percentTangkaiPanjang);
 
-        avgClassificationTren['matang'].push({
-          date: item.date,
-          percent: percentMatang,
-        });
-        avgClassificationTren['lewat_matang'].push({
-          date: item.date,
-          percent: percentLewatMatang,
-        });
-        avgClassificationTren['mentah'].push({
-          date: item.date,
-          percent: percentMentah,
-        });
-        avgClassificationTren['janjang_kosong'].push({
-          date: item.date,
-          percent: percentJangkos,
-        });
-        avgClassificationTren['buah_kecil_3'].push({
-          date: item.date,
-          percent: percentBuahKecil3,
-        });
-        avgClassificationTren['buah_kecil_5'].push({
-          date: item.date,
-          percent: percentBuahKecil5,
-        });
-        avgClassificationTren['tangkai_panjang'].push({
-          date: item.date,
-          percent: percentTangkaiPanjang,
-        });
+        if (!avgClassificationTren['matang'][day]) {
+          avgClassificationTren['matang'][day] = [];
+        }
+        avgClassificationTren['matang'][day].push(percentMatang);
+
+        if (!avgClassificationTren['lewat_matang'][day]) {
+          avgClassificationTren['lewat_matang'][day] = [];
+        }
+        avgClassificationTren['lewat_matang'][day].push(percentLewatMatang);
+
+        if (!avgClassificationTren['mentah'][day]) {
+          avgClassificationTren['mentah'][day] = [];
+        }
+        avgClassificationTren['mentah'][day].push(percentMentah);
+
+        if (!avgClassificationTren['janjang_kosong'][day]) {
+          avgClassificationTren['janjang_kosong'][day] = [];
+        }
+        avgClassificationTren['janjang_kosong'][day].push(percentJangkos);
+
+        if (!avgClassificationTren['buah_kecil_3'][day]) {
+          avgClassificationTren['buah_kecil_3'][day] = [];
+        }
+        avgClassificationTren['buah_kecil_3'][day].push(percentBuahKecil3);
+
+        if (!avgClassificationTren['buah_kecil_5'][day]) {
+          avgClassificationTren['buah_kecil_5'][day] = [];
+        }
+        avgClassificationTren['buah_kecil_5'][day].push(percentBuahKecil5);
+
+        if (!avgClassificationTren['tangkai_panjang'][day]) {
+          avgClassificationTren['tangkai_panjang'][day] = [];
+        }
+        avgClassificationTren['tangkai_panjang'][day].push(
+          percentTangkaiPanjang
+        );
 
         if (!avgClassificationVendor['matang'][vendorName]) {
           avgClassificationVendor['matang'][vendorName] = {
@@ -1441,15 +1376,18 @@ class DashboardV4Controller {
       const avgClassificationVendorData = Object.entries(
         avgClassificationVendor
       ).reduce((o, [key, value]) => {
-        o[key] = Object.entries(value)
-          .map(([k, v]) => {
-            return {
-              vendor_name: k,
-              supply: countPercentage(v.count, totalInspection),
-              percent: v.percent / v.count,
-            };
-          })
-          .sort((a, b) => b.percent - a.percent);
+        o[key] = addRankingsWithTieHandling(
+          Object.entries(value)
+            .map(([k, v]) => {
+              return {
+                vendor_name: k,
+                supply: countPercentage(v.count, totalInspection),
+                percent: v.percent / v.count,
+              };
+            })
+            .sort((a, b) => b.supply - a.supply),
+          key
+        );
 
         return o;
       }, {});
@@ -1478,6 +1416,22 @@ class DashboardV4Controller {
         return obj;
       }, {});
 
+      const avgClassificationTrenData = Object.entries(
+        avgClassificationTren
+      ).reduce((obj, [c, data]) => {
+        obj[c] = Object.entries(data).map(([d, value]) => {
+          const sum = value.reduce((n, c) => n + (c || 0), 0);
+          return {
+            date: d,
+            percent: sum / value.length,
+          };
+        });
+
+        return obj;
+      }, {});
+
+      console.log('Hai hai');
+
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', {
           inspections: inspections.map((i) => {
@@ -1496,7 +1450,7 @@ class DashboardV4Controller {
             percent_fined: percentFined || 0,
           },
           average_grading: averageGrading,
-          average_grading_trend: avgClassificationTren,
+          average_grading_trend: avgClassificationTrenData,
           average_grading_vendor: avgClassificationVendorData,
           average_vendor_accepted: sortObjectByValues(averageVendorAccepted),
           average_vendor_accepted_trucks_history: avgAcceptedVendorHistory,
