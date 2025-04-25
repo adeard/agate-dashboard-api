@@ -48,6 +48,11 @@ const utilsInspection = {
       totalTandan
     );
 
+    const percentAccepted = countPercentage(
+      item['grading_result']['total_accepted'],
+      item['grading_result']['total_tandan']
+    );
+
     const totalMatang =
       item.grading_result['classification_summary']['MATANG']['TOTAL'] -
       item.grading_result['classification_summary']['MATANG'][
@@ -122,6 +127,11 @@ const utilsInspection = {
       totalTandan
     );
 
+    // console.log({
+    //   percentMLM: percentMatang + percentLewatMatang,
+    //   percentAccepted,
+    // });
+
     return {
       totalMatang,
       totalLewatMatang,
@@ -138,9 +148,9 @@ const utilsInspection = {
       percentMatang,
       percentMentah,
       percentTangkaiPanjang,
-      percentAcceptedModified,
-      totalAcceptedModified,
-      totalRejectedModified,
+      percentAcceptedModified: percentAccepted,
+      totalAcceptedModified: item['grading_result']['total_accepted'],
+      totalRejectedModified: item['grading_result']['total_rejected'],
       totalTandan,
       totalFined,
     };
@@ -723,7 +733,7 @@ class DashboardV4Controller {
       //   q['year'] = Number(year);
       // }
 
-      let inspections = await InspectionDataModel.find(q);
+      let inspections = await InspectionDataModel.find(q).sort({ date: -1 });
 
       inspections = inspections.filter(
         (e) =>
@@ -803,6 +813,7 @@ class DashboardV4Controller {
       };
 
       let avgAcceptedVendorHistory = {};
+      let avgAcceptedVendorHistoryDaily = {};
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -1212,11 +1223,11 @@ class DashboardV4Controller {
         }
         avgAcceptedVendorHistory[vendorName].push(payload);
 
-        if (!avgAcceptedVendorHistory[vendorName]) {
-          avgAcceptedVendorHistory[vendorName] = {};
+        if (!avgAcceptedVendorHistoryDaily[vendorName]) {
+          avgAcceptedVendorHistoryDaily[vendorName] = {};
         }
-        if (!avgAcceptedVendorHistory[vendorName][day]) {
-          avgAcceptedVendorHistory[vendorName][day] = {
+        if (!avgAcceptedVendorHistoryDaily[vendorName][day]) {
+          avgAcceptedVendorHistoryDaily[vendorName][day] = {
             trucks: 0,
             avg_tandan: 0,
             avg_accepted: 0,
@@ -1228,22 +1239,22 @@ class DashboardV4Controller {
             avg_buah_kecil: 0,
           };
         }
-        avgAcceptedVendorHistory[vendorName][day]['trucks'] += 1;
-        avgAcceptedVendorHistory[vendorName][day]['avg_tandan'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['trucks'] += 1;
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_tandan'] +=
           totalTandanItem;
-        avgAcceptedVendorHistory[vendorName][day]['avg_accepted'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_accepted'] +=
           totalAcceptedModified;
-        avgAcceptedVendorHistory[vendorName][day]['avg_matang'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_matang'] +=
+          percentMatang;
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_lewat_matang'] +=
           percentLewatMatang;
-        avgAcceptedVendorHistory[vendorName][day]['avg_lewat_matang'] +=
-          percentLewatMatang;
-        avgAcceptedVendorHistory[vendorName][day]['avg_mentah'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_mentah'] +=
           percentMentah;
-        avgAcceptedVendorHistory[vendorName][day]['avg_janjang_kosong'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_janjang_kosong'] +=
           percentJangkos;
-        avgAcceptedVendorHistory[vendorName][day]['avg_buah_kecil'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_buah_kecil'] +=
           percentBuahKecil;
-        avgAcceptedVendorHistory[vendorName][day]['avg_tangkai_panjang'] +=
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_tangkai_panjang'] +=
           percentTangkaiPanjang;
 
         return payload;
@@ -1392,11 +1403,13 @@ class DashboardV4Controller {
         return o;
       }, {});
 
-      const avgAcceptedVendorHistoryData = Object.entries(
-        avgAcceptedVendorHistory
+      const avgAcceptedVendorHistoryDailyData = Object.entries(
+        avgAcceptedVendorHistoryDaily
       ).reduce((obj, [vendor, data]) => {
+        // console.log({ data });
         obj[vendor] = Object.entries(data)
           .map(([d, dayData]) => {
+            // console.log({ dayData });
             return {
               date: d,
               trucks: dayData['trucks'],
@@ -1430,7 +1443,7 @@ class DashboardV4Controller {
         return obj;
       }, {});
 
-      console.log('Hai hai');
+      // console.log('Hai hai');
 
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', {
@@ -1454,7 +1467,7 @@ class DashboardV4Controller {
           average_grading_vendor: avgClassificationVendorData,
           average_vendor_accepted: sortObjectByValues(averageVendorAccepted),
           average_vendor_accepted_trucks_history: avgAcceptedVendorHistory,
-          average_vendor_accepted_daily: avgAcceptedVendorHistoryData,
+          average_vendor_accepted_daily: avgAcceptedVendorHistoryDailyData,
           charts_data: {
             summary_performance:
               generateChartArrayFromObject(summaryPerformance),
