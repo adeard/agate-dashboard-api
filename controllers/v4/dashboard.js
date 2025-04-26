@@ -264,16 +264,23 @@ const setChartDataValue = (
   valueItem,
   asArray = false
 ) => {
+  console.log({ object });
   if (Array.isArray(keyItem)) {
     keyItem.forEach((key, index) => {
+      if (!object[keyTime][time]) {
+        object[keyTime][time] = {};
+      }
       if (asArray) {
+        // console.log({ key });
         if (!object[keyTime][time][key]) {
           object[keyTime][time][key] = [];
         }
         object[keyTime][time][key].push(valueItem[index]);
         return;
       }
-      if (!object[keyTime][time][key]) {
+
+      // console.log({ object: object[keyTime][time] });
+      if (!object[keyTime][time]?.[key]) {
         object[keyTime][time][key] = 0;
       }
       object[keyTime][time][key] += valueItem[index];
