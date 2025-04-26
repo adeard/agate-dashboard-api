@@ -1197,7 +1197,7 @@ class DashboardV4Controller {
 
         averageVendor[vendorName]['count'] += 1;
         averageVendor[vendorName]['tandan'] += totalTandanItem;
-        averageVendor[vendorName]['accepted'] += percentAccepted;
+        averageVendor[vendorName]['accepted'] += percentAcceptedModified;
         averageVendor[vendorName]['matang'] += percentMatang;
         averageVendor[vendorName]['lewat_matang'] += percentLewatMatang;
         averageVendor[vendorName]['tangkai_panjang'] += percentTangkaiPanjang;
