@@ -264,7 +264,6 @@ const setChartDataValue = (
   valueItem,
   asArray = false
 ) => {
-  console.log({ object });
   if (Array.isArray(keyItem)) {
     keyItem.forEach((key, index) => {
       if (!object[keyTime][time]) {
