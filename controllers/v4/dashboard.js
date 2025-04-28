@@ -1249,7 +1249,7 @@ class DashboardV4Controller {
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_tandan'] +=
           totalTandanItem;
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_accepted'] +=
-          totalAcceptedModified;
+          percentAcceptedModified;
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_matang'] +=
           percentMatang;
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_lewat_matang'] +=
