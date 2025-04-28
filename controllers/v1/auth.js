@@ -1,8 +1,11 @@
-const { comparePass } = require('../../lib/bcrypt');
+const { comparePass, hashPassword } = require('../../lib/bcrypt');
 const { generateToken } = require('../../lib/jwt');
 const UserModel = require('../../models/user');
 const { sendEmail } = require('../../utils/email');
-const { createResponseSuccess } = require('../../utils/helpers');
+const {
+  createResponseSuccess,
+  generateRandomPassword,
+} = require('../../utils/helpers');
 
 class AuthController {
   static async signIn(req, res, next) {
@@ -106,16 +109,24 @@ class AuthController {
         };
       }
 
-      const generatedToken = generateToken({
-        _id: user._id,
-        email: user.email,
+      const password = generateRandomPassword(6);
+
+      await UserModel.findByIdAndUpdate(user._id, {
+        $set: {
+          password: hashPassword(password),
+        },
       });
-      const changePasswordUrl = `${process.env.FE_URL}?token=${generatedToken}`;
+
+      // const generatedToken = generateToken({
+      //   _id: user._id,
+      //   email: user.email,
+      // });
+      // const changePasswordUrl = `${process.env.FE_URL}?token=${generatedToken}`;
 
       await sendEmail({
         toAddress: [body.email],
-        subject: 'Link Ganti Password Anda',
-        message: `Halo, berikut tautan untuk mengubah password anda: ${changePasswordUrl}`,
+        subject: 'Berikut Password Baru Anda',
+        message: `Halo, berikut password baru anda: ${password}`,
       });
 
       return res
@@ -124,7 +135,7 @@ class AuthController {
           createResponseSuccess(
             200,
             'Success',
-            'Email konfirmasi sudah dikirimkan ke email anda',
+            'Password baru sudah dikirimkan ke email anda',
             {}
           )
         );
