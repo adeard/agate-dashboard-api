@@ -707,7 +707,7 @@ class DashboardV4Controller {
       } = req.query;
 
       const weeks = generateWeeks(year);
-      const days = generateDatesByYear(year, "DD/MM/YY");
+      const days = generateDatesByYear(year, "d, DD/MM");
       const months = generateMonths(year);
 
       let q = {};
@@ -823,7 +823,7 @@ class DashboardV4Controller {
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
-        const { day, monthYear } = getDateMonthYearDay(item['date'], true, "DD/MM/YY");
+        const { day, monthYear } = getDateMonthYearDay(item['date'], true, "d, DD/MM");
         const week = getWeekNumber(item['date']);
 
         const {
@@ -1676,7 +1676,7 @@ class DashboardV4Controller {
     let daysDateArray = [];
 
     data.forEach((item, index) => {
-      const date = dayjs(item.date).format('DD/MM/YYYY');
+      const date = dayjs(item.date).format('d, DD/MMYY');
       const month = dayjs(item.date).format('MMMM YYYY');
       const hour = dayjs(item.date).hour();
       const minute = dayjs(item.date).minute();
