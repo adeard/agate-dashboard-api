@@ -823,7 +823,7 @@ class DashboardV4Controller {
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
-        const { day, monthYear } = getDateMonthYearDay(item['date'], true, "d, DD/MM");
+        const { day, monthYear } = getDateMonthYearDay(item['date'], true, "D, DD/MM");
         const week = getWeekNumber(item['date']);
 
         const {
