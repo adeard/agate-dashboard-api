@@ -47,7 +47,7 @@ module.exports = {
     });
   },
 
-  generateDatesByYear: (year) => {
+  generateDatesByYear: (year, dateFormat = "DD/MM/YYYY") => {
     const currentYear = dayjs().year();
     const startDate = dayjs(`${year}-01-01`);
     const today = dayjs().startOf('day');
@@ -61,7 +61,7 @@ module.exports = {
       currentDate.isSame(endDate, 'day') ||
       currentDate.isBefore(endDate, 'day')
     ) {
-      dates.push(currentDate.format('DD/MM/YYYY'));
+      dates.push(currentDate.format(dateFormat));
       currentDate = currentDate.add(1, 'day');
     }
 
@@ -109,10 +109,10 @@ module.exports = {
 
     return months;
   },
-  getDateMonthYearDay: (date, useUtcOffset = true) => {
+  getDateMonthYearDay: (date, useUtcOffset = true, formatDay = "DD/MM/YYYY") => {
     const mod = useUtcOffset ? dayjs(date).utcOffset(7.1 * 60) : dayjs(date);
     return {
-      day: mod.format('DD/MM/YYYY'),
+      day: mod.format(formatDay),
       monthYear: mod.format('MMMM YYYY'),
     };
   },
