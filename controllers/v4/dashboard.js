@@ -707,7 +707,7 @@ class DashboardV4Controller {
       } = req.query;
 
       const weeks = generateWeeks(year);
-      const days = generateDatesByYear(year, "DD/MM/YY");
+      const days = generateDatesByYear(year, 'DD/MM/YY');
       const months = generateMonths(year);
 
       let q = {};
@@ -823,7 +823,11 @@ class DashboardV4Controller {
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
-        const { day, monthYear } = getDateMonthYearDay(item['date'], true, "DD/MM/YY");
+        const { day, monthYear } = getDateMonthYearDay(
+          item['date'],
+          true,
+          'DD/MM/YY'
+        );
         const week = getWeekNumber(item['date']);
 
         const {
@@ -1270,9 +1274,12 @@ class DashboardV4Controller {
 
       const averageGrading = Object.entries(avgClassification).reduce(
         (obj, [key, value]) => {
-          obj[key] = (
-            value.reduce((tot, num) => tot + (num || 0), 0) / value.length
-          ).toLocaleString('en', { maximumFractionDigits: 2 });
+          obj[key] = value?.length
+            ? (
+                value.reduce((tot, num) => tot + Number(num || 0), 0) /
+                value.length
+              ).toLocaleString('en', { maximumFractionDigits: 2 })
+            : 0;
 
           return obj;
         },
