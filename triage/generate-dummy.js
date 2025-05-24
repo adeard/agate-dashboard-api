@@ -250,14 +250,26 @@ connectToDatabase().then(async (res) => {
 
   // const password = generateRandomPassword(6);
 
-  await UserModel.findOneAndUpdate(
-    { email: 'ffb.officer.sbnm@sinarmas-agri.com' },
-    {
-      $set: {
-        password: hashPassword('pakrachmat123'),
-      },
-    }
-  );
+  // await UserModel.findOneAndUpdate(
+  //   { email: 'ffb.officer.sbnm@sinarmas-agri.com' },
+  //   {
+  //     $set: {
+  //       password: hashPassword('pakrachmat123'),
+  //     },
+  //   }
+  // );
+
+  // const users = await UserModel.find({}).lean();
+
+  // await users.reduce(async (p, u) => {
+  //   await p;
+  //   await UserModel.findByIdAndUpdate(u._id, {
+  //     $set: {
+  //       password: hashPassword('Agate@123!'),
+  //     },
+  //   });
+  //   console.log("Done Change Password", u.email)
+  // }, Promise.resolve());
 
   // await blastReportToUser();
 

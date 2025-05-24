@@ -1297,10 +1297,10 @@ class DashboardV4Controller {
       );
 
       const lowestRanked = processInspectionData(lowest).sort(
-        (a, b) => a.score - b.score
+        (a, b) => a.percent_accepted - b.percent_accepted
       );
       const highestRanked = processInspectionData(highest).sort(
-        (a, b) => b.score - a.score
+        (a, b) => b.percent_accepted - a.percent_accepted
       );
 
       const averageVendorData = Object.entries(averageVendor).map(
