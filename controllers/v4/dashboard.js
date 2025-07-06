@@ -698,6 +698,7 @@ function addRankingsWithTieHandling(data, classification) {
 class DashboardV4Controller {
   static async getDataDashboard(req, res, next) {
     try {
+      const user = req.user;
       const {
         year = new Date().getFullYear(),
         factory = '',
@@ -710,7 +711,7 @@ class DashboardV4Controller {
       const days = generateDatesByYear(year, 'DD/MM/YY');
       const months = generateMonths(year);
 
-      let q = {};
+      let q = { company: user.company };
 
       if (date_from && !date_to) {
         q['date'] = {
