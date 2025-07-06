@@ -13,6 +13,7 @@ const enumType = Object.keys(labelKey);
 class OptionsController {
   static async getOptionsSelector(req, res, next) {
     try {
+      const user = req.user;
       const { type } = req.params;
       const { factory = '' } = req.query;
 
@@ -27,11 +28,11 @@ class OptionsController {
       }
 
       if (type === 'factory') {
-        datas = await FactoryModel.find({}).lean();
+        datas = await FactoryModel.find({ company: user.company }).lean();
       }
 
       if (type === 'vendor') {
-        let q = {};
+        let q = { company: user.company };
         if (factory) {
           q['factory'] = factory;
         }
