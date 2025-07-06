@@ -66,6 +66,7 @@ const changeValueToLocalestring = (obj) => {
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
+      const user = req.user;
       const {
         name = '',
         delivery_number = '',
