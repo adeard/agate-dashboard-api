@@ -79,6 +79,7 @@ class InspectionDataController {
 
       let q = {
         'grading_result.total_tandan': { $gte: Number(limit_minimum) },
+        company: user.company,
       };
 
       if (factoryId) {
@@ -161,6 +162,7 @@ class InspectionDataController {
 
   static async createNew(req, res, next) {
     try {
+      const user = req.user;
       const body = req.body;
 
       const founded = await InspectionDataModel.findOne({
@@ -184,11 +186,15 @@ class InspectionDataController {
 
       await vBody('inspection-data', body);
 
-      await InspectionDataModel.findOneAndUpdate({ id: body['id'] }, body, {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      });
+      await InspectionDataModel.findOneAndUpdate(
+        { id: body['id'] },
+        { ...body, company: user.company },
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
 
       return res
         .status(200)
@@ -367,7 +373,8 @@ class InspectionDataController {
             )
           : 0;
       let total_percent =
-        Number(Number(total_rejected_percent).toFixed(1)) + Number(Number(total_accepted_percent).toFixed(1));
+        Number(Number(total_rejected_percent).toFixed(1)) +
+        Number(Number(total_accepted_percent).toFixed(1));
 
       let classificationResult = generateClassificationResultArray(
         classificationData

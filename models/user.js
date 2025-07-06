@@ -37,6 +37,15 @@ const SCHEMA = new Schema(
       type: Number,
       enum: [0, 1],
     },
+    company: {
+      type: Schema.Types.ObjectId,
+      ref: 'GradingHQ_COMPANY',
+      required: true,
+    },
+    role: {
+      type: Number,
+      enum: [1, 2, 3], // 1 = User , 2 = Admin, 3 = Super Admin
+    },
   },
   { timestamps: true }
 );
