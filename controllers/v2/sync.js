@@ -122,6 +122,10 @@ class SyncDataController {
 
       delete body['is_integrated'];
 
+      if (!body['company']) {
+        body['company'] = '68697f15a05bd58ea7bd5dd0';
+      }
+
       await vBody('inspection-data', body);
 
       body['factory'] = factory._id;
