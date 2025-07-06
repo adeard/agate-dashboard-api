@@ -145,6 +145,11 @@ const SCHEMA = new Schema(
     images: {
       type: String,
     },
+    company: {
+      type: Schema.Types.ObjectId,
+      ref: 'GradingHQ_COMPANY',
+      required: true,
+    },
   },
   { timestamps: true }
 );

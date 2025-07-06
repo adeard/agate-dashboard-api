@@ -8,6 +8,7 @@ const schemas = {
     access_factory: Joi.array().items(Joi.string()).required(),
     whatsapp_number: Joi.string().optional().allow('').allow(null),
     subscribe_notification: Joi.number().valid(1, 2).optional().allow(null),
+    company: Joi.string(),
   }),
   'change-password': Joi.object({
     old_password: Joi.string().required(),
@@ -17,9 +18,14 @@ const schemas = {
     new_password: Joi.string().required(),
     confirm_new_password: Joi.ref('new_password'),
   }),
+  company: Joi.object({
+    name: Joi.string().required(),
+    initial: Joi.string(),
+  }),
 
   factory: Joi.object({
     name: Joi.string().required(),
+    company: Joi.string(),
   }),
 
   afdelink: Joi.object({
@@ -137,6 +143,7 @@ const schemas = {
     machine: Joi.number().allow(null).optional(),
     notes: Joi.string().allow(null).optional(),
     images: Joi.string().allow(null).optional(),
+    company: Joi.string(),
   }),
 
   'vendor-2': Joi.object({

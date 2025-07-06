@@ -6,12 +6,14 @@ const { vBody } = require('../../validators/joi');
 class FactoryController {
   static async getAllFactory(req, res, next) {
     try {
+      const user = req.user;
       const { name = '' } = req.query;
 
       const regexPattern = new RegExp(name || '', 'i');
 
       let factories = await FactoryModel.find({
         name: { $regex: regexPattern },
+        company: user.company,
       })
         .sort({ updatedAt: -1 })
         .lean();

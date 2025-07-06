@@ -5,9 +5,12 @@ const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 
+const ObjectId = require('mongoose').Types.ObjectId;
+
 class VendorController {
   static async getAllVendor(req, res, next) {
     try {
+      const user = req.user;
       const { name = '', factory = '' } = req.query;
 
       const { query } = getBasicQuery(req.query);
@@ -15,7 +18,13 @@ class VendorController {
       const regexPattern = new RegExp(name || '', 'i');
 
       const vendors = await VendorV2Model.aggregate([
-        { $match: { ...query, name: { $regex: regexPattern } } },
+        {
+          $match: {
+            ...query,
+            name: { $regex: regexPattern },
+            company: new ObjectId(user.company),
+          },
+        },
         {
           $lookup: {
             from: FactoryModel.collection.name,

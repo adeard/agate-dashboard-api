@@ -13,6 +13,7 @@ const VendorV2Model = require('../models/v2/vendor');
 const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
 const WABroadcastModel = require('../models/wa-broadcast');
+const CompanyModel = require('../models/company');
 
 // console.log(generateRandomPassword(6));
 
@@ -23,7 +24,7 @@ connectToDatabase().then(async (res) => {
   // await VendorModel.deleteMany({});
   // await VendorV2Model.deleteMany({});
   // await FactoryModel.deleteMany({});
-  await InspectionDataModel.deleteOne({ delivery_number: 'gsdg' });
+  // await InspectionDataModel.deleteOne({ delivery_number: 'gsdg' });
   // await InspectionHistoryModel.deleteMany({});
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
@@ -52,6 +53,47 @@ connectToDatabase().then(async (res) => {
 
   // const response = await WABroadcastModel.find({}).lean();
 
-  // console.log({ response });
+  // const sinarmas = await CompanyModel.create({
+  //   name: 'Sinarmas',
+  //   initial: 'SMS',
+  // });
+  // const kencana = await CompanyModel.create({
+  //   name: 'Kencana',
+  //   initial: 'KNC',
+  // });
+  // const demo = await CompanyModel.create({
+  //   name: 'Demo Company',
+  //   initial: 'DMO',
+  // });
+
+  const idCompanySinarmas = '68697f15a05bd58ea7bd5dd0';
+
+  // console.log({ sinarmas });
+
+  await FactoryModel.updateMany(
+    {},
+    {
+      $set: {
+        company: idCompanySinarmas,
+      },
+    }
+  );
+  await UserModel.updateMany(
+    {},
+    {
+      $set: {
+        company: idCompanySinarmas,
+        role: 1,
+      },
+    }
+  );
+  await InspectionDataModel.updateMany(
+    {},
+    {
+      $set: {
+        company: idCompanySinarmas,
+      },
+    }
+  );
   console.log('Done');
 });

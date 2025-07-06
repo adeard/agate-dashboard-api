@@ -9,9 +9,12 @@ const {
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 
+const ObjectId = require('mongoose').Types.ObjectId;
+
 class UserController {
   static async getAllUser(req, res, next) {
     try {
+      const user = req.user;
       const { query, page, limit } = getBasicQuery(req.query, {
         parseToNumber: ['status'],
       });
@@ -23,6 +26,7 @@ class UserController {
           $match: {
             ...query,
             full_name: { $regex: regexPattern },
+            company: new ObjectId(user.company),
           },
         },
         {
@@ -44,6 +48,8 @@ class UserController {
             access_factory: 1,
             whatsapp_number: 1,
             subscribe_notification: 1,
+            company: 1,
+            role: 1,
             createdAt: 1,
             updatedAt: 1,
           },
@@ -104,6 +110,7 @@ class UserController {
       await UserModel.create({
         ...body,
         password: hashPassword(password),
+        role: 1,
       });
 
       await sendEmail({

@@ -167,6 +167,7 @@ const mapVendorData = (vendors, total) => {
 class DashboardV2Controller {
   static async getDataDashboard(req, res, next) {
     try {
+      const user = req.user;
       const {
         year = new Date().getFullYear(),
         factory = '',
@@ -178,7 +179,7 @@ class DashboardV2Controller {
       const days = generateDatesByYear(year);
       const months = generateMonths(year);
 
-      let q = {};
+      let q = { company: user.company };
 
       if (date_from && !date_to) {
         q['date'] = {

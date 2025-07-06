@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const NAME = 'GradingHQ_FACTORY';
+const NAME = 'GradingHQ_COMPANY';
 
 const SCHEMA = new Schema(
   {
@@ -8,15 +8,14 @@ const SCHEMA = new Schema(
       type: String,
       required: true,
     },
-    company: {
-      type: Schema.Types.ObjectId,
-      ref: 'GradingHQ_COMPANY',
+    initial: {
+      type: String,
       required: true,
     },
   },
   { timestamps: true }
 );
 
-const FactoryModel = model(NAME, SCHEMA);
+const CompanyModel = model(NAME, SCHEMA);
 
-module.exports = FactoryModel;
+module.exports = CompanyModel;
