@@ -112,27 +112,27 @@ connectToDatabase().then(async (res) => {
   const factories = await FactoryModel.find({}).lean();
   console.log({ factories });
 
-  await UserModel.create({
-    full_name: 'Admin Accelego Kencana',
-    email: 'adminkencana@accelego.id',
-    role: 1,
-    subscribe_notification: 1,
-    company: '68697f15a05bd58ea7bd5dd2',
-    access_factory: ['686a5645bf73aa13b489ad36'],
-    whatsapp_number: '6281385784854',
-    status: 1,
-    password: hashPassword('123'),
-  });
-  await UserModel.create({
-    full_name: 'Admin Accelego Demo',
-    email: 'admindemo@accelego.id',
-    role: 1,
-    subscribe_notification: 1,
-    company: '68697f15a05bd58ea7bd5dd4',
-    access_factory: ['686a5645bf73aa13b489ad38'],
-    whatsapp_number: '6281385784854',
-    status: 1,
-    password: hashPassword('123'),
-  });
+  // await UserModel.create({
+  //   full_name: 'Admin Accelego Kencana',
+  //   email: 'adminkencana@accelego.id',
+  //   role: 1,
+  //   subscribe_notification: 1,
+  //   company: '68697f15a05bd58ea7bd5dd2',
+  //   access_factory: ['686a5645bf73aa13b489ad36'],
+  //   whatsapp_number: '6281385784854',
+  //   status: 1,
+  //   password: hashPassword('123'),
+  // });
+  // await UserModel.create({
+  //   full_name: 'Admin Accelego Demo',
+  //   email: 'admindemo@accelego.id',
+  //   role: 1,
+  //   subscribe_notification: 1,
+  //   company: '68697f15a05bd58ea7bd5dd4',
+  //   access_factory: ['686a5645bf73aa13b489ad38'],
+  //   whatsapp_number: '6281385784854',
+  //   status: 1,
+  //   password: hashPassword('123'),
+  // });
   console.log('Done');
 });
