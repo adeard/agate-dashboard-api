@@ -21,6 +21,9 @@ const SCHEMA = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'GradingHQ_FACTORY',
     },
+    vendor_id: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

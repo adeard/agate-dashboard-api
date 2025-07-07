@@ -17,6 +17,14 @@ const CompanyModel = require('../models/company');
 
 // console.log(generateRandomPassword(6));
 
+// Calculate date 3 months ago from today
+const getThreeMonthsAgo = () => {
+  const today = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  return threeMonthsAgo;
+};
+
 connectToDatabase().then(async (res) => {
   console.log(res);
   // await UserModel.deleteMany({});
@@ -95,11 +103,11 @@ connectToDatabase().then(async (res) => {
   //     },
   //   }
   // );
-  const companies = await CompanyModel.find({}).lean();
+  // const companies = await CompanyModel.find({}).lean();
 
   // KENCANA = 68697f15a05bd58ea7bd5dd2
   // DEMO = 68697f15a05bd58ea7bd5dd4
-  console.log({ companies });
+  // console.log({ companies });
   // const factoryKencana = await FactoryModel.create({
   //   company: '68697f15a05bd58ea7bd5dd2',
   //   name: 'SWK',
@@ -109,8 +117,8 @@ connectToDatabase().then(async (res) => {
   //   name: 'DMO',
   // });
 
-  const factories = await FactoryModel.find({}).lean();
-  console.log({ factories });
+  // const factories = await FactoryModel.find({}).lean();
+  // console.log({ factories });
 
   // await UserModel.create({
   //   full_name: 'Admin Accelego Kencana',
@@ -134,5 +142,63 @@ connectToDatabase().then(async (res) => {
   //   status: 1,
   //   password: hashPassword('123'),
   // });
+
+  let idCompanyDemo = '68697f15a05bd58ea7bd5dd4';
+  let idFactoryDemo = '686a5645bf73aa13b489ad38';
+
+  const idSinarmas = '68697f15a05bd58ea7bd5dd0';
+  const lngm = '66c3114ba342ddbf9eae83c1';
+
+  await InspectionDataModel.deleteMany({ company: idCompanyDemo });
+  await VendorV2Model.deleteMany({ factory: idFactoryDemo });
+
+  const datas = await InspectionDataModel.find({
+    company: idSinarmas,
+    date: { $gte: getThreeMonthsAgo() },
+  }).lean();
+  const vendors = await VendorV2Model.find({ factory: lngm }).lean();
+
+  let newVendors = [];
+
+  await vendors.reduce(async (p, v) => {
+    await p;
+
+    let type = v.type === 3 ? 2 : v.type;
+
+    const createdVendor = await VendorV2Model.create({
+      factory: idFactoryDemo,
+      type: type,
+      name: v.name,
+      id: v.id,
+    });
+
+    newVendors.push(createdVendor);
+  }, Promise.resolve());
+
+  await datas.reduce(async (p, d) => {
+    await p;
+
+    const vendor = newVendors.find((v) => v.name === d.vendor_name);
+
+    if (vendor) {
+      delete d['_id'];
+
+      let result = d['grading_result'] ? d['grading_result'] : {};
+
+      await InspectionDataModel.create({
+        ...d,
+        company: idCompanyDemo,
+        factory: idFactoryDemo,
+        vendor: vendor._id,
+        grading_result: result,
+      });
+
+      console.log('Done copy-ing data');
+      return;
+    }
+
+    console.log('Vendor not found');
+  }, Promise.resolve());
+
   console.log('Done');
 });
