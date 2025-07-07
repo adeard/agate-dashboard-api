@@ -11,7 +11,7 @@ const authorization = (req, res, next) => {
         title: 'Authorization Failed',
         m: 'Failed to authenticate user, please check your account',
       },
-      redirect: '/auth/login',
+      redirect: '/login',
     });
   }
 
@@ -25,7 +25,7 @@ const authorization = (req, res, next) => {
         title: 'Invalid Token',
         m: 'Please provide a valid token',
       },
-      redirect: '/auth/login',
+      redirect: '/login',
     });
   }
 
@@ -39,7 +39,19 @@ const authorization = (req, res, next) => {
         title: 'Invalid Token',
         m: 'Please provide a valid token',
       },
-      redirect: '/auth/login',
+      redirect: '/login',
+    });
+  }
+
+  if (!userVerified['company']) {
+    return res.status(403).json({
+      code: 403,
+      success: false,
+      message: {
+        title: 'Invalid Token',
+        m: 'Please provide a valid token',
+      },
+      redirect: '/login',
     });
   }
 
