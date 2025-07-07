@@ -11,7 +11,10 @@ const server = require('http').createServer(app);
 
 const routes = require('./routes');
 const connectToDatabase = require('./lib/db-connect');
-const { runBlasReportCron } = require('./lib/cron/blast-report');
+const {
+  runBlasReportCron,
+  runUpdateDataDemo,
+} = require('./lib/cron/blast-report');
 const { generateExcel } = require('./utils/generate-excel-daily');
 const dayjs = require('dayjs');
 const XLSX = require('xlsx');
@@ -85,6 +88,7 @@ const XLSX = require('xlsx');
       app.set('port', PORT);
 
       runBlasReportCron().start();
+      runUpdateDataDemo().start();
 
       server.listen(PORT, () => {
         console.log('App Connected on PORT:', PORT);
