@@ -17,14 +17,6 @@ const CompanyModel = require('../models/company');
 
 // console.log(generateRandomPassword(6));
 
-// Calculate date 3 months ago from today
-const getThreeMonthsAgo = () => {
-  const today = new Date();
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(today.getMonth() - 3);
-  return threeMonthsAgo;
-};
-
 connectToDatabase().then(async (res) => {
   console.log(res);
   // await UserModel.deleteMany({});
