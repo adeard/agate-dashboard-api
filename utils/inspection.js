@@ -1,4 +1,3 @@
-const { db } = require('../models');
 const CompanyModel = require('../models/company');
 
 async function getCompanyLimitTandan(user) {
