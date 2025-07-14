@@ -275,11 +275,11 @@ connectToDatabase().then(async (res) => {
 
   // console.log({ password });
 
-  // const vendor3 = await InspectionDataModel.find({
-  //   engine_type: '2',
-  // }).lean();
+  const responses = await InspectionDataModel.find({
+    company: '68697f15a05bd58ea7bd5dd2',
+  }).lean();
 
-  // console.log({ vendor3 });
+  console.log({ responses });
 
   console.log('Done');
   process.exit(1);
