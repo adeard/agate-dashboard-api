@@ -144,6 +144,8 @@ const schemas = {
     notes: Joi.string().allow(null).optional(),
     images: Joi.string().allow(null).optional(),
     company: Joi.string(),
+    manual_parameter: Joi.any().optional(), // Optional field
+    total_multiple: Joi.number().optional(), // Optional field
   }),
 
   'vendor-2': Joi.object({

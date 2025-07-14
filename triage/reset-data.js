@@ -143,62 +143,62 @@ connectToDatabase().then(async (res) => {
   //   password: hashPassword('123'),
   // });
 
-  let idCompanyDemo = '68697f15a05bd58ea7bd5dd4';
-  let idFactoryDemo = '686a5645bf73aa13b489ad38';
+  // let idCompanyDemo = '68697f15a05bd58ea7bd5dd4';
+  // let idFactoryDemo = '686a5645bf73aa13b489ad38';
 
-  const idSinarmas = '68697f15a05bd58ea7bd5dd0';
-  const lngm = '66c3114ba342ddbf9eae83c1';
+  // const idSinarmas = '68697f15a05bd58ea7bd5dd0';
+  // const lngm = '66c3114ba342ddbf9eae83c1';
 
-  await InspectionDataModel.deleteMany({ company: idCompanyDemo });
-  await VendorV2Model.deleteMany({ factory: idFactoryDemo });
+  // await InspectionDataModel.deleteMany({ company: idCompanyDemo });
+  // await VendorV2Model.deleteMany({ factory: idFactoryDemo });
 
-  const datas = await InspectionDataModel.find({
-    company: idSinarmas,
-    date: { $gte: getThreeMonthsAgo() },
-  }).lean();
-  const vendors = await VendorV2Model.find({ factory: lngm }).lean();
+  // const datas = await InspectionDataModel.find({
+  //   company: idSinarmas,
+  //   date: { $gte: getThreeMonthsAgo() },
+  // }).lean();
+  // const vendors = await VendorV2Model.find({ factory: lngm }).lean();
 
-  let newVendors = [];
+  // let newVendors = [];
 
-  await vendors.reduce(async (p, v) => {
-    await p;
+  // await vendors.reduce(async (p, v) => {
+  //   await p;
 
-    let type = v.type === 3 ? 2 : v.type;
+  //   let type = v.type === 3 ? 2 : v.type;
 
-    const createdVendor = await VendorV2Model.create({
-      factory: idFactoryDemo,
-      type: type,
-      name: v.name,
-      id: v.id,
-    });
+  //   const createdVendor = await VendorV2Model.create({
+  //     factory: idFactoryDemo,
+  //     type: type,
+  //     name: v.name,
+  //     id: v.id,
+  //   });
 
-    newVendors.push(createdVendor);
-  }, Promise.resolve());
+  //   newVendors.push(createdVendor);
+  // }, Promise.resolve());
 
-  await datas.reduce(async (p, d) => {
-    await p;
+  // await datas.reduce(async (p, d) => {
+  //   await p;
 
-    const vendor = newVendors.find((v) => v.name === d.vendor_name);
+  //   const vendor = newVendors.find((v) => v.name === d.vendor_name);
 
-    if (vendor) {
-      delete d['_id'];
+  //   if (vendor) {
+  //     delete d['_id'];
 
-      let result = d['grading_result'] ? d['grading_result'] : {};
+  //     let result = d['grading_result'] ? d['grading_result'] : {};
 
-      await InspectionDataModel.create({
-        ...d,
-        company: idCompanyDemo,
-        factory: idFactoryDemo,
-        vendor: vendor._id,
-        grading_result: result,
-      });
+  //     await InspectionDataModel.create({
+  //       ...d,
+  //       company: idCompanyDemo,
+  //       factory: idFactoryDemo,
+  //       vendor: vendor._id,
+  //       grading_result: result,
+  //     });
 
-      console.log('Done copy-ing data');
-      return;
-    }
+  //     console.log('Done copy-ing data');
+  //     return;
+  //   }
 
-    console.log('Vendor not found');
-  }, Promise.resolve());
+  //   console.log('Vendor not found');
+  // }, Promise.resolve());
 
   console.log('Done');
 });

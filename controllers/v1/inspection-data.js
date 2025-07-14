@@ -77,6 +77,7 @@ class InspectionDataController {
         limit_minimum = 0,
       } = req.query;
       const { factoryId } = req.params;
+      // console.log({ user });
 
       let q = {
         'grading_result.total_tandan': { $gte: Number(limit_minimum) },
@@ -117,6 +118,8 @@ class InspectionDataController {
           $lte: dayjs(date_to).endOf('day'),
         };
       }
+
+      console.log({ q });
 
       const inspections = await InspectionDataModel.find(q)
         .sort({ date: -1 })
