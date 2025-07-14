@@ -16,6 +16,7 @@ const {
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const InspectionDataModel = require('../../models/inspection-data');
+const { getCompanyLimitTandan } = require('../../utils/inspection');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -246,6 +247,7 @@ const converToObjectData = (obj) => {
 class DashboardV2Controller {
   static async getDataDashboard(req, res, next) {
     try {
+      const user = req.user;
       const {
         year = new Date().getFullYear(),
         factory = '',
@@ -288,9 +290,10 @@ class DashboardV2Controller {
       // }
 
       let inspections = await InspectionDataModel.find(q);
+      const limit = await getCompanyLimitTandan(user);
 
       inspections = inspections.filter(
-        (e) => Number(e.grading_result?.['total_tandan'] || 0) > 200
+        (e) => Number(e.grading_result?.['total_tandan'] || 0) > limit
       );
 
       const totalAllTandon = inspections.reduce(
