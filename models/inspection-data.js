@@ -150,6 +150,13 @@ const SCHEMA = new Schema(
       ref: 'GradingHQ_COMPANY',
       required: true,
     },
+    ticket_number: {
+      type: String,
+    },
+    is_integrated_wb: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
