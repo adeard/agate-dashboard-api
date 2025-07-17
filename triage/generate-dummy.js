@@ -271,15 +271,23 @@ connectToDatabase().then(async (res) => {
   //   console.log("Done Change Password", u.email)
   // }, Promise.resolve());
 
-  // await blastReportToUser();
+  await blastReportToUser();
 
   // console.log({ password });
 
-  const responses = await InspectionDataModel.find({
-    company: '68697f15a05bd58ea7bd5dd2',
-  }).lean();
+  // const responses = await InspectionDataModel.find({
+  //   company: '68697f15a05bd58ea7bd5dd2',
+  // }).lean();
 
-  console.log({ responses });
+  // console.log({ responses });
+
+  // const responses2 = await InspectionDataModel.updateMany(
+  //   {
+  //     company: '68697f15a05bd58ea7bd5dd2',
+  //     factory: '66c3114ba342ddbf9eae83c1',
+  //   },
+  //   { $set: { company: '68697f15a05bd58ea7bd5dd0' } }
+  // ).lean();
 
   console.log('Done');
   process.exit(1);

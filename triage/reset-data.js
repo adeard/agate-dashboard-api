@@ -95,8 +95,8 @@ connectToDatabase().then(async (res) => {
   //     },
   //   }
   // );
-  const companies = await CompanyModel.find({}).lean();
-  console.log({ companies });
+  // const companies = await CompanyModel.find({}).lean();
+  // console.log({ companies });
 
   // KENCANA = 68697f15a05bd58ea7bd5dd2
   // DEMO = 68697f15a05bd58ea7bd5dd4
