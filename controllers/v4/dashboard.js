@@ -382,7 +382,9 @@ const generateChartArrayFromObjectTrucks = (data = {}) => {
 };
 
 function getTopScores(inspections, count = 10) {
-  const sorted = [...inspections].sort((a, b) => a.score - b.score);
+  const sorted = [...inspections].sort((a, b) => {
+    return a.percent_accepted - b.percent_accepted;
+  });
 
   return {
     lowest: sorted.slice(0, count),
