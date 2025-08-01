@@ -14,6 +14,7 @@ const {
 } = require('../../utils/helpers');
 const InspectionDataModel = require('../../models/inspection-data');
 const { scoringMultiplier } = require('../../utils/enum');
+const { getCompanyLimitTandan } = require('../../utils/inspection');
 
 const utilsInspection = {
   getTotalAndPercentClassification: (item) => {
@@ -746,7 +747,7 @@ class DashboardV4Controller {
 
       inspections = inspections.filter(
         (e) =>
-          e.grading_result?.total_tandan > 210 &&
+          e.grading_result?.total_tandan > getCompanyLimitTandan(user) &&
           e.vehicle_number !== 'BH 1240 ALB' &&
           e.vendor_name !== 'Vendor 2 Plasma' &&
           e.vendor_name !== 'Vendor B' &&
