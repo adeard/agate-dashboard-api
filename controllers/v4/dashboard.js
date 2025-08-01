@@ -745,9 +745,11 @@ class DashboardV4Controller {
 
       let inspections = await InspectionDataModel.find(q).sort({ date: -1 });
 
+      const limit = getCompanyLimitTandan(user);
+
       inspections = inspections.filter(
         (e) =>
-          e.grading_result?.total_tandan > getCompanyLimitTandan(user) &&
+          e.grading_result?.total_tandan > limit &&
           e.vehicle_number !== 'BH 1240 ALB' &&
           e.vendor_name !== 'Vendor 2 Plasma' &&
           e.vendor_name !== 'Vendor B' &&
