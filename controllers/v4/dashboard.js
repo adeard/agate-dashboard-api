@@ -745,7 +745,7 @@ class DashboardV4Controller {
 
       let inspections = await InspectionDataModel.find(q).sort({ date: -1 });
 
-      const limit = getCompanyLimitTandan(user);
+      const limit = await getCompanyLimitTandan(user);
 
       inspections = inspections.filter(
         (e) =>
