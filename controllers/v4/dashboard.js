@@ -1508,8 +1508,8 @@ class DashboardV4Controller {
   }
 
   static async generateExcel(req, res) {
-    const user = req.user
-    const { targetDate, targetEnd } = req.query;
+    // const user = req.user
+    const { targetDate, targetEnd, company } = req.query;
     if (!targetDate || !targetEnd) {
       return res.status(400).json({
         code: 500,
@@ -1526,7 +1526,7 @@ class DashboardV4Controller {
 
     // Fetch data from MongoDB for the specific date range
     let data = await InspectionDataModel.find({
-      company: user.company,
+      company: company,
       date: {
         $gte: startDate.toDate(),
         $lt: endDate.toDate(),
