@@ -2977,20 +2977,28 @@ class DashboardV4Controller {
     Object.keys(orderDay).forEach((d) => {
       const item = dailyTruckCount[d];
       const totalDay = orderDay[d];
-      dailyTruckCountData.push([
-        d,
-        Number(item['00'] / totalDay).toFixed(1),
-        Number(item['05'] / totalDay).toFixed(1),
-        Number(item['10'] / totalDay).toFixed(1),
-        Number(item['12'] / totalDay).toFixed(1),
-        Number(item['14'] / totalDay).toFixed(1),
-        Number(item['16'] / totalDay).toFixed(1),
-        Number(item['18'] / totalDay).toFixed(1),
-        Number(item['19'] / totalDay).toFixed(1),
-        Number(item['21'] / totalDay).toFixed(1),
-        // item['total'],
-      ]);
+
+      if (item) {
+        // console.log({ item, totalDay });
+        dailyTruckCountData.push([
+          d,
+          Number((item?.['00'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['05'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['10'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['12'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['14'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['16'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['18'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['19'] || 1) / (totalDay || 1)).toFixed(1),
+          Number((item?.['21'] || 1) / (totalDay || 1)).toFixed(1),
+          // item['total'],
+        ]);
+      }
     });
+
+    // console.log({ orderDay, daysDateArray, dailyTruckCount });
+
+    // return res.send('Thank you');
 
     const workbook = XLSX.utils.book_new();
     // Create a worksheet
