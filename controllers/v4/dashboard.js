@@ -1540,9 +1540,11 @@ class DashboardV4Controller {
       return;
     }
 
+    const limit = await getCompanyLimitTandan({ company })
+
     data = data.filter(
       (e) =>
-        e.grading_result?.total_tandan > getCompanyLimitTandan({ company }) &&
+        e.grading_result?.total_tandan > limit &&
         e.vehicle_number !== 'BH 1240 ALB' &&
         e.vendor_name !== 'Vendor 2 Plasma' &&
         e.vendor_name !== 'Vendor B'
