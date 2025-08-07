@@ -1542,7 +1542,7 @@ class DashboardV4Controller {
 
     data = data.filter(
       (e) =>
-        e.grading_result?.total_tandan > 210 &&
+        e.grading_result?.total_tandan > getCompanyLimitTandan({ company }) &&
         e.vehicle_number !== 'BH 1240 ALB' &&
         e.vendor_name !== 'Vendor 2 Plasma' &&
         e.vendor_name !== 'Vendor B'
