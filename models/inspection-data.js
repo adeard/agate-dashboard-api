@@ -157,6 +157,10 @@ const SCHEMA = new Schema(
       type: Boolean,
       default: false,
     },
+    demo_mode: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
