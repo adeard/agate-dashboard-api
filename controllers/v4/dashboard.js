@@ -710,11 +710,19 @@ class DashboardV4Controller {
         vendor_type = null,
       } = req.query;
 
+      let ids = req.query.ids;
+      ids = Array.isArray(q) ? q : typeof q === 'string' ? q.split(',') : [];
+      const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
+
       const weeks = generateWeeks(year);
       const days = generateDatesByYear(year, 'DD/MM/YY');
       const months = generateMonths(year);
 
       let q = { company: user.company };
+
+      if (uniqIds.length) {
+        q['vendor'] = { $in: uniqIds };
+      }
 
       if (date_from && !date_to) {
         q['date'] = {
@@ -1540,7 +1548,7 @@ class DashboardV4Controller {
       return;
     }
 
-    const limit = await getCompanyLimitTandan({ company })
+    const limit = await getCompanyLimitTandan({ company });
 
     data = data.filter(
       (e) =>
