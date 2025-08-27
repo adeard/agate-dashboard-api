@@ -711,7 +711,7 @@ class DashboardV4Controller {
       } = req.query;
 
       let ids = req.query.ids;
-      ids = Array.isArray(q) ? q : typeof q === 'string' ? q.split(',') : [];
+      ids = Array.isArray(ids) ? ids : typeof ids === 'string' ? ids.split(',') : [];
       const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
       const weeks = generateWeeks(year);
