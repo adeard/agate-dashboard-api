@@ -192,5 +192,28 @@ connectToDatabase().then(async (res) => {
   //   console.log('Vendor not found');
   // }, Promise.resolve());
 
+  const inspections = await InspectionDataModel.find({
+    company: '68697f15a05bd58ea7bd5dd2',
+  }).lean();
+
+  inspections.reduce(async (p, ins) => {
+    await p;
+
+    const v = ins['vendor'];
+
+    const vendor = await VendorV2Model.findById(v);
+
+    console.log({ vendor });
+    // await VendorV2Model.findByIdAndUpdate(v, {
+    //   $set: {
+    //     factory: ins['factory'],
+    //   },
+    // });
+
+    // console.log('Done update vendor');
+
+    return;
+  }, Promise.resolve());
+
   console.log('Done');
 });
