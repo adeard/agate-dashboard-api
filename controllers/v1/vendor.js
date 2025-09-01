@@ -11,38 +11,53 @@ class VendorController {
   static async getAllVendor(req, res, next) {
     try {
       const user = req.user;
+      // console.log({ user });
       const { name = '', factory = '' } = req.query;
 
       const { query } = getBasicQuery(req.query);
 
-      const regexPattern = new RegExp(name || '', 'i');
+      let qp = {};
 
-      const vendors = await VendorV2Model.aggregate([
-        {
-          $match: {
-            ...query,
-            name: { $regex: regexPattern },
-            company: new ObjectId(user.company),
-          },
-        },
-        {
-          $lookup: {
-            from: FactoryModel.collection.name,
-            localField: 'factory',
-            foreignField: '_id',
-            as: 'factory',
-          },
-        },
-        {
-          $unwind: {
-            path: '$factory',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        { $sort: { updatedAt: -1 } },
-      ]);
+      if (name) {
+        const regexPattern = new RegExp(name || '', 'i');
+        qp['name'] = { $regex: regexPattern };
+      }
 
-      const totalData = await VendorV2Model.count({});
+      console.log({ query, qp });
+
+      // const vendors = await VendorV2Model.aggregate([
+      //   {
+      //     $match: {
+      //       // ...query,
+      //       // name: { $regex: regexPattern },
+      //       // ...qp,
+      //       // factory: new ObjectId(factory),
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: FactoryModel.collection.name,
+      //       localField: 'factory',
+      //       foreignField: '_id',
+      //       as: 'factory',
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: '$factory',
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   { $sort: { updatedAt: -1 } },
+      // ]);
+
+      console.log({ user });
+
+      let vendors = await VendorV2Model.find({}).lean();
+
+      vendors = vendors.filter((v) => String(v.factory) === String(factory));
+
+      const totalData = vendors.length;
 
       return res.status(200).json(
         createResponseSuccess(

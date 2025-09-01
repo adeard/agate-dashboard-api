@@ -9,18 +9,23 @@ class VendorV2Controller {
   static async getAllVendor(req, res, next) {
     try {
       const user = req.user;
-      const { name = '' } = req.query;
+      const { name = '', factory = '' } = req.query;
 
       const { query } = getBasicQuery(req.query);
 
-      const regexPattern = new RegExp(name || '', 'i');
+      let qp = {};
+
+      if (name) {
+        const regexPattern = new RegExp(name || '', 'i');
+        qp['name'] = { $regex: regexPattern };
+      }
 
       const vendors = await VendorV2Model.aggregate([
         {
           $match: {
             ...query,
-            name: { $regex: regexPattern },
-            company: new ObjectId(user.company),
+            ...qp,
+            factory: new ObjectId(factory),
           },
         },
         {
