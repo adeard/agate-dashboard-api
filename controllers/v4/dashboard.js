@@ -711,7 +711,11 @@ class DashboardV4Controller {
       } = req.query;
 
       let ids = req.query.ids;
-      ids = Array.isArray(ids) ? ids : typeof ids === 'string' ? ids.split(',') : [];
+      ids = Array.isArray(ids)
+        ? ids
+        : typeof ids === 'string'
+        ? ids.split(',')
+        : [];
       const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
       const weeks = generateWeeks(year);
@@ -1583,6 +1587,7 @@ class DashboardV4Controller {
         'Buah Kecil <3kg',
         'Buah Kecil <5kg',
         'Tangkai Panjang',
+        'Matang Katro',
       ],
     ];
 
@@ -2266,7 +2271,9 @@ class DashboardV4Controller {
         totalBuahKecil3,
         totalBuahKecil5,
         totalTangkaiPanjang,
-        '',
+        // '',
+
+        item.grading_result.total_matang_katro,
       ]);
     });
 
