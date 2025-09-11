@@ -220,11 +220,11 @@ const utilsInspection = {
 
     const totalRejected = inspections.reduce((curr, item) => {
       return (
-        Object.keys(item.grading_result['accepted_summary']).reduce(
+        Object.keys(item.grading_result['rejected_summary']).reduce(
           (n, k) =>
             n +
             Number(
-              item.grading_result['accepted_summary'][k][
+              item.grading_result['rejected_summary'][k][
                 'BUAH KECIL DIBAWAH 5KG'
               ] || 0
             ),
