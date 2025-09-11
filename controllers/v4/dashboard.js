@@ -55,50 +55,86 @@ const utilsInspection = {
     );
 
     const totalMatang =
-      item.grading_result['classification_summary']['MATANG']['TOTAL'] -
-      item.grading_result['classification_summary']['MATANG'][
+      item.grading_result['accepted_summary']['MATANG']['TOTAL'] -
+      item.grading_result['accepted_summary']['MATANG'][
         'BUAH KECIL DIBAWAH 3KG'
       ] -
-      item.grading_result['classification_summary']['MATANG'][
+      item.grading_result['accepted_summary']['MATANG'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
     const totalLewatMatang =
-      item.grading_result['classification_summary']['LEWAT MATANG']['TOTAL'] -
-      item.grading_result['classification_summary']['LEWAT MATANG'][
+      item.grading_result['accepted_summary']['LEWAT MATANG']['TOTAL'] -
+      item.grading_result['accepted_summary']['LEWAT MATANG'][
         'BUAH KECIL DIBAWAH 3KG'
       ] -
-      item.grading_result['classification_summary']['LEWAT MATANG'][
+      item.grading_result['accepted_summary']['LEWAT MATANG'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
+
+    const totalMentahDiterima = item.grading_result['accepted_summary']?.[
+      'MENTAH'
+    ]
+      ? item.grading_result['accepted_summary']['MENTAH']['TOTAL'] -
+        item.grading_result['accepted_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['accepted_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+    const totalJanjangKosongDiterima = item.grading_result[
+      'accepted_summary'
+    ]?.['JANJANG KOSONG']
+      ? item.grading_result['accepted_summary']['JANJANG KOSONG']['TOTAL'] -
+        item.grading_result['accepted_summary']['JANJANG KOSONG'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['accepted_summary']['JANJANG KOSONG'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+
     const totalMentah =
-      item.grading_result['classification_summary']['MENTAH']['TOTAL'] -
-      item.grading_result['classification_summary']['MENTAH'][
+      item.grading_result['rejected_summary']['MENTAH']['TOTAL'] -
+      item.grading_result['rejected_summary']['MENTAH'][
         'BUAH KECIL DIBAWAH 3KG'
       ] -
-      item.grading_result['classification_summary']['MENTAH'][
+      item.grading_result['rejected_summary']['MENTAH'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
     const totalJanjangKosong =
-      item.grading_result['classification_summary']['JANJANG KOSONG']['TOTAL'] -
-      item.grading_result['classification_summary']['JANJANG KOSONG'][
+      item.grading_result['rejected_summary']['JANJANG KOSONG']['TOTAL'] -
+      item.grading_result['rejected_summary']['JANJANG KOSONG'][
         'BUAH KECIL DIBAWAH 3KG'
       ] -
-      item.grading_result['classification_summary']['JANJANG KOSONG'][
+      item.grading_result['rejected_summary']['JANJANG KOSONG'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
     const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
-      item.grading_result['classification_summary']
+      item.grading_result['rejected_summary']
     ).reduce(
       (obj, key) => {
-        const data = item['grading_result']['classification_summary'][key];
+        const data = item['grading_result']['rejected_summary'][key];
 
         obj['totalBuahKecil3'] += data['BUAH KECIL DIBAWAH 3KG'];
         obj['totalBuahKecil5'] += data['BUAH KECIL DIBAWAH 5KG'];
-        obj['totalTangkaiPanjang'] += data['TANGKAI PANJANG'];
 
         return obj;
       },
       { totalBuahKecil3: 0, totalBuahKecil5: 0 }
+    );
+
+    const { totalBuahKecil5Diterima } = Object.keys(
+      item.grading_result['rejected_summary']
+    ).reduce(
+      (obj, key) => {
+        const data = item['grading_result']['rejected_summary'][key];
+
+        obj['totalBuahKecil5Diterima'] += data['BUAH KECIL DIBAWAH 5KG'];
+
+        return obj;
+      },
+      { totalBuahKecil5Diterima: 0 }
     );
     const { totalTangkaiPanjang } = Object.keys(
       item.grading_result['accepted_summary']
@@ -128,6 +164,19 @@ const utilsInspection = {
       totalTandan
     );
 
+    const percentMentahDiterima = countPercentage(
+      totalMentahDiterima,
+      totalTandan
+    );
+    const percentJanjangKosongDiterima = countPercentage(
+      totalJanjangKosongDiterima,
+      totalTandan
+    );
+    const percentBuahKecil5Diterima = countPercentage(
+      totalBuahKecil5Diterima,
+      totalTandan
+    );
+
     // console.log({
     //   percentMLM: percentMatang + percentLewatMatang,
     //   percentAccepted,
@@ -154,6 +203,13 @@ const utilsInspection = {
       totalRejectedModified: item['grading_result']['total_rejected'],
       totalTandan,
       totalFined,
+
+      totalMentahDiterima,
+      totalJanjangKosongDiterima,
+      totalBuahKecil5Diterima,
+      percentMentahDiterima,
+      percentJanjangKosongDiterima,
+      percentBuahKecil5Diterima,
     };
   },
   getAllMonitoringData: (inspections) => {
@@ -782,6 +838,9 @@ class DashboardV4Controller {
       const avgClassification = {
         matang: [],
         lewat_matang: [],
+        mentah_diterima: [],
+        janjang_kosong_diterima: [],
+        buah_kecil_5_diterima: [],
         mentah: [],
         janjang_kosong: [],
         buah_kecil_3: [],
@@ -820,6 +879,9 @@ class DashboardV4Controller {
       let avgClassificationTren = {
         matang: {},
         lewat_matang: {},
+        mentah_diterima: {},
+        janjang_kosong_diterima: {},
+        buah_kecil_5_diterima: {},
         mentah: {},
         janjang_kosong: {},
         buah_kecil_3: {},
@@ -829,6 +891,9 @@ class DashboardV4Controller {
       let avgClassificationVendor = {
         matang: {},
         lewat_matang: {},
+        mentah_diterima: {},
+        janjang_kosong_diterima: {},
+        buah_kecil_5_diterima: {},
         mentah: {},
         janjang_kosong: {},
         buah_kecil_3: {},
@@ -869,6 +934,13 @@ class DashboardV4Controller {
           totalJanjangKosong,
           totalTangkaiPanjang,
           percentBuahKecil,
+
+          totalMentahDiterima,
+          totalJanjangKosongDiterima,
+          totalBuahKecil5Diterima,
+          percentMentahDiterima,
+          percentJanjangKosongDiterima,
+          percentBuahKecil5Diterima,
         } = utilsInspection.getTotalAndPercentClassification(item, totalTandan);
 
         avgClassification['matang'].push(percentMatang);
@@ -878,6 +950,14 @@ class DashboardV4Controller {
         avgClassification['buah_kecil_3'].push(percentBuahKecil3);
         avgClassification['buah_kecil_5'].push(percentBuahKecil5);
         avgClassification['tangkai_panjang'].push(percentTangkaiPanjang);
+
+        avgClassification['mentah_diterima'].push(percentMentahDiterima);
+        avgClassification['janjang_kosong_diterima'].push(
+          percentJanjangKosongDiterima
+        );
+        avgClassification['buah_kecil_5_diterima'].push(
+          percentBuahKecil5Diterima
+        );
 
         if (!avgClassificationTren['matang'][day]) {
           avgClassificationTren['matang'][day] = [];
@@ -914,6 +994,26 @@ class DashboardV4Controller {
         }
         avgClassificationTren['tangkai_panjang'][day].push(
           percentTangkaiPanjang
+        );
+
+        // new
+        if (!avgClassificationTren['mentah_diterima'][day]) {
+          avgClassificationTren['mentah_diterima'][day] = [];
+        }
+        avgClassificationTren['mentah_diterima'][day].push(
+          percentMentahDiterima
+        );
+        if (!avgClassificationTren['janjang_kosong_diterima'][day]) {
+          avgClassificationTren['janjang_kosong_diterima'][day] = [];
+        }
+        avgClassificationTren['janjang_kosong_diterima'][day].push(
+          percentJanjangKosongDiterima
+        );
+        if (!avgClassificationTren['buah_kecil_5_diterima'][day]) {
+          avgClassificationTren['buah_kecil_5_diterima'][day] = [];
+        }
+        avgClassificationTren['buah_kecil_5_diterima'][day].push(
+          percentBuahKecil5Diterima
         );
 
         if (!avgClassificationVendor['matang'][vendorName]) {
@@ -985,6 +1085,32 @@ class DashboardV4Controller {
         avgClassificationVendor['tangkai_panjang'][vendorName]['count'] += 1;
         avgClassificationVendor['tangkai_panjang'][vendorName]['percent'] +=
           percentTangkaiPanjang;
+
+        // new
+        if (!avgClassificationVendor['mentah_diterima'][vendorName]) {
+          avgClassificationVendor['mentah_diterima'][vendorName] = [];
+        }
+        avgClassificationVendor['mentah_diterima'][vendorName]['count'] += 1;
+        avgClassificationVendor['mentah_diterima'][vendorName]['percent'] +=
+          percentMentahDiterima;
+        if (!avgClassificationVendor['janjang_kosong_diterima'][vendorName]) {
+          avgClassificationVendor['janjang_kosong_diterima'][vendorName] = [];
+        }
+        avgClassificationVendor['janjang_kosong_diterima'][vendorName][
+          'count'
+        ] += 1;
+        avgClassificationVendor['janjang_kosong_diterima'][vendorName][
+          'percent'
+        ] += percentJanjangKosongDiterima;
+        if (!avgClassificationVendor['buah_kecil_5_diterima'][vendorName]) {
+          avgClassificationVendor['buah_kecil_5_diterima'][vendorName] = [];
+        }
+        avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
+          'count'
+        ] += 1;
+        avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
+          'percent'
+        ] += percentBuahKecil5Diterima;
 
         if (!avgAcceptedVendor[vendorName]) {
           avgAcceptedVendor[vendorName] = [];
