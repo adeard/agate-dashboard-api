@@ -3588,11 +3588,11 @@ class DashboardV4Controller {
         mentah_diterima: [],
         janjang_kosong_diterima: [],
         buah_kecil_5_diterima: [],
+        tangkai_panjang: [],
         mentah: [],
         janjang_kosong: [],
         buah_kecil_3: [],
         buah_kecil_5: [],
-        tangkai_panjang: [],
         matang_ditolak: [],
         lewat_matang_ditolak: [],
       };
