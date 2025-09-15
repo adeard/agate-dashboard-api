@@ -3558,8 +3558,10 @@ class DashboardV4Controller {
         q['factory'] = factory;
       }
 
-      if (vendor_type !== 'all') {
-        q['vendor_type'] = vendor_type;
+      if (vendor_type) {
+        if (vendor_type !== 'all') {
+          q['vendor_type'] = vendor_type;
+        }
       }
 
       // if (year) {
