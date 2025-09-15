@@ -344,22 +344,26 @@ const utilsInspection = {
       item['grading_result']['total_tandan']
     );
 
-    const totalMatang =
-      item.grading_result['accepted_summary']['MATANG']['TOTAL'] -
-      item.grading_result['accepted_summary']['MATANG'][
-        'BUAH KECIL DIBAWAH 3KG'
-      ] -
-      item.grading_result['accepted_summary']['MATANG'][
-        'BUAH KECIL DIBAWAH 5KG'
-      ];
-    const totalLewatMatang =
-      item.grading_result['accepted_summary']['LEWAT MATANG']['TOTAL'] -
-      item.grading_result['accepted_summary']['LEWAT MATANG'][
-        'BUAH KECIL DIBAWAH 3KG'
-      ] -
-      item.grading_result['accepted_summary']['LEWAT MATANG'][
-        'BUAH KECIL DIBAWAH 5KG'
-      ];
+    const totalMatang = item.grading_result['accepted_summary']?.['MATANG']
+      ? item.grading_result['accepted_summary']['MATANG']['TOTAL'] -
+        item.grading_result['accepted_summary']['MATANG'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['accepted_summary']['MATANG'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+    const totalLewatMatang = item.grading_result['accepted_summary']?.[
+      'LEWAT MATANG'
+    ]
+      ? item.grading_result['accepted_summary']['LEWAT MATANG']['TOTAL'] -
+        item.grading_result['accepted_summary']['LEWAT MATANG'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['accepted_summary']['LEWAT MATANG'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
 
     const totalMentahDiterima = item.grading_result['accepted_summary']?.[
       'MENTAH'
@@ -384,26 +388,30 @@ const utilsInspection = {
         ]
       : 0;
 
-    const totalMentah =
-      item.grading_result['rejected_summary']['MENTAH']['TOTAL'] -
-      item.grading_result['rejected_summary']['MENTAH'][
-        'BUAH KECIL DIBAWAH 3KG'
-      ] -
-      item.grading_result['rejected_summary']['MENTAH'][
-        'BUAH KECIL DIBAWAH 5KG'
-      ];
-    const totalJanjangKosong =
-      item.grading_result['rejected_summary']['JANJANG KOSONG']['TOTAL'] -
-      item.grading_result['rejected_summary']['JANJANG KOSONG'][
-        'BUAH KECIL DIBAWAH 3KG'
-      ] -
-      item.grading_result['rejected_summary']['JANJANG KOSONG'][
-        'BUAH KECIL DIBAWAH 5KG'
-      ];
+    const totalMentah = item.grading_result['rejected_summary']?.['MENTAH']
+      ? item.grading_result['rejected_summary']?.['MENTAH']?.['TOTAL'] -
+        item.grading_result['rejected_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['rejected_summary']['MENTAH'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
+    const totalJanjangKosong = item.grading_result['rejected_summary']?.[
+      'JANJANG KOSONG'
+    ]
+      ? item.grading_result['rejected_summary']['JANJANG KOSONG']['TOTAL'] -
+        item.grading_result['rejected_summary']['JANJANG KOSONG'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['rejected_summary']['JANJANG KOSONG'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
 
     const totalMatangDitolak = item.grading_result['rejected_summary']?.[
       'MATANG'
-    ]?.['TOTAL']
+    ]
       ? item.grading_result['rejected_summary']['MATANG']['TOTAL'] -
         item.grading_result['rejected_summary']['MATANG'][
           'BUAH KECIL DIBAWAH 3KG'
@@ -414,7 +422,7 @@ const utilsInspection = {
       : 0;
     const totalLewatMatangDitolak = item.grading_result['rejected_summary']?.[
       'LEWAT MATANG'
-    ]?.['TOTAL']
+    ]
       ? item.grading_result['rejected_summary']['LEWAT MATANG']['TOTAL'] -
         item.grading_result['rejected_summary']['LEWAT MATANG'][
           'BUAH KECIL DIBAWAH 3KG'
@@ -3550,7 +3558,7 @@ class DashboardV4Controller {
         q['factory'] = factory;
       }
 
-      if (vendor_type) {
+      if (vendor_type !== 'all') {
         q['vendor_type'] = vendor_type;
       }
 
