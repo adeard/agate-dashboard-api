@@ -1648,7 +1648,7 @@ class DashboardV4Controller {
         const payload = {
           _id: item._id,
           score: item.score,
-          percent_accepted: percentAcceptedModified,
+          percent_accepted: percentAccepted,
           percent_matang: percentMatang,
           percent_lewat_matang: percentLewatMatang,
           percent_mentah: percentMentah,
