@@ -88,6 +88,7 @@ class UserController {
   static async createUser(req, res, next) {
     try {
       const body = req.body;
+      const user = req.user;
 
       await vBody('user', body);
 
@@ -106,23 +107,13 @@ class UserController {
 
       const password = generateRandomPassword(6);
 
-      const factory = await FactoryModel.findById(body.factory).lean();
-
-      if (!factory) {
-        throw {
-          code: 400,
-          title: 'Factory tidak terdaftar',
-          message: 'Factory tidak terdaftar.',
-        };
-      }
-
       // console.log({ password });
 
       await UserModel.create({
         ...body,
         password: hashPassword(password),
         role: 1,
-        company: factory.company,
+        company: user.company,
       });
 
       await sendEmail({
