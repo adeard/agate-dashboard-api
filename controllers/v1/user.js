@@ -1,5 +1,6 @@
 const { hashPassword, comparePass } = require('../../lib/bcrypt');
 const { decodeToken } = require('../../lib/jwt');
+const FactoryModel = require('../../models/factory');
 const UserModel = require('../../models/user');
 const { sendEmail } = require('../../utils/email');
 const {
@@ -105,12 +106,23 @@ class UserController {
 
       const password = generateRandomPassword(6);
 
+      const factory = await FactoryModel.findById(body.factory).lean();
+
+      if (!factory) {
+        throw {
+          code: 400,
+          title: 'Factory tidak terdaftar',
+          message: 'Factory tidak terdaftar.',
+        };
+      }
+
       // console.log({ password });
 
       await UserModel.create({
         ...body,
         password: hashPassword(password),
         role: 1,
+        company: factory.company,
       });
 
       await sendEmail({
