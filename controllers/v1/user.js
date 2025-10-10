@@ -31,12 +31,6 @@ class UserController {
           },
         },
         {
-          $skip: Number(page) * Number(limit),
-        },
-        {
-          $limit: Number(limit),
-        },
-        {
           $sort: {
             updatedAt: -1,
           },
