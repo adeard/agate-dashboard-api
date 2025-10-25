@@ -49,11 +49,12 @@ class FactoryController {
 
   static async createFactory(req, res, next) {
     try {
+      const user = req.user;
       const body = req.body;
 
       await vBody('factory', body);
 
-      await FactoryModel.create(body);
+      await FactoryModel.create({ company: user.company, ...body });
 
       return res
         .status(200)

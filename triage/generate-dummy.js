@@ -251,7 +251,7 @@ connectToDatabase().then(async (res) => {
   // const password = generateRandomPassword(6);
 
   await UserModel.findOneAndUpdate(
-    { email: 'staff.inta.lngm@sinarmas-agri.com' },
+    { email: 'davidtarigan.st@gmail.com' },
     {
       $set: {
         password: hashPassword('agate123'),
