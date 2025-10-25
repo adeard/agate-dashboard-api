@@ -2,6 +2,7 @@ const { createResponseSuccess } = require('../../utils/helpers');
 const FactoryModel = require('../../models/factory');
 const VendorModel = require('../../models/vendor');
 const VendorV2Model = require('../../models/v2/vendor');
+const UserModel = require('../../models/user');
 
 const labelKey = {
   factory: 'name',
@@ -18,6 +19,8 @@ class OptionsController {
       const { factory = '' } = req.query;
 
       let datas = [];
+      const userData = await UserModel.findById(user.id).lean();
+      const factories = userData.access_factory;
 
       if (!enumType.includes(type)) {
         throw {
@@ -28,7 +31,10 @@ class OptionsController {
       }
 
       if (type === 'factory') {
-        datas = await FactoryModel.find({ company: user.company }).lean();
+        datas = await FactoryModel.find({
+          company: user.company,
+          _id: { $in: factories },
+        }).lean();
       }
 
       if (type === 'vendor') {
