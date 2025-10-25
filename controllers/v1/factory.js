@@ -8,20 +8,23 @@ class FactoryController {
   static async getAllFactory(req, res, next) {
     try {
       const user = req.user;
-      const { name = '' } = req.query;
+      const { name = '', filter = 'true' } = req.query;
 
       const userData = await UserModel.findById(user._id).lean();
       const factoriesFilter = userData?.access_factory;
 
       const regexPattern = new RegExp(name || '', 'i');
 
-      let factories = await FactoryModel.find({
+      let q = {
         name: { $regex: regexPattern },
         company: user.company,
-        _id: { $in: factoriesFilter },
-      })
-        .sort({ updatedAt: -1 })
-        .lean();
+      };
+
+      if (filter === 'true') {
+        q['_id'] = { $in: factoriesFilter };
+      }
+
+      let factories = await FactoryModel.find(q).sort({ updatedAt: -1 }).lean();
 
       let populated = [];
 
