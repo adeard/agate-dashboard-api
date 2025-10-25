@@ -1,4 +1,5 @@
 const FactoryModel = require('../../models/factory');
+const UserModel = require('../../models/user');
 const VendorV2Model = require('../../models/v2/vendor');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { vBody } = require('../../validators/joi');
@@ -9,11 +10,15 @@ class FactoryController {
       const user = req.user;
       const { name = '' } = req.query;
 
+      const userData = await UserModel.findById(user.id).lean();
+      const factoriesFilter = userData.access_factory;
+
       const regexPattern = new RegExp(name || '', 'i');
 
       let factories = await FactoryModel.find({
         name: { $regex: regexPattern },
         company: user.company,
+        _id: { $in: factoriesFilter },
       })
         .sort({ updatedAt: -1 })
         .lean();
