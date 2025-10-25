@@ -16,7 +16,7 @@ class OptionsController {
     try {
       const user = req.user;
       const { type } = req.params;
-      const { factory = '' } = req.query;
+      const { factory = '', filter = 'true' } = req.query;
 
       let datas = [];
       const userData = await UserModel.findById(user._id).lean();
@@ -31,10 +31,13 @@ class OptionsController {
       }
 
       if (type === 'factory') {
-        datas = await FactoryModel.find({
+        let q = {
           company: user.company,
-          _id: { $in: factories },
-        }).lean();
+        };
+        if (filter === 'true') {
+          q['_id'] = { $in: factories };
+        }
+        datas = await FactoryModel.find(q).lean();
       }
 
       if (type === 'vendor') {
