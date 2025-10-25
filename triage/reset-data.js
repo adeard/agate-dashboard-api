@@ -138,7 +138,25 @@ connectToDatabase().then(async (res) => {
   // let idCompanyDemo = '68697f15a05bd58ea7bd5dd4';
   // let idFactoryDemo = '686a5645bf73aa13b489ad38';
 
-  // const idSinarmas = '68697f15a05bd58ea7bd5dd0';
+  const idSinarmas = '68697f15a05bd58ea7bd5dd0';
+  // const created = await FactoryModel.create({
+  //   company: idSinarmas,
+  //   name: 'UTJM',
+  // });
+  // const created2 = await FactoryModel.create({
+  //   company: idSinarmas,
+  //   name: 'KJGM',
+  // });
+
+  // console.log({ created, created2 });
+
+  await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5543")
+  await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5545")
+
+  const list = await FactoryModel.find({}).lean();
+
+  console.log({ list });
+
   // const lngm = '66c3114ba342ddbf9eae83c1';
 
   // await InspectionDataModel.deleteMany({ company: idCompanyDemo });
@@ -192,28 +210,28 @@ connectToDatabase().then(async (res) => {
   //   console.log('Vendor not found');
   // }, Promise.resolve());
 
-  const inspections = await InspectionDataModel.find({
-    company: '68697f15a05bd58ea7bd5dd2',
-  }).lean();
+  // const inspections = await InspectionDataModel.find({
+  //   company: '68697f15a05bd58ea7bd5dd2',
+  // }).lean();
 
-  inspections.reduce(async (p, ins) => {
-    await p;
+  // inspections.reduce(async (p, ins) => {
+  //   await p;
 
-    const v = ins['vendor'];
+  //   const v = ins['vendor'];
 
-    const vendor = await VendorV2Model.findById(v);
+  //   const vendor = await VendorV2Model.findById(v);
 
-    console.log({ vendor });
-    // await VendorV2Model.findByIdAndUpdate(v, {
-    //   $set: {
-    //     factory: ins['factory'],
-    //   },
-    // });
+  //   console.log({ vendor });
+  //   // await VendorV2Model.findByIdAndUpdate(v, {
+  //   //   $set: {
+  //   //     factory: ins['factory'],
+  //   //   },
+  //   // });
 
-    // console.log('Done update vendor');
+  //   // console.log('Done update vendor');
 
-    return;
-  }, Promise.resolve());
+  //   return;
+  // }, Promise.resolve());
 
   console.log('Done');
 });
