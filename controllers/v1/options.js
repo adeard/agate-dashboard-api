@@ -19,8 +19,8 @@ class OptionsController {
       const { factory = '' } = req.query;
 
       let datas = [];
-      const userData = await UserModel.findById(user.id).lean();
-      const factories = userData.access_factory;
+      const userData = await UserModel.findById(user._id).lean();
+      const factories = userData?.access_factory;
 
       if (!enumType.includes(type)) {
         throw {

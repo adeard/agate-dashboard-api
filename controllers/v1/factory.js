@@ -10,8 +10,8 @@ class FactoryController {
       const user = req.user;
       const { name = '' } = req.query;
 
-      const userData = await UserModel.findById(user.id).lean();
-      const factoriesFilter = userData.access_factory;
+      const userData = await UserModel.findById(user._id).lean();
+      const factoriesFilter = userData?.access_factory;
 
       const regexPattern = new RegExp(name || '', 'i');
 
