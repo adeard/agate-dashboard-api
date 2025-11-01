@@ -321,6 +321,8 @@ class InspectionDataController {
         };
       }
 
+      const factory = await FactoryModel.findById(inspections.factory).lean();
+
       let acceptedSummary = inspections.grading_result.accepted_summary;
       let rejectedSummary = inspections.grading_result.rejected_summary;
       let finedSummary = inspections.grading_result.fined_summary;
@@ -413,7 +415,7 @@ class InspectionDataController {
           companyData ? companyData.image_name : 'sinarmas-logo.png'
         ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: companyData ? companyData.location : 'Langling, Jambi',
+        location: factory ? factory.location : '-',
         vendor_type:
           Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
         vendor: inspections['vendor_name'],
@@ -795,6 +797,8 @@ class InspectionDataController {
       let demografikVendorInti = {};
       let demografikVendorPlasma = {};
 
+      const factory = await FactoryModel.findById(factoryId).lean();
+
       inspections.forEach((inspection) => {
         const totalTandan = inspection['grading_result']['total_tandan'];
         const totalAccepted = inspection['grading_result']['total_accepted'];
@@ -1016,7 +1020,7 @@ class InspectionDataController {
           companyData ? companyData.image_name : 'sinarmas-logo.png'
         ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: companyData ? companyData.location : 'Langling, Jambi',
+        location: factory ? factory.location : '-',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
         summary_plasma: convertDataValue(demografikPlasma),
@@ -1303,6 +1307,8 @@ class InspectionDataController {
         };
       }
 
+      const factory = await FactoryModel.findById(factoryId).lean();
+
       let demografikSemua = {
         ...baseObjectSemua,
       };
@@ -1534,7 +1540,7 @@ class InspectionDataController {
           companyData ? companyData.image_name : 'sinarmas-logo.png'
         ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: companyData ? companyData.location : 'Langling, Jambi',
+        location: factory ? factory.location : '-',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
         summary_plasma: convertDataValue(demografikPlasma),

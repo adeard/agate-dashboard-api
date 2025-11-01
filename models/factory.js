@@ -13,6 +13,10 @@ const SCHEMA = new Schema(
       ref: 'GradingHQ_COMPANY',
       required: true,
     },
+    location: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: true }
 );

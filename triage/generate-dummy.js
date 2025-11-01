@@ -290,21 +290,39 @@ connectToDatabase().then(async (res) => {
   //   { $set: { company: '68697f15a05bd58ea7bd5dd0' } }
   // ).lean();
 
-  const comp = await CompanyModel.find({}).lean();
+  // const comp = await CompanyModel.find({}).lean();
 
-  await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd0', {
+  // await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd0', {
+  //   $set: {
+  //     image_name: 'sinarmas-logo.png',
+  //     location: 'Langling, Jambi',
+  //   },
+  // });
+  // await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd2', {
+  //   $set: {
+  //     image_name: 'kencana-logo.png',
+  //     location: 'Tempilang, Bangka',
+  //   },
+  // });
+
+  const fact = await FactoryModel.find({}).lean();
+  // console.log({ fact });
+
+  await FactoryModel.findByIdAndUpdate('66c3114ba342ddbf9eae83c1', {
     $set: {
-      image_name: 'sinarmas-logo.png',
       location: 'Langling, Jambi',
     },
   });
-  await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd2', {
+  await FactoryModel.findByIdAndUpdate('686a5645bf73aa13b489ad36', {
     $set: {
-      image_name: 'kencana-logo.png',
       location: 'Tempilang, Bangka',
     },
   });
-  console.log({ comp });
+  await FactoryModel.findByIdAndUpdate('68fc9b419a7c87b51e2002b3', {
+    $set: {
+      location: 'Ujung Tanjung, Riau',
+    },
+  });
 
   console.log('Done');
   process.exit(1);
