@@ -12,6 +12,14 @@ const SCHEMA = new Schema(
       type: String,
       required: true,
     },
+    image_name: {
+      type: String,
+      default: '',
+    },
+    location: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: true }
 );

@@ -10,6 +10,7 @@ const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
 const { generateRandomPassword } = require('../utils/helpers');
 const InspectionDataModel = require('../models/inspection-data');
+const CompanyModel = require('../models/company');
 
 // console.log(generateRandomPassword(6));
 
@@ -250,14 +251,14 @@ connectToDatabase().then(async (res) => {
 
   // const password = generateRandomPassword(6);
 
-  await UserModel.findOneAndUpdate(
-    { email: 'davidtarigan.st@gmail.com' },
-    {
-      $set: {
-        password: hashPassword('agate123'),
-      },
-    }
-  );
+  // await UserModel.findOneAndUpdate(
+  //   { email: 'reg.mis.bnge@sinarmas-agri.com' },
+  //   {
+  //     $set: {
+  //       password: hashPassword('Sinarmas123'),
+  //     },
+  //   }
+  // );
 
   // const users = await UserModel.find({}).lean();
 
@@ -288,6 +289,22 @@ connectToDatabase().then(async (res) => {
   //   },
   //   { $set: { company: '68697f15a05bd58ea7bd5dd0' } }
   // ).lean();
+
+  const comp = await CompanyModel.find({}).lean();
+
+  await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd0', {
+    $set: {
+      image_name: 'sinarmas-logo.png',
+      location: 'Langling, Jambi',
+    },
+  });
+  await CompanyModel.findByIdAndUpdate('68697f15a05bd58ea7bd5dd2', {
+    $set: {
+      image_name: 'kencana-logo.png',
+      location: 'Tempilang, Bangka',
+    },
+  });
+  console.log({ comp });
 
   console.log('Done');
   process.exit(1);
