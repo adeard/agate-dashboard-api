@@ -8,6 +8,7 @@ const {
 const { vBody } = require('../../validators/joi');
 const generatePdf = require('../../lib/pdf');
 const getImageFile = require('../../utils/get-image-file');
+const CompanyModel = require('../../models/company');
 
 const countPercentage = (number = 0, divider = 1) => {
   let percent =
@@ -404,10 +405,15 @@ class InspectionDataController {
         : null;
       // console.log({ totalResult });
 
+      const user = req.user;
+      const companyData = await CompanyModel.findById(user.company).lean();
+
       let data = {
-        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        sinarmas_logo_img: getImageFile(
+          companyData ? companyData.image_name : 'sinarmas-logo.png'
+        ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: 'Langling, Jambi',
+        location: companyData ? companyData.location : 'Langling, Jambi',
         vendor_type:
           Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
         vendor: inspections['vendor_name'],
@@ -993,6 +999,10 @@ class InspectionDataController {
         }, {});
       };
 
+      const user = req.user;
+
+      const companyData = await CompanyModel.findById(user.company).lean();
+
       let data = {
         start_date: date_from
           ? dayjs(date_from).format('DD/MM/YYYY HH:mm')
@@ -1002,9 +1012,11 @@ class InspectionDataController {
           : dayjs(inspections[inspections.length - 1]['date']).format(
               'DD/MM/YYYY HH:mm:ss'
             ),
-        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        sinarmas_logo_img: getImageFile(
+          companyData ? companyData.image_name : 'sinarmas-logo.png'
+        ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: 'Langling, Jambi',
+        location: companyData ? companyData.location : 'Langling, Jambi',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
         summary_plasma: convertDataValue(demografikPlasma),
@@ -1510,14 +1522,19 @@ class InspectionDataController {
         }, {});
       };
 
+      const user = req.user;
+      const companyData = await CompanyModel.findById(user.company).lean();
+
       let data = {
         start_date: dayjs(yesterday.startOf('day')).format(
           'DD/MM/YYYY HH:mm:ss'
         ),
         end_date: dayjs(yesterday.endOf('day')).format('DD/MM/YYYY HH:mm:ss'),
-        sinarmas_logo_img: getImageFile('sinarmas-logo.png'),
+        sinarmas_logo_img: getImageFile(
+          companyData ? companyData.image_name : 'sinarmas-logo.png'
+        ),
         agate_logo_img: getImageFile('agate-logo.png'),
-        location: 'Langling, Jambi',
+        location: companyData ? companyData.location : 'Langling, Jambi',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
         summary_plasma: convertDataValue(demografikPlasma),
