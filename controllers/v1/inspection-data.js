@@ -1003,9 +1003,8 @@ class InspectionDataController {
         }, {});
       };
 
-      const user = req.user;
 
-      const companyData = await CompanyModel.findById(user.company).lean();
+      const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
         start_date: date_from
