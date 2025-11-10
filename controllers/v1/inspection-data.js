@@ -407,8 +407,7 @@ class InspectionDataController {
         : null;
       // console.log({ totalResult });
 
-      const user = req.user;
-      const companyData = await CompanyModel.findById(user.company).lean();
+      const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
         sinarmas_logo_img: getImageFile(
@@ -1002,7 +1001,6 @@ class InspectionDataController {
           return obj;
         }, {});
       };
-
 
       const companyData = await CompanyModel.findById(factory.company).lean();
 
