@@ -138,7 +138,7 @@ connectToDatabase().then(async (res) => {
   // let idCompanyDemo = '68697f15a05bd58ea7bd5dd4';
   // let idFactoryDemo = '686a5645bf73aa13b489ad38';
 
-  const idSinarmas = '68697f15a05bd58ea7bd5dd0';
+  // const idSinarmas = '68697f15a05bd58ea7bd5dd0';
   // const created = await FactoryModel.create({
   //   company: idSinarmas,
   //   name: 'UTJM',
@@ -150,12 +150,12 @@ connectToDatabase().then(async (res) => {
 
   // console.log({ created, created2 });
 
-  await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5543")
-  await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5545")
+  // await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5543")
+  // await FactoryModel.findByIdAndDelete("68fc9b3a2a9aba40cc2a5545")
 
-  const list = await FactoryModel.find({}).lean();
+  // const list = await FactoryModel.find({}).lean();
 
-  console.log({ list });
+  // console.log({ list });
 
   // const lngm = '66c3114ba342ddbf9eae83c1';
 
@@ -232,6 +232,15 @@ connectToDatabase().then(async (res) => {
 
   //   return;
   // }, Promise.resolve());
+
+  await UserModel.findOneAndUpdate(
+    { email: 'mgr.utjm@sinarmas-agri.com' },
+    { $set: { password: hashPassword('agate123') } }
+  );
+  await UserModel.findOneAndUpdate(
+    { email: 'pc.libm@sinarmas-agri.com' },
+    { $set: { password: hashPassword('agate123') } }
+  );
 
   console.log('Done');
 });
