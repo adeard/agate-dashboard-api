@@ -305,24 +305,24 @@ connectToDatabase().then(async (res) => {
   //   },
   // });
 
-  const fact = await FactoryModel.find({}).lean();
-  // console.log({ fact });
+  // const fact = await FactoryModel.find({}).lean();
+  // // console.log({ fact });
 
-  await FactoryModel.findByIdAndUpdate('66c3114ba342ddbf9eae83c1', {
-    $set: {
-      location: 'Langling, Jambi',
-    },
-  });
-  await FactoryModel.findByIdAndUpdate('686a5645bf73aa13b489ad36', {
-    $set: {
-      location: 'Tempilang, Bangka',
-    },
-  });
-  await FactoryModel.findByIdAndUpdate('68fc9b419a7c87b51e2002b3', {
-    $set: {
-      location: 'Ujung Tanjung, Riau',
-    },
-  });
+  // await FactoryModel.findByIdAndUpdate('66c3114ba342ddbf9eae83c1', {
+  //   $set: {
+  //     location: 'Langling, Jambi',
+  //   },
+  // });
+  // await FactoryModel.findByIdAndUpdate('686a5645bf73aa13b489ad36', {
+  //   $set: {
+  //     location: 'Tempilang, Bangka',
+  //   },
+  // });
+  // await FactoryModel.findByIdAndUpdate('68fc9b419a7c87b51e2002b3', {
+  //   $set: {
+  //     location: 'Ujung Tanjung, Riau',
+  //   },
+  // });
 
   console.log('Done');
   process.exit(1);

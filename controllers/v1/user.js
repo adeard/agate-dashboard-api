@@ -99,7 +99,8 @@ class UserController {
         };
       }
 
-      const password = generateRandomPassword(6);
+      // const password = generateRandomPassword(6);
+      const password = "agate123"
 
       // console.log({ password });
 
