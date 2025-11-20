@@ -131,7 +131,7 @@ const schemas = {
     is_started: Joi.boolean().allow(null), // Optional field
     is_finished: Joi.boolean().allow(null), // Optional field
     is_confirmed: Joi.boolean().allow(null), // Optional field
-    vendor_type: Joi.string().valid('1', '2').required(), // Enum with numeric values
+    vendor_type: Joi.string().valid('1', '2', '3').required(), // Enum with numeric values
     inspection_code: Joi.string().allow(null), // Optional field
     date: Joi.date().allow(null), // Optional field
     finish_date: Joi.date().allow(null), // Optional field,

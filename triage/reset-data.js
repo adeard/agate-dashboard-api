@@ -234,13 +234,13 @@ connectToDatabase().then(async (res) => {
   // }, Promise.resolve());
 
   await UserModel.findOneAndUpdate(
-    { email: 'mgr.utjm@sinarmas-agri.com' },
+    { email: 'staff.vpm.pbro@sinarmas-agri.com' },
     { $set: { password: hashPassword('agate123') } }
   );
-  await UserModel.findOneAndUpdate(
-    { email: 'pc.libm@sinarmas-agri.com' },
-    { $set: { password: hashPassword('agate123') } }
-  );
+  // await UserModel.findOneAndUpdate(
+  //   { email: 'pc.libm@sinarmas-agri.com' },
+  //   { $set: { password: hashPassword('agate123') } }
+  // );
 
   console.log('Done');
 });

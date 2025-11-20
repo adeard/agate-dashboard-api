@@ -96,7 +96,7 @@ const SCHEMA = new Schema(
     },
     vendor_type: {
       type: String,
-      enum: ['1', '2'],
+      enum: ['1', '2', "3"],
       required: true,
     },
     inspection_code: {

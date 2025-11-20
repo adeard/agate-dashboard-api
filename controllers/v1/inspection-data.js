@@ -416,7 +416,11 @@ class InspectionDataController {
         agate_logo_img: getImageFile('agate-logo.png'),
         location: factory ? factory.location : '-',
         vendor_type:
-          Number(inspections['vendor_type']) === 1 ? 'Inti' : 'Plasma',
+          Number(inspections['vendor_type']) === 1
+            ? 'Inti'
+            : Number(inspections['vendor_type']) === 2
+            ? 'Eksternal'
+            : 'Plasma',
         vendor: inspections['vendor_name'],
         delivery_number: inspections['delivery_number'],
         vehicle_number: inspections['vehicle_number'],
