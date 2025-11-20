@@ -986,7 +986,7 @@ class DashboardV2Controller {
         );
 
       const totalAllTandonPlasma = inspections
-        .filter((i) => i['vendor_type'] === '2')
+        .filter((i) => i['vendor_type'] === '2' || i['vendor_type'] === '3')
         .reduce(
           (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
           0
@@ -1068,7 +1068,7 @@ class DashboardV2Controller {
       const accepted_plasma = ACCEPTED_PLASMA.map((key) => {
         let vendors = {};
         const total = inspections.reduce((a, i) => {
-          if (i['vendor_type'] === '2') {
+          if (i['vendor_type'] === '2' || i['vendor_type'] === '3') {
             let sum = i.grading_result['accepted_summary']?.[key]
               ? Number(i.grading_result['accepted_summary']?.[key]['TOTAL'])
               : 0;
@@ -1101,7 +1101,7 @@ class DashboardV2Controller {
       const rejected_plasma = REJECTED_PLASMA.map((key) => {
         let vendors = {};
         const total = inspections.reduce((a, i) => {
-          if (i['vendor_type'] === '2') {
+          if (i['vendor_type'] === '2' || i['vendor_type'] === '3') {
             const isSub = SUB_KLASIFIKASI.includes(key);
             let sum = Object.keys(i.grading_result['rejected_summary']).reduce(
               (c, k) => {
@@ -1143,7 +1143,7 @@ class DashboardV2Controller {
       const fined_plasma = FINED_PLASMA.map((key) => {
         let vendors = {};
         const total = inspections.reduce((a, i) => {
-          if (i['vendor_type'] === '2') {
+          if (i['vendor_type'] === '2' || i['vendor_type'] === '3') {
             let sum = i.grading_result['fined_summary']?.[key]
               ? Number(i.grading_result['fined_summary']?.[key]['TOTAL'])
               : 0;

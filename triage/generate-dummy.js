@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const { hashPassword } = require('../lib/bcrypt');
-const { blastReportToUser } = require('../lib/cron/blast-report');
 const connectToDatabase = require('../lib/db-connect');
 const FactoryModel = require('../models/factory');
 const InspectionHistoryModel = require('../models/inspection-history');
@@ -11,6 +10,7 @@ const dayjs = require('dayjs');
 const { generateRandomPassword } = require('../utils/helpers');
 const InspectionDataModel = require('../models/inspection-data');
 const CompanyModel = require('../models/company');
+const { blastReportToUser } = require('../lib/cron/blast-report');
 
 // console.log(generateRandomPassword(6));
 
@@ -247,8 +247,6 @@ connectToDatabase().then(async (res) => {
   //   });
   // }, Promise.resolve());
 
-  // await blastReportToUser();
-
   // const password = generateRandomPassword(6);
 
   // await UserModel.findOneAndUpdate(
@@ -305,12 +303,12 @@ connectToDatabase().then(async (res) => {
   //   },
   // });
 
-  // const fact = await FactoryModel.find({}).lean();
-  // // console.log({ fact });
+  const fact = await FactoryModel.find({}).lean();
+  console.log({ fact });
 
-  // await FactoryModel.findByIdAndUpdate('66c3114ba342ddbf9eae83c1', {
+  // await FactoryModel.findByIdAndUpdate('68fc9b419a7c87b51e2002b5', {
   //   $set: {
-  //     location: 'Langling, Jambi',
+  //     location: 'Kijang, Riau',
   //   },
   // });
   // await FactoryModel.findByIdAndUpdate('686a5645bf73aa13b489ad36', {
@@ -324,6 +322,14 @@ connectToDatabase().then(async (res) => {
   //   },
   // });
 
-  console.log('Done');
-  process.exit(1);
+  // const companies = (await CompanyModel.find({}).lean()).filter(
+  //   (e) => e.initial !== 'DMO'
+  // );
+
+  // await companies.reduce(async (p, comp) => {
+  //   await p;
+  //   await blastReportToUser(comp._id);
+  // }, Promise.resolve());
+  // console.log('Done');
+  // process.exit(1);
 });
