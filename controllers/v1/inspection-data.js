@@ -803,6 +803,8 @@ class InspectionDataController {
       const factory = await FactoryModel.findById(factoryId).lean();
 
       inspections.forEach((inspection) => {
+        if (!inspection.grading_result) return;
+
         const totalTandan = inspection['grading_result']['total_tandan'];
         const totalAccepted = inspection['grading_result']['total_accepted'];
         const totalRejected = inspection['grading_result']['total_rejected'];
