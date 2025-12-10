@@ -2360,14 +2360,19 @@ class DashboardV4Controller {
         item.grading_result['classification_summary']['MATANG'][
           'BUAH KECIL DIBAWAH 5KG'
         ];
-      const totalLewatMatang =
-        item.grading_result['classification_summary']['LEWAT MATANG']['TOTAL'] -
-        item.grading_result['classification_summary']['LEWAT MATANG'][
-          'BUAH KECIL DIBAWAH 3KG'
-        ] -
-        item.grading_result['classification_summary']['LEWAT MATANG'][
-          'BUAH KECIL DIBAWAH 5KG'
-        ];
+      const totalLewatMatang = item.grading_result['classification_summary']?.[
+        'LEWAT MATANG'
+      ]
+        ? item.grading_result['classification_summary']['LEWAT MATANG']?.[
+            'TOTAL'
+          ] -
+          item.grading_result['classification_summary']['LEWAT MATANG'][
+            'BUAH KECIL DIBAWAH 3KG'
+          ] -
+          item.grading_result['classification_summary']['LEWAT MATANG'][
+            'BUAH KECIL DIBAWAH 5KG'
+          ]
+        : 0;
       const totalMentah =
         item.grading_result['classification_summary']['MENTAH']['TOTAL'] -
         item.grading_result['classification_summary']['MENTAH'][
