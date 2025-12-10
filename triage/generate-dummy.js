@@ -303,8 +303,8 @@ connectToDatabase().then(async (res) => {
   //   },
   // });
 
-  const fact = await FactoryModel.find({}).lean();
-  console.log({ fact });
+  // const fact = await FactoryModel.find({}).lean();
+  // console.log({ fact });
 
   // await FactoryModel.findByIdAndUpdate('68fc9b419a7c87b51e2002b5', {
   //   $set: {
@@ -330,6 +330,19 @@ connectToDatabase().then(async (res) => {
   //   await p;
   //   await blastReportToUser(comp._id);
   // }, Promise.resolve());
-  // console.log('Done');
-  // process.exit(1);
+
+  await InspectionDataModel.findOneAndUpdate(
+    { id: '692ea901148f1899eba288bd' },
+    {
+      $set: {
+        vendor: '6768c6a5c65f26e2c77d6510',
+        vendor_id: '6768b9a69eeaad2e40b8c6e2',
+        vendor_name: 'GMMX20135/GMMX21237',
+        vendor_type: '2',
+      },
+    }
+  );
+
+  console.log('Done');
+  process.exit(1);
 });
