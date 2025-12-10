@@ -605,6 +605,88 @@ class InspectionDataController {
       },
     };
 
+    const baseObjectExternal = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectExternalVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
     const baseObjectPlasma = {
       total_tandan: 0,
       total_accepted: 0,
@@ -793,11 +875,16 @@ class InspectionDataController {
         ...baseObjectInti,
       };
 
+      let demografikExternal = {
+        ...baseObjectExternal,
+      };
+
       let demografikPlasma = {
         ...baseObjectPlasma,
       };
 
       let demografikVendorInti = {};
+      let demografikVendorExternal = {};
       let demografikVendorPlasma = {};
 
       const factory = await FactoryModel.findById(factoryId).lean();
@@ -841,7 +928,23 @@ class InspectionDataController {
           demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
           demografikVendorInti[vendorId]['total_fined'] += totalFined;
           demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
-        } else {
+        } else if (Number(inspection['vendor_type']) === 2) {
+          demografikExternal['total_tandan'] += totalTandan;
+          demografikExternal['total_accepted'] += totalAccepted;
+          demografikExternal['total_fined'] += totalFined;
+          demografikExternal['total_rejected'] += totalRejected;
+
+          if (!demografikVendorExternal[vendorId]) {
+            demografikVendorExternal[vendorId] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorExternal[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorExternal[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorId]['total_fined'] += totalFined;
+          demografikVendorExternal[vendorId]['total_rejected'] += totalRejected;
+        } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
           demografikPlasma['total_fined'] += totalFined;
@@ -871,7 +974,12 @@ class InspectionDataController {
               demografikInti['classification_summary'][k][ks] += value;
               demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
                 value;
-            } else {
+            } else if (Number(inspection['vendor_type']) === 2) {
+              demografikExternal['classification_summary'][k][ks] += value;
+              demografikVendorExternal[vendorId]['classification_summary'][k][
+                ks
+              ] += value;
+            } else if (Number(inspection['vendor_type']) === 3) {
               demografikPlasma['classification_summary'][k][ks] += value;
               demografikVendorPlasma[vendorId]['classification_summary'][k][
                 ks
@@ -884,6 +992,7 @@ class InspectionDataController {
       // console.log({
       //   semua: demografikSemua['classification_summary'],
       //   inti: demografikInti['classification_summary'],
+      //   external: demografikExternal['classification_summary'],
       //   plasma: demografikPlasma['classification_summary'],
       // });
 
@@ -929,6 +1038,27 @@ class InspectionDataController {
           demografikInti['classification_summary']
         );
 
+      demografikExternal['total_accepted_percent'] = countPercentage(
+        demografikExternal['total_accepted'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['total_rejected_percent'] = countPercentage(
+        demografikExternal['total_rejected'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['total_fined_percent'] = countPercentage(
+        demografikExternal['total_fined'],
+        demografikExternal['total_accepted']
+      );
+      demografikExternal['total_percent'] = countPercentage(
+        demografikExternal['total_accepted'] + demografikExternal['total_rejected'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['classification_summary'] =
+        generateClassificationResultArray(
+          demografikExternal['classification_summary']
+        );
+
       demografikPlasma['total_accepted_percent'] = countPercentage(
         demografikPlasma['total_accepted'],
         demografikPlasma['total_tandan']
@@ -969,6 +1099,27 @@ class InspectionDataController {
           ),
         };
       });
+      demografikVendorExternal = Object.keys(demografikVendorExternal).map(
+        (key) => {
+          const data = demografikVendorExternal[key];
+          return {
+            label: data['vendor'],
+            total_tandan: data['total_tandan'],
+            percent_accepted: countPercentage(
+              data['total_accepted'],
+              data['total_tandan']
+            ),
+            percent_rejected: countPercentage(
+              data['total_rejected'],
+              data['total_tandan']
+            ),
+            percent_fined: countPercentage(
+              data['total_fined'],
+              data['total_accepted']
+            ),
+          };
+        }
+      );
       demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
         (key) => {
           const data = demografikVendorPlasma[key];
@@ -1026,9 +1177,13 @@ class InspectionDataController {
         location: factory ? factory.location : '-',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
+        summary_external: convertDataValue(demografikExternal),
         summary_plasma: convertDataValue(demografikPlasma),
         vendor_inti: demografikVendorInti.length
           ? demografikVendorInti.map((e) => changeValueToLocalestring(e))
+          : null,
+        vendor_external: demografikVendorExternal.length
+          ? demografikVendorExternal.map((e) => changeValueToLocalestring(e))
           : null,
         vendor_plasma: demografikVendorPlasma.length
           ? demografikVendorPlasma.map((e) => changeValueToLocalestring(e))
@@ -1120,6 +1275,88 @@ class InspectionDataController {
           'BUAH KECIL DIBAWAH 5KG': 0,
         },
         'KURANG MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectExternal = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        MATANG: {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'LEWAT MATANG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+        'JANJANG KOSONG': {
+          TOTAL: 0,
+          NORMAL: 0,
+          'RUSAK DIMAKAN TIKUS': 0,
+          'TANGKAI PANJANG': 0,
+          'BUAH KECIL DIBAWAH 3KG': 0,
+          'BUAH KECIL DIBAWAH 5KG': 0,
+        },
+      },
+    };
+
+    const baseObjectExternalVendor = {
+      total_tandan: 0,
+      total_accepted: 0,
+      total_rejected: 0,
+      total_fined: 0,
+      classification_summary: {
+        MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
           'RUSAK DIMAKAN TIKUS': 0,
@@ -1320,11 +1557,16 @@ class InspectionDataController {
         ...baseObjectInti,
       };
 
+      let demografikExternal = {
+        ...baseObjectExternal,
+      };
+
       let demografikPlasma = {
         ...baseObjectPlasma,
       };
 
       let demografikVendorInti = {};
+      let demografikVendorExternal = {};
       let demografikVendorPlasma = {};
 
       inspections.forEach((inspection) => {
@@ -1364,7 +1606,23 @@ class InspectionDataController {
           demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
           demografikVendorInti[vendorId]['total_fined'] += totalFined;
           demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
-        } else {
+        } else if (Number(inspection['vendor_type']) === 2) {
+          demografikExternal['total_tandan'] += totalTandan;
+          demografikExternal['total_accepted'] += totalAccepted;
+          demografikExternal['total_fined'] += totalFined;
+          demografikExternal['total_rejected'] += totalRejected;
+
+          if (!demografikVendorExternal[vendorId]) {
+            demografikVendorExternal[vendorId] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorId]['vendor'] =
+              inspection['vendor_name'];
+          }
+
+          demografikVendorExternal[vendorId]['total_tandan'] += totalTandan;
+          demografikVendorExternal[vendorId]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorId]['total_fined'] += totalFined;
+          demografikVendorExternal[vendorId]['total_rejected'] += totalRejected;
+        } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
           demografikPlasma['total_fined'] += totalFined;
@@ -1394,7 +1652,12 @@ class InspectionDataController {
               demografikInti['classification_summary'][k][ks] += value;
               demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
                 value;
-            } else {
+            } else if (Number(inspection['vendor_type']) === 2) {
+              demografikExternal['classification_summary'][k][ks] += value;
+              demografikVendorExternal[vendorId]['classification_summary'][k][
+                ks
+              ] += value;
+            } else if (Number(inspection['vendor_type']) === 3) {
               demografikPlasma['classification_summary'][k][ks] += value;
               demografikVendorPlasma[vendorId]['classification_summary'][k][
                 ks
@@ -1407,6 +1670,7 @@ class InspectionDataController {
       // console.log({
       //   semua: demografikSemua['classification_summary'],
       //   inti: demografikInti['classification_summary'],
+      //   external: demografikExternal['classification_summary'],
       //   plasma: demografikPlasma['classification_summary'],
       // });
 
@@ -1452,6 +1716,27 @@ class InspectionDataController {
           demografikInti['classification_summary']
         );
 
+      demografikExternal['total_accepted_percent'] = countPercentage(
+        demografikExternal['total_accepted'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['total_rejected_percent'] = countPercentage(
+        demografikExternal['total_rejected'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['total_fined_percent'] = countPercentage(
+        demografikExternal['total_fined'],
+        demografikExternal['total_accepted']
+      );
+      demografikExternal['total_percent'] = countPercentage(
+        demografikExternal['total_accepted'] + demografikExternal['total_rejected'],
+        demografikExternal['total_tandan']
+      );
+      demografikExternal['classification_summary'] =
+        generateClassificationResultArray(
+          demografikExternal['classification_summary']
+        );
+
       demografikPlasma['total_accepted_percent'] = countPercentage(
         demografikPlasma['total_accepted'],
         demografikPlasma['total_tandan']
@@ -1492,6 +1777,27 @@ class InspectionDataController {
           ),
         };
       });
+      demografikVendorExternal = Object.keys(demografikVendorExternal).map(
+        (key) => {
+          const data = demografikVendorExternal[key];
+          return {
+            label: data['vendor'],
+            total_tandan: data['total_tandan'],
+            percent_accepted: countPercentage(
+              data['total_accepted'],
+              data['total_tandan']
+            ),
+            percent_rejected: countPercentage(
+              data['total_rejected'],
+              data['total_tandan']
+            ),
+            percent_fined: countPercentage(
+              data['total_fined'],
+              data['total_accepted']
+            ),
+          };
+        }
+      );
       demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
         (key) => {
           const data = demografikVendorPlasma[key];
@@ -1546,9 +1852,13 @@ class InspectionDataController {
         location: factory ? factory.location : '-',
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
+        summary_external: convertDataValue(demografikExternal),
         summary_plasma: convertDataValue(demografikPlasma),
         vendor_inti: demografikVendorInti.length
           ? demografikVendorInti.map((e) => changeValueToLocalestring(e))
+          : null,
+        vendor_external: demografikVendorExternal.length
+          ? demografikVendorExternal.map((e) => changeValueToLocalestring(e))
           : null,
         vendor_plasma: demografikVendorPlasma.length
           ? demografikVendorPlasma.map((e) => changeValueToLocalestring(e))
