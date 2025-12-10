@@ -11,6 +11,7 @@ const { generateRandomPassword } = require('../utils/helpers');
 const InspectionDataModel = require('../models/inspection-data');
 const CompanyModel = require('../models/company');
 const { blastReportToUser } = require('../lib/cron/blast-report');
+const VendorV2Model = require('../models/v2/vendor');
 
 // console.log(generateRandomPassword(6));
 
@@ -331,17 +332,21 @@ connectToDatabase().then(async (res) => {
   //   await blastReportToUser(comp._id);
   // }, Promise.resolve());
 
-  await InspectionDataModel.findOneAndUpdate(
-    { id: '692ea901148f1899eba288bd' },
-    {
-      $set: {
-        vendor: '6768c6a5c65f26e2c77d6510',
-        vendor_id: '6768b9a69eeaad2e40b8c6e2',
-        vendor_name: 'GMMX20135/GMMX21237',
-        vendor_type: '2',
-      },
-    }
-  );
+  // await InspectionDataModel.findOneAndUpdate(
+  //   { id: '692ea901148f1899eba288bd' },
+  //   {
+  //     $set: {
+  //       vendor: '6768c6a5c65f26e2c77d6510',
+  //       vendor_id: '6768b9a69eeaad2e40b8c6e2',
+  //       vendor_name: 'GMMX20135/GMMX21237',
+  //       vendor_type: '2',
+  //     },
+  //   }
+  // );
+
+  const response = await VendorV2Model.find({}).lean();
+
+  console.log({ response });
 
   console.log('Done');
   process.exit(1);
