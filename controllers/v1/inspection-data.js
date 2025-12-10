@@ -905,7 +905,7 @@ class InspectionDataController {
           inspection['grading_result']['rejected_summary'];
         const finedSummary = inspection['grading_result']['fined_summary'];
 
-        const vendorId = inspection['vendor_id'];
+        const vendorName = inspection['vendor_name']?.trim() || 'Unknown';
 
         demografikSemua['total_tandan'] += totalTandan;
         demografikSemua['total_accepted'] += totalAccepted;
@@ -918,48 +918,45 @@ class InspectionDataController {
           demografikInti['total_fined'] += totalFined;
           demografikInti['total_rejected'] += totalRejected;
 
-          if (!demografikVendorInti[vendorId]) {
-            demografikVendorInti[vendorId] = { ...baseObjectIntiVendor };
-            demografikVendorInti[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorInti[vendorName]) {
+            demografikVendorInti[vendorName] = { ...baseObjectIntiVendor };
+            demografikVendorInti[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorInti[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorInti[vendorId]['total_fined'] += totalFined;
-          demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorInti[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorInti[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorInti[vendorName]['total_fined'] += totalFined;
+          demografikVendorInti[vendorName]['total_rejected'] += totalRejected;
         } else if (Number(inspection['vendor_type']) === 2) {
           demografikExternal['total_tandan'] += totalTandan;
           demografikExternal['total_accepted'] += totalAccepted;
           demografikExternal['total_fined'] += totalFined;
           demografikExternal['total_rejected'] += totalRejected;
 
-          if (!demografikVendorExternal[vendorId]) {
-            demografikVendorExternal[vendorId] = { ...baseObjectExternalVendor };
-            demografikVendorExternal[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorExternal[vendorName]) {
+            demografikVendorExternal[vendorName] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorExternal[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorExternal[vendorId]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorExternal[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorName]['total_fined'] += totalFined;
+          demografikVendorExternal[vendorName]['total_rejected'] += totalRejected;
         } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
           demografikPlasma['total_fined'] += totalFined;
           demografikPlasma['total_rejected'] += totalRejected;
 
-          if (!demografikVendorPlasma[vendorId]) {
-            demografikVendorPlasma[vendorId] = { ...baseObjectPlasmaVendor };
-            demografikVendorPlasma[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorPlasma[vendorName]) {
+            demografikVendorPlasma[vendorName] = { ...baseObjectPlasmaVendor };
+            demografikVendorPlasma[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorPlasma[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorPlasma[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorPlasma[vendorId]['total_fined'] += totalFined;
-          demografikVendorPlasma[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorPlasma[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorPlasma[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorPlasma[vendorName]['total_fined'] += totalFined;
+          demografikVendorPlasma[vendorName]['total_rejected'] += totalRejected;
         }
 
         Object.keys(classificationSummary).forEach((k) => {
@@ -972,16 +969,16 @@ class InspectionDataController {
             if (Number(inspection['vendor_type']) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
               demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
+              demografikVendorInti[vendorName]['classification_summary'][k][ks] +=
                 value;
             } else if (Number(inspection['vendor_type']) === 2) {
               demografikExternal['classification_summary'][k][ks] += value;
-              demografikVendorExternal[vendorId]['classification_summary'][k][
+              demografikVendorExternal[vendorName]['classification_summary'][k][
                 ks
               ] += value;
             } else if (Number(inspection['vendor_type']) === 3) {
               demografikPlasma['classification_summary'][k][ks] += value;
-              demografikVendorPlasma[vendorId]['classification_summary'][k][
+              demografikVendorPlasma[vendorName]['classification_summary'][k][
                 ks
               ] += value;
             }
@@ -1584,7 +1581,7 @@ class InspectionDataController {
           inspection['grading_result']['rejected_summary'];
         const finedSummary = inspection['grading_result']['fined_summary'];
 
-        const vendorId = inspection['vendor_id'];
+        const vendorName = inspection['vendor_name']?.trim() || 'Unknown';
 
         demografikSemua['total_tandan'] += totalTandan;
         demografikSemua['total_accepted'] += totalAccepted;
@@ -1597,48 +1594,45 @@ class InspectionDataController {
           demografikInti['total_fined'] += totalFined;
           demografikInti['total_rejected'] += totalRejected;
 
-          if (!demografikVendorInti[vendorId]) {
-            demografikVendorInti[vendorId] = { ...baseObjectIntiVendor };
-            demografikVendorInti[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorInti[vendorName]) {
+            demografikVendorInti[vendorName] = { ...baseObjectIntiVendor };
+            demografikVendorInti[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorInti[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorInti[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorInti[vendorId]['total_fined'] += totalFined;
-          demografikVendorInti[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorInti[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorInti[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorInti[vendorName]['total_fined'] += totalFined;
+          demografikVendorInti[vendorName]['total_rejected'] += totalRejected;
         } else if (Number(inspection['vendor_type']) === 2) {
           demografikExternal['total_tandan'] += totalTandan;
           demografikExternal['total_accepted'] += totalAccepted;
           demografikExternal['total_fined'] += totalFined;
           demografikExternal['total_rejected'] += totalRejected;
 
-          if (!demografikVendorExternal[vendorId]) {
-            demografikVendorExternal[vendorId] = { ...baseObjectExternalVendor };
-            demografikVendorExternal[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorExternal[vendorName]) {
+            demografikVendorExternal[vendorName] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorExternal[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorExternal[vendorId]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorExternal[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorName]['total_fined'] += totalFined;
+          demografikVendorExternal[vendorName]['total_rejected'] += totalRejected;
         } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
           demografikPlasma['total_fined'] += totalFined;
           demografikPlasma['total_rejected'] += totalRejected;
 
-          if (!demografikVendorPlasma[vendorId]) {
-            demografikVendorPlasma[vendorId] = { ...baseObjectPlasmaVendor };
-            demografikVendorPlasma[vendorId]['vendor'] =
-              inspection['vendor_name'];
+          if (!demografikVendorPlasma[vendorName]) {
+            demografikVendorPlasma[vendorName] = { ...baseObjectPlasmaVendor };
+            demografikVendorPlasma[vendorName]['vendor'] = vendorName;
           }
 
-          demografikVendorPlasma[vendorId]['total_tandan'] += totalTandan;
-          demografikVendorPlasma[vendorId]['total_accepted'] += totalAccepted;
-          demografikVendorPlasma[vendorId]['total_fined'] += totalFined;
-          demografikVendorPlasma[vendorId]['total_rejected'] += totalRejected;
+          demografikVendorPlasma[vendorName]['total_tandan'] += totalTandan;
+          demografikVendorPlasma[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorPlasma[vendorName]['total_fined'] += totalFined;
+          demografikVendorPlasma[vendorName]['total_rejected'] += totalRejected;
         }
 
         Object.keys(classificationSummary).forEach((k) => {
@@ -1651,16 +1645,16 @@ class InspectionDataController {
             if (Number(inspection['vendor_type']) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
               demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorId]['classification_summary'][k][ks] +=
+              demografikVendorInti[vendorName]['classification_summary'][k][ks] +=
                 value;
             } else if (Number(inspection['vendor_type']) === 2) {
               demografikExternal['classification_summary'][k][ks] += value;
-              demografikVendorExternal[vendorId]['classification_summary'][k][
+              demografikVendorExternal[vendorName]['classification_summary'][k][
                 ks
               ] += value;
             } else if (Number(inspection['vendor_type']) === 3) {
               demografikPlasma['classification_summary'][k][ks] += value;
-              demografikVendorPlasma[vendorId]['classification_summary'][k][
+              demografikVendorPlasma[vendorName]['classification_summary'][k][
                 ks
               ] += value;
             }

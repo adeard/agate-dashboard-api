@@ -60,11 +60,15 @@ class SyncDataController {
 
       body['factory'] = factory._id;
 
-      await VendorV2Model.findOneAndUpdate({ name: body['name'] }, body, {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      });
+      await VendorV2Model.findOneAndUpdate(
+        { name: body['name'].trim() },
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
 
       return res
         .status(200)
@@ -92,15 +96,35 @@ class SyncDataController {
       }
 
       let vendor = await VendorV2Model.findOne({
+        name: body['vendor_name'],
         id: body['vendor_id'],
+        factory: factory._id,
       }).lean();
 
       if (!vendor) {
-        vendor = await VendorV2Model.create({
-          id: body['vendor_id'],
-          name: body['vendor_name'],
-          type: body['vendor_type'],
-        });
+        vendor = await VendorV2Model.findOneAndUpdate(
+          { name: body['name'].trim() },
+          {
+            id: body['vendor_id'],
+            name: body['vendor_name'],
+            type: body['vendor_type'],
+            factory: factory._id,
+            vendor_id: body['vendor_id'],
+          },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true,
+            returnDocument: true,
+          }
+        );
+        // vendor = await VendorV2Model.create({
+        //   id: body['vendor_id'],
+        //   name: body['vendor_name'],
+        //   type: body['vendor_type'],
+        //   factory: factory._id,
+        //   vendor_id: body['vendor_id'],
+        // });
       }
 
       // const founded = await InspectionDataModel.findOne({
@@ -138,6 +162,7 @@ class SyncDataController {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
+          returnDocument: true,
         }
       );
 
