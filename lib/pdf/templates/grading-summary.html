@@ -328,6 +328,105 @@
           <tbody>
             <tr>
               <td style="text-align: left">Total Diterima</td>
+              <td>{{summary_external.total_accepted}}</td>
+              <td>{{summary_external.total_accepted_percent}}%</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Total Ditolak</td>
+              <td>{{summary_external.total_rejected}}</td>
+              <td>{{summary_external.total_rejected_percent}}%</td>
+            </tr>
+            <tr>
+              <td style="text-align: left">Total Didenda</td>
+              <td>{{summary_external.total_fined}}</td>
+              <td>{{summary_external.total_fined_percent}}%</td>
+            </tr>
+            <tr style="font-weight: bold">
+              <td style="text-align: left">Total Tandan</td>
+              <td>{{summary_external.total_tandan}}</td>
+              <td>
+                {{tambah summary_external.total_rejected_percent
+                summary_external.total_accepted_percent}}%
+                <!-- {{summary_external.total_accepted_percent}}% -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="height: 12px"></div>
+
+      <div>
+        <table>
+          <thead>
+            <tr style="font-weight: bold">
+              <th style="text-align: left">Klasifikasi</th>
+              <!-- <th style="width: 60px">P</th> -->
+              <th style="width: 60px">TP</th>
+              <th style="width: 60px"><3kg</th>
+              <th style="width: 60px">3-5kg</th>
+              <th style="width: 60px">N</th>
+              <th style="width: 60px">T</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if summary_external.classification_summary}} {{#each
+            summary_external.classification_summary}}
+            <tr>
+              <td style="text-align: left; text-transform: capitalize">
+                {{label}}
+              </td>
+              <!-- <td>{{[RUSAK DIMAKAN TIKUS]}}</td> -->
+              <td>{{[TANGKAI PANJANG]}}</td>
+              <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
+              <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
+              <td>{{NORMAL}}</td>
+              <td style="font-weight: bold">{{TOTAL}}</td>
+            </tr>
+            {{/each}} {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {{#if vendor_plasma}}
+    <section class="container page">
+      <div style="display: table; table-layout: fixed; width: 100%">
+        <div class="left">
+          <img
+            src="data:image/png;base64,{{{sinarmas_logo_img}}}"
+            width="auto"
+            height="50"
+          />
+        </div>
+        <div class="right">
+          <img
+            src="data:image/png;base64,{{{agate_logo_img}}}"
+            width="auto"
+            height="80"
+          />
+        </div>
+      </div>
+
+      <div style="height: 12px"></div>
+
+      <h1 style="font-weight: bold; font-size: 20px; margin: 8px 0">
+        Summary Berdasarkan Buah Plasma
+      </h1>
+      <!-- <div style="height: 4px"></div> -->
+
+      <div>
+        <table>
+          <thead>
+            <tr style="font-weight: bold">
+              <th style="text-align: left">Hasil Grading</th>
+              <th style="width: 60px">T</th>
+              <th style="width: 60px">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: left">Total Diterima</td>
               <td>{{summary_plasma.total_accepted}}</td>
               <td>{{summary_plasma.total_accepted_percent}}%</td>
             </tr>
@@ -388,19 +487,20 @@
         </table>
       </div>
     </section>
+    {{/if}}
 
     <section class="container">
       <div style="display: table; table-layout: fixed; width: 100%">
         <div class="left">
           <img
-            src="data:image/png;base64,{{ sinarmas_logo_img }}"
+            src="data:image/png;base64,{{{sinarmas_logo_img}}}"
             width="auto"
             height="50"
           />
         </div>
         <div class="right">
           <img
-            src="data:image/png;base64,{{ agate_logo_img }}"
+            src="data:image/png;base64,{{{agate_logo_img}}}"
             width="auto"
             height="80"
           />
@@ -459,7 +559,7 @@
             </tr>
           </thead>
           <tbody>
-            {{#if vendor_plasma}} {{#each vendor_plasma}}
+            {{#if vendor_external}} {{#each vendor_external}}
             <tr>
               <td style="text-align: left; text-transform: capitalize">
                 {{label}}
@@ -473,6 +573,41 @@
           </tbody>
         </table>
       </div>
+
+      {{#if vendor_plasma}}
+       <div style="height: 24px"></div>
+      <h1 style="font-weight: bold; font-size: 20px; margin: 8px 0">
+        Summary Berdasarkan Vendor Buah Plasma
+      </h1>
+      <!-- <div style="height: 4px"></div> -->
+
+      <div>
+        <table>
+          <thead>
+            <tr style="font-weight: bold">
+              <th style="text-align: left">Nama Vendor</th>
+              <th style="width: 60px">T</th>
+              <th style="width: 60px">% Diterima</th>
+              <th style="width: 60px">% Ditolak</th>
+              <th style="width: 60px">% Didenda</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each vendor_plasma}}
+            <tr>
+              <td style="text-align: left; text-transform: capitalize">
+                {{label}}
+              </td>
+              <td>{{total_tandan}}</td>
+              <td>{{percent_accepted}}</td>
+              <td>{{percent_rejected}}</td>
+              <td>{{percent_fined}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{/if}}
     </section>
   </body>
 </html>
