@@ -96,7 +96,7 @@ const SCHEMA = new Schema(
     },
     vendor_type: {
       type: String,
-      enum: ['1', '2', "3"],
+      enum: ['1', '2', '3'],
       required: true,
     },
     inspection_code: {
@@ -129,7 +129,7 @@ const SCHEMA = new Schema(
     },
     vendor: {
       type: Schema.Types.ObjectId,
-      ref: 'GradingHQ_VENDOR',
+      ref: 'GradingHQ_VENDOR_V2',
       // type: String,
       required: true,
     },
