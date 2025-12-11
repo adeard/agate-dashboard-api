@@ -103,7 +103,7 @@ class SyncDataController {
 
       if (!vendor) {
         vendor = await VendorV2Model.findOneAndUpdate(
-          { name: body['name'].trim() },
+          { name: body['vendor_name'].trim() },
           {
             id: body['vendor_id'],
             name: body['vendor_name'],
