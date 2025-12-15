@@ -10,6 +10,7 @@ const {
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const dayjs = require('dayjs');
+const MachineCheckModel = require('../../models/machine-check');
 
 const formatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 1,
@@ -585,6 +586,46 @@ class SyncDataController {
         );
     } catch (err) {
       console.log({ err });
+      next(err);
+    }
+  }
+
+  static async syncMachineCheck(req, res, next) {
+    try {
+      const body = req.body;
+
+      delete body['is_integrated'];
+
+      await vBody('machine-check', body);
+
+      if (body.questions) {
+        body.questions = body.questions;
+      }
+
+      if (body.date) {
+        body.date = new Date(body.date);
+      }
+
+      const filter = {
+        machine_check_id: body.machine_check_id,
+      };
+
+      const machineCheck = await MachineCheckModel.findOneAndUpdate(
+        filter,
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
+
+      return res.status(200).json(
+        createResponseSuccess(200, 'Success', 'Success sync machine check', {
+          id: machineCheck._id,
+        })
+      );
+    } catch (err) {
       next(err);
     }
   }

@@ -157,6 +157,16 @@ const schemas = {
     type: Joi.number().required(),
     factory: Joi.string().required(),
   }),
+
+  'machine-check': Joi.object({
+    machine_check_id: Joi.string().required(),
+    questions: Joi.object().required(),
+    type: Joi.string().required(),
+    date: Joi.string().required(),
+    notes: Joi.string().optional(),
+    factory: Joi.string().required(),
+    machine: Joi.string().required(),
+  }),
 };
 
 module.exports = {

@@ -11,6 +11,7 @@ module.exports = (express) =>
     .use(validateClientKey)
     .post('/vendor', SyncDataController.syncVendor)
     .post('/inspection', SyncDataController.syncInspection)
+    .post('/machine-check', SyncDataController.syncMachineCheck)
     .post(
       '/inspection/:id/image',
       upload.single('file'),
