@@ -1076,18 +1076,10 @@ class DashboardV4Controller {
         q['vendor'] = { $in: uniqIds };
       }
 
-      if (date_from && !date_to) {
+      if (date_from && date_to) {
         q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-        };
-      } else if (date_to && !date_from) {
-        q['date'] = {
-          $lte: dayjs(date_to).endOf('day'),
-        };
-      } else if (date_from && date_to) {
-        q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-          $lte: dayjs(date_to).endOf('day'),
+          $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
+          $lte: dayjs(date_to).add(1, 'day').hour(5).minute(59).second(59).millisecond(999),
         };
       }
 
@@ -3548,18 +3540,10 @@ class DashboardV4Controller {
         q['vendor'] = { $in: uniqIds };
       }
 
-      if (date_from && !date_to) {
+      if (date_from && date_to) {
         q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-        };
-      } else if (date_to && !date_from) {
-        q['date'] = {
-          $lte: dayjs(date_to).endOf('day'),
-        };
-      } else if (date_from && date_to) {
-        q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-          $lte: dayjs(date_to).endOf('day'),
+          $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
+          $lte: dayjs(date_to).add(1, 'day').hour(5).minute(59).second(59).millisecond(999),
         };
       }
 
