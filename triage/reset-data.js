@@ -14,6 +14,7 @@ const VendorModel = require('../models/vendor');
 const dayjs = require('dayjs');
 const WABroadcastModel = require('../models/wa-broadcast');
 const CompanyModel = require('../models/company');
+const MachineCheckModel = require('../models/machine-check');
 
 // console.log(generateRandomPassword(6));
 
@@ -242,6 +243,9 @@ connectToDatabase().then(async (res) => {
   //   { $set: { password: hashPassword('agate123') } }
   // );
 
-  await InspectionDataModel.findByIdAndDelete("694254e6367f812200ba0062")
+  // await InspectionDataModel.findByIdAndDelete("6944fbb46dcc537bb84212b2")
+  const response = await MachineCheckModel.find({}).lean();
+
+  console.log({ response });
   console.log('Done');
 });

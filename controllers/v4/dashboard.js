@@ -1188,14 +1188,21 @@ class DashboardV4Controller {
       let avgAcceptedVendorHistory = {};
       let avgAcceptedVendorHistoryDaily = {};
 
+      // Check if filtering by date range with more than 1 day
+      const hasMultipleDates = date_from && date_to && dayjs(date_from).format('YYYY-MM-DD') !== dayjs(date_to).format('YYYY-MM-DD');
+
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
+        // Adjust date for shift-based day (06:00 to 05:59 next day) only when filtering multiple dates
+        const dateForGrouping = hasMultipleDates
+          ? dayjs(item['date']).subtract(6, 'hour').toDate()
+          : item['date'];
         const { day, monthYear } = getDateMonthYearDay(
-          item['date'],
+          dateForGrouping,
           true,
           'DD/MM/YY'
         );
-        const week = getWeekNumber(item['date']);
+        const week = getWeekNumber(dateForGrouping);
 
         const {
           percentJangkos,
@@ -3665,14 +3672,21 @@ class DashboardV4Controller {
       let grandTotalRejected = 0;
       let grandTotalFined = 0;
 
+      // Check if filtering by date range with more than 1 day
+      const hasMultipleDates = date_from && date_to && dayjs(date_from).format('YYYY-MM-DD') !== dayjs(date_to).format('YYYY-MM-DD');
+
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
+        // Adjust date for shift-based day (06:00 to 05:59 next day) only when filtering multiple dates
+        const dateForGrouping = hasMultipleDates
+          ? dayjs(item['date']).subtract(6, 'hour').toDate()
+          : item['date'];
         const { day, monthYear } = getDateMonthYearDay(
-          item['date'],
+          dateForGrouping,
           true,
           'DD/MM/YY'
         );
-        const week = getWeekNumber(item['date']);
+        const week = getWeekNumber(dateForGrouping);
 
         const {
           percentJangkos,

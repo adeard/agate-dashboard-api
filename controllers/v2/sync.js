@@ -598,10 +598,6 @@ class SyncDataController {
 
       await vBody('machine-check', body);
 
-      if (body.questions) {
-        body.questions = body.questions;
-      }
-
       if (body.date) {
         body.date = new Date(body.date);
       }
@@ -617,6 +613,7 @@ class SyncDataController {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
+          runValidators: true,
         }
       );
 
