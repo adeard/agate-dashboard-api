@@ -242,5 +242,6 @@ connectToDatabase().then(async (res) => {
   //   { $set: { password: hashPassword('agate123') } }
   // );
 
+  await InspectionDataModel.findByIdAndDelete("694254e6367f812200ba0062")
   console.log('Done');
 });

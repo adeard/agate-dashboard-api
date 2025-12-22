@@ -105,22 +105,17 @@ class InspectionDataController {
         q['vendor'] = vendor_id;
       }
 
-      if (date_from && !date_to) {
+      if (date_from && date_to) {
         q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-        };
-      } else if (date_to && !date_from) {
-        q['date'] = {
-          $lte: dayjs(date_to).endOf('day'),
-        };
-      } else if (date_from && date_to) {
-        q['date'] = {
-          $gte: dayjs(date_from).startOf('day'),
-          $lte: dayjs(date_to).endOf('day'),
+          $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
+          $lte: dayjs(date_to)
+            .add(1, 'day')
+            .hour(5)
+            .minute(59)
+            .second(59)
+            .millisecond(999),
         };
       }
-
-      console.log({ q });
 
       const inspections = await InspectionDataModel.find(q)
         .sort({ date: -1 })
@@ -934,14 +929,18 @@ class InspectionDataController {
           demografikExternal['total_rejected'] += totalRejected;
 
           if (!demografikVendorExternal[vendorName]) {
-            demografikVendorExternal[vendorName] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorName] = {
+              ...baseObjectExternalVendor,
+            };
             demografikVendorExternal[vendorName]['vendor'] = vendorName;
           }
 
           demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorName]['total_accepted'] +=
+            totalAccepted;
           demografikVendorExternal[vendorName]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorName]['total_rejected'] += totalRejected;
+          demografikVendorExternal[vendorName]['total_rejected'] +=
+            totalRejected;
         } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
@@ -969,8 +968,9 @@ class InspectionDataController {
             if (Number(inspection['vendor_type']) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
               demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorName]['classification_summary'][k][ks] +=
-                value;
+              demografikVendorInti[vendorName]['classification_summary'][k][
+                ks
+              ] += value;
             } else if (Number(inspection['vendor_type']) === 2) {
               demografikExternal['classification_summary'][k][ks] += value;
               demografikVendorExternal[vendorName]['classification_summary'][k][
@@ -1048,7 +1048,8 @@ class InspectionDataController {
         demografikExternal['total_accepted']
       );
       demografikExternal['total_percent'] = countPercentage(
-        demografikExternal['total_accepted'] + demografikExternal['total_rejected'],
+        demografikExternal['total_accepted'] +
+          demografikExternal['total_rejected'],
         demografikExternal['total_tandan']
       );
       demografikExternal['classification_summary'] =
@@ -1610,14 +1611,18 @@ class InspectionDataController {
           demografikExternal['total_rejected'] += totalRejected;
 
           if (!demografikVendorExternal[vendorName]) {
-            demografikVendorExternal[vendorName] = { ...baseObjectExternalVendor };
+            demografikVendorExternal[vendorName] = {
+              ...baseObjectExternalVendor,
+            };
             demografikVendorExternal[vendorName]['vendor'] = vendorName;
           }
 
           demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorName]['total_accepted'] += totalAccepted;
+          demografikVendorExternal[vendorName]['total_accepted'] +=
+            totalAccepted;
           demografikVendorExternal[vendorName]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorName]['total_rejected'] += totalRejected;
+          demografikVendorExternal[vendorName]['total_rejected'] +=
+            totalRejected;
         } else if (Number(inspection['vendor_type']) === 3) {
           demografikPlasma['total_tandan'] += totalTandan;
           demografikPlasma['total_accepted'] += totalAccepted;
@@ -1645,8 +1650,9 @@ class InspectionDataController {
             if (Number(inspection['vendor_type']) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
               demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorName]['classification_summary'][k][ks] +=
-                value;
+              demografikVendorInti[vendorName]['classification_summary'][k][
+                ks
+              ] += value;
             } else if (Number(inspection['vendor_type']) === 2) {
               demografikExternal['classification_summary'][k][ks] += value;
               demografikVendorExternal[vendorName]['classification_summary'][k][
@@ -1724,7 +1730,8 @@ class InspectionDataController {
         demografikExternal['total_accepted']
       );
       demografikExternal['total_percent'] = countPercentage(
-        demografikExternal['total_accepted'] + demografikExternal['total_rejected'],
+        demografikExternal['total_accepted'] +
+          demografikExternal['total_rejected'],
         demografikExternal['total_tandan']
       );
       demografikExternal['classification_summary'] =
