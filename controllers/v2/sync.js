@@ -623,6 +623,11 @@ class SyncDataController {
         })
       );
     } catch (err) {
+      console.error('Error syncing machine check:', {
+        error: err.message,
+        stack: err.stack,
+        body: req.body,
+      });
       next(err);
     }
   }
