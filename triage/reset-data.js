@@ -243,9 +243,9 @@ connectToDatabase().then(async (res) => {
   //   { $set: { password: hashPassword('agate123') } }
   // );
 
-  // await InspectionDataModel.findByIdAndDelete("6944fbb46dcc537bb84212b2")
-  const response = await MachineCheckModel.find({}).lean();
+  const response = await InspectionDataModel.findOne({}).sort({ date: -1 });
+  // const response = await MachineCheckModel.find({}).lean();
 
-  console.log({ response });
+  console.log({ response: response.grading_result });
   console.log('Done');
 });
