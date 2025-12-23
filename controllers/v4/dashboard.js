@@ -527,6 +527,8 @@ const utilsInspection = {
       totalMatangDitolak +
       totalLewatMatangDitolak;
 
+    const totalMultiple = item.grading_result?.['total_multiple'] || 0;
+
     return {
       totalMatang,
       totalLewatMatang,
@@ -551,6 +553,7 @@ const utilsInspection = {
       totalRejectedModified: totalRejectedModified,
       totalTandan,
       totalFined,
+      totalMultiple,
 
       totalMentahDiterima,
       totalJanjangKosongDiterima,
@@ -1079,7 +1082,12 @@ class DashboardV4Controller {
       if (date_from && date_to) {
         q['date'] = {
           $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
-          $lte: dayjs(date_to).add(1, 'day').hour(5).minute(59).second(59).millisecond(999),
+          $lte: dayjs(date_to)
+            .add(1, 'day')
+            .hour(5)
+            .minute(59)
+            .second(59)
+            .millisecond(999),
         };
       }
 
@@ -1189,7 +1197,11 @@ class DashboardV4Controller {
       let avgAcceptedVendorHistoryDaily = {};
 
       // Check if filtering by date range with more than 1 day
-      const hasMultipleDates = date_from && date_to && dayjs(date_from).format('YYYY-MM-DD') !== dayjs(date_to).format('YYYY-MM-DD');
+      const hasMultipleDates =
+        date_from &&
+        date_to &&
+        dayjs(date_from).format('YYYY-MM-DD') !==
+          dayjs(date_to).format('YYYY-MM-DD');
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -3550,7 +3562,12 @@ class DashboardV4Controller {
       if (date_from && date_to) {
         q['date'] = {
           $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
-          $lte: dayjs(date_to).add(1, 'day').hour(5).minute(59).second(59).millisecond(999),
+          $lte: dayjs(date_to)
+            .add(1, 'day')
+            .hour(5)
+            .minute(59)
+            .second(59)
+            .millisecond(999),
         };
       }
 
@@ -3671,9 +3688,14 @@ class DashboardV4Controller {
       let grandTotalAccepted = 0;
       let grandTotalRejected = 0;
       let grandTotalFined = 0;
+      let grandTotalMultiple = 0;
 
       // Check if filtering by date range with more than 1 day
-      const hasMultipleDates = date_from && date_to && dayjs(date_from).format('YYYY-MM-DD') !== dayjs(date_to).format('YYYY-MM-DD');
+      const hasMultipleDates =
+        date_from &&
+        date_to &&
+        dayjs(date_from).format('YYYY-MM-DD') !==
+          dayjs(date_to).format('YYYY-MM-DD');
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -3720,6 +3742,8 @@ class DashboardV4Controller {
           totalLewatMatangDitolak,
           percentMatangDitolak,
           percentLewatMatangDitolak,
+
+          totalMultiple,
         } = utilsInspection.getTotalAndPercentClassificationNew(
           item,
           totalTandan
@@ -3729,6 +3753,7 @@ class DashboardV4Controller {
         grandTotalRejected += totalRejectedModified;
         grandTotalFined += totalFinedItem;
         grandTotalTandan += totalTandanItem;
+        grandTotalMultiple += totalMultiple;
 
         avgClassification['matang'].push(totalMatang);
         avgClassification['lewat_matang'].push(totalLewatMatang);
@@ -4438,12 +4463,15 @@ class DashboardV4Controller {
             total_passed: grandTotalAccepted,
             total_rejected: grandTotalRejected,
             total_fined: grandTotalFined,
+            total_multiple: grandTotalMultiple,
             percent_rejected:
               countPercentage(grandTotalRejected, grandTotalTandan) || 0,
             percent_passed:
               countPercentage(grandTotalAccepted, grandTotalTandan) || 0,
             percent_fined:
               countPercentage(grandTotalFined, grandTotalTandan) || 0,
+            percent_multiple:
+              countPercentage(grandTotalMultiple, grandTotalTandan) || 0,
           },
           average_grading: averageGrading,
           average_grading_trend: avgClassificationTrenData,
