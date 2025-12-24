@@ -2,7 +2,6 @@ const MachineLogsFileModel = require('../../models/machine-logs-file');
 const MachineLogsDataModel = require('../../models/machine-logs-data');
 const FactoryModel = require('../../models/factory');
 const { createResponseSuccess } = require('../../utils/helpers');
-const { getBasicQuery } = require('../../utils/query-helpers');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -15,8 +14,6 @@ class MachineLogsController {
         date = '',
         filename = '',
       } = req.query;
-
-      const { query } = getBasicQuery(req.query);
 
       let qp = {};
 
@@ -44,10 +41,7 @@ class MachineLogsController {
 
       const machineLogsFiles = await MachineLogsFileModel.aggregate([
         {
-          $match: {
-            ...query,
-            ...qp,
-          },
+          $match: qp,
         },
         {
           $lookup: {
@@ -66,10 +60,7 @@ class MachineLogsController {
         { $sort: { date: -1, updatedAt: -1 } },
       ]);
 
-      const totalData = await MachineLogsFileModel.countDocuments({
-        ...query,
-        ...qp,
-      });
+      const totalData = await MachineLogsFileModel.countDocuments(qp);
 
       return res.status(200).json(
         createResponseSuccess(
@@ -137,8 +128,6 @@ class MachineLogsController {
         end_date = '',
       } = req.query;
 
-      const { query } = getBasicQuery(req.query);
-
       let qp = {};
 
       // Filter by factory
@@ -188,10 +177,7 @@ class MachineLogsController {
 
       const machineLogsData = await MachineLogsDataModel.aggregate([
         {
-          $match: {
-            ...query,
-            ...qp,
-          },
+          $match: qp,
         },
         {
           $lookup: {
@@ -210,10 +196,7 @@ class MachineLogsController {
         { $sort: { date: -1, updatedAt: -1 } },
       ]);
 
-      const totalData = await MachineLogsDataModel.countDocuments({
-        ...query,
-        ...qp,
-      });
+      const totalData = await MachineLogsDataModel.countDocuments(qp);
 
       return res.status(200).json(
         createResponseSuccess(
