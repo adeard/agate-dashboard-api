@@ -902,6 +902,7 @@ class InspectionDataController {
         const totalAccepted = inspection['grading_result']['total_accepted'];
         const totalRejected = inspection['grading_result']['total_rejected'];
         const totalFined = inspection['grading_result']['total_fined'];
+        const totalMultiple = inspection['grading_result']['total_multiple'];
 
         const classificationSummary =
           inspection['grading_result']['classification_summary'];
@@ -917,12 +918,14 @@ class InspectionDataController {
         demografikSemua['total_accepted'] += totalAccepted;
         demografikSemua['total_fined'] += totalFined;
         demografikSemua['total_rejected'] += totalRejected;
+        demografikSemua['total_multiple'] += totalMultiple;
 
         if (Number(inspection['vendor_type']) === 1) {
           demografikInti['total_tandan'] += totalTandan;
           demografikInti['total_accepted'] += totalAccepted;
           demografikInti['total_fined'] += totalFined;
           demografikInti['total_rejected'] += totalRejected;
+          demografikInti['total_multiple'] += totalMultiple;
 
           if (!demografikVendorInti[vendorName]) {
             demografikVendorInti[vendorName] = { ...baseObjectIntiVendor };
@@ -938,6 +941,7 @@ class InspectionDataController {
           demografikExternal['total_accepted'] += totalAccepted;
           demografikExternal['total_fined'] += totalFined;
           demografikExternal['total_rejected'] += totalRejected;
+          demografikExternal['total_multiple'] += totalMultiple;
 
           if (!demografikVendorExternal[vendorName]) {
             demografikVendorExternal[vendorName] = {
@@ -957,6 +961,7 @@ class InspectionDataController {
           demografikPlasma['total_accepted'] += totalAccepted;
           demografikPlasma['total_fined'] += totalFined;
           demografikPlasma['total_rejected'] += totalRejected;
+          demografikPlasma['total_multiple'] += totalMultiple;
 
           if (!demografikVendorPlasma[vendorName]) {
             demografikVendorPlasma[vendorName] = { ...baseObjectPlasmaVendor };

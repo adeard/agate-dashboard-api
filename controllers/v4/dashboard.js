@@ -2013,6 +2013,7 @@ class DashboardV4Controller {
         'TBS Diterima',
         'TBS Ditolak',
         'TBS Didenda',
+        'TBS Multiple',
         'Mentah',
         'Matang',
         'Lewat Matang',
@@ -2702,6 +2703,9 @@ class DashboardV4Controller {
         item.grading_result.total_accepted,
         item.grading_result.total_rejected,
         item.grading_result.total_fined,
+        item.grading_result?.total_multiple
+          ? item.grading_result.total_multiple
+          : 0,
         totalMentah,
         totalMatang,
         totalLewatMatang,
