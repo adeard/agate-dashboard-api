@@ -11,6 +11,8 @@ const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
 const dayjs = require('dayjs');
 const MachineCheckModel = require('../../models/machine-check');
+const MachineLogsFileModel = require('../../models/machine-logs-file');
+const MachineLogsDataModel = require('../../models/machine-logs-data');
 
 const formatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 1,
@@ -624,6 +626,91 @@ class SyncDataController {
       );
     } catch (err) {
       console.error('Error syncing machine check:', {
+        error: err.message,
+        stack: err.stack,
+        body: req.body,
+      });
+      next(err);
+    }
+  }
+
+  static async syncMachineLogsFile(req, res, next) {
+    try {
+      const body = req.body;
+
+      delete body['is_integrated'];
+
+      await vBody('machine-logs-file', body);
+
+      const filter = {
+        filename: body.filename,
+        machine: body.machine,
+        factory: body.factory,
+      };
+
+      const machineLogsFile = await MachineLogsFileModel.findOneAndUpdate(
+        filter,
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+          runValidators: true,
+        }
+      );
+
+      return res.status(200).json(
+        createResponseSuccess(200, 'Success', 'Success sync machine logs file', {
+          id: machineLogsFile._id,
+        })
+      );
+    } catch (err) {
+      console.error('Error syncing machine logs file:', {
+        error: err.message,
+        stack: err.stack,
+        body: req.body,
+      });
+      next(err);
+    }
+  }
+
+  static async syncMachineLogsData(req, res, next) {
+    try {
+      const body = req.body;
+
+      delete body['is_integrated'];
+
+      await vBody('machine-logs-data', body);
+
+      if (body.date) {
+        body.date = new Date(body.date);
+      }
+
+      const filter = {
+        date: body.date,
+        code: body.code,
+        machine: body.machine,
+        factory: body.factory,
+      };
+
+      const machineLogsData = await MachineLogsDataModel.findOneAndUpdate(
+        filter,
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+          runValidators: true,
+        }
+      );
+
+      return res.status(200).json(
+        createResponseSuccess(200, 'Success', 'Success sync machine logs data', {
+          id: machineLogsData._id,
+        })
+      );
+    } catch (err) {
+      console.error('Error syncing machine logs data:', {
         error: err.message,
         stack: err.stack,
         body: req.body,
