@@ -167,6 +167,26 @@ const schemas = {
     factory: Joi.string().required(),
     machine: Joi.string().required(),
   }),
+
+  'machine-logs-file': Joi.object({
+    date: Joi.string().required(),
+    filename: Joi.string().required(),
+    filepath: Joi.string().required(),
+    factory: Joi.string().required(),
+    machine: Joi.string().required(),
+  }),
+
+  'machine-logs-data': Joi.object({
+    date: Joi.string().required(),
+    status: Joi.string().required(),
+    subject: Joi.string().required(),
+    notes: Joi.string().required(),
+    code: Joi.string().required(),
+    message: Joi.string().required(),
+    filename: Joi.string().required(),
+    factory: Joi.string().required(),
+    machine: Joi.string().required(),
+  }),
 };
 
 module.exports = {

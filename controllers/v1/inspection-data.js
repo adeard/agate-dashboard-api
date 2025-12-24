@@ -378,6 +378,14 @@ class InspectionDataController {
         Number(Number(total_rejected_percent).toFixed(1)) +
         Number(Number(total_accepted_percent).toFixed(1));
 
+      let total_multiple_percent =
+        inspections['grading_result']['total_multiple'] > 0
+          ? countPercentage(
+              inspections['grading_result']['total_multiple'],
+              inspections['grading_result']['total_tandan']
+            )
+          : 0;
+
       let classificationResult = generateClassificationResultArray(
         classificationData
       ).map((e) => changeValueToLocalestring(e));
@@ -434,10 +442,13 @@ class InspectionDataController {
             inspections['grading_result']['total_rejected'].toLocaleString(),
           total_fined:
             inspections['grading_result']['total_fined'].toLocaleString(),
+          total_multiple:
+            inspections['grading_result']['total_multiple'].toLocaleString(),
           total_accepted_percent: total_accepted_percent,
           total_rejected_percent: total_rejected_percent,
           total_fined_percent: total_fined_percent,
           total_percent: total_percent,
+          total_multiple_percent: total_multiple_percent,
         },
         classification_result: classificationResult,
         accepted_result: acceptedResult,
