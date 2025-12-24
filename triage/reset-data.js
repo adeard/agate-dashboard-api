@@ -243,7 +243,7 @@ connectToDatabase().then(async (res) => {
   //   { $set: { password: hashPassword('agate123') } }
   // );
 
-  const response = await InspectionDataModel.findOne({}).sort({ date: -1 });
+  // const response = await InspectionDataModel.findOne({}).sort({ date: -1 });
   // const response = await MachineCheckModel.find({}).lean();
 
   console.log({ response: response.grading_result });
