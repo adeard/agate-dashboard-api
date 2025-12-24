@@ -1,7 +1,6 @@
 const MachineCheckModel = require('../../models/machine-check');
 const FactoryModel = require('../../models/factory');
 const { createResponseSuccess } = require('../../utils/helpers');
-const { getBasicQuery } = require('../../utils/query-helpers');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -15,8 +14,6 @@ class MachineCheckController {
         start_date = '',
         end_date = '',
       } = req.query;
-
-      const { query } = getBasicQuery(req.query);
 
       let qp = {};
 
@@ -49,10 +46,7 @@ class MachineCheckController {
 
       const machineChecks = await MachineCheckModel.aggregate([
         {
-          $match: {
-            ...query,
-            ...qp,
-          },
+          $match: qp,
         },
         {
           $lookup: {
@@ -71,10 +65,7 @@ class MachineCheckController {
         { $sort: { date: -1, updatedAt: -1 } },
       ]);
 
-      const totalData = await MachineCheckModel.countDocuments({
-        ...query,
-        ...qp,
-      });
+      const totalData = await MachineCheckModel.countDocuments(qp);
 
       return res.status(200).json(
         createResponseSuccess(
@@ -96,8 +87,6 @@ class MachineCheckController {
     try {
       const { factory = '', machine = '', date = '' } = req.query;
 
-      const { query } = getBasicQuery(req.query);
-
       let qp = {};
 
       // Filter by factory
@@ -118,10 +107,7 @@ class MachineCheckController {
 
       const machineChecks = await MachineCheckModel.aggregate([
         {
-          $match: {
-            ...query,
-            ...qp,
-          },
+          $match: qp,
         },
         {
           $lookup: {
@@ -140,10 +126,7 @@ class MachineCheckController {
         { $sort: { date: -1, updatedAt: -1 } },
       ]);
 
-      const totalData = await MachineCheckModel.countDocuments({
-        ...query,
-        ...qp,
-      });
+      const totalData = await MachineCheckModel.countDocuments(qp);
 
       return res.status(200).json(
         createResponseSuccess(
