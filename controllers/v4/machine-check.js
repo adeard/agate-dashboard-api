@@ -94,40 +94,68 @@ class MachineCheckController {
 
   static async getMachineCheckDetail(req, res, next) {
     try {
-      const { id } = req.params;
+      const { factory = '', machine = '', date = '' } = req.query;
 
-      if (!ObjectId.isValid(id)) {
-        throw {
-          code: 400,
-          title: 'Bad Request',
-          message: 'Invalid machine check ID',
-        };
+      const { query } = getBasicQuery(req.query);
+
+      let qp = {};
+
+      // Filter by factory
+      if (factory) {
+        qp['factory'] = new ObjectId(factory);
       }
 
-      const machineCheck = await MachineCheckModel.find({
-        machine_check_id: id,
-      })
-        .populate('factory')
-        .lean();
-
-      if (!machineCheck) {
-        throw {
-          code: 404,
-          title: 'Not Found',
-          message: 'Machine check not found',
-        };
+      // Filter by machine
+      if (machine) {
+        const regexPattern = new RegExp(machine || '', 'i');
+        qp['machine'] = { $regex: regexPattern };
       }
 
-      return res
-        .status(200)
-        .json(
-          createResponseSuccess(
-            200,
-            'Success',
-            'Success get machine check detail',
-            machineCheck
-          )
-        );
+      // Filter by date
+      if (date) {
+        qp['date'] = new Date(date);
+      }
+
+      const machineChecks = await MachineCheckModel.aggregate([
+        {
+          $match: {
+            ...query,
+            ...qp,
+          },
+        },
+        {
+          $lookup: {
+            from: FactoryModel.collection.name,
+            localField: 'factory',
+            foreignField: '_id',
+            as: 'factory',
+          },
+        },
+        {
+          $unwind: {
+            path: '$factory',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $sort: { date: -1, updatedAt: -1 } },
+      ]);
+
+      const totalData = await MachineCheckModel.countDocuments({
+        ...query,
+        ...qp,
+      });
+
+      return res.status(200).json(
+        createResponseSuccess(
+          200,
+          'Success',
+          'Success get machine check detail',
+          machineChecks,
+          {
+            total_data: totalData,
+          }
+        )
+      );
     } catch (err) {
       next(err);
     }
