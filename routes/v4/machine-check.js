@@ -5,4 +5,4 @@ module.exports = (express) =>
   new express.Router()
     .use(authorization)
     .get('/', MachineCheckController.getAllMachineCheck)
-    .get('/:id', MachineCheckController.getMachineCheckDetail);
+    .get('/detail', MachineCheckController.getMachineCheckDetail);
