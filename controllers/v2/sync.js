@@ -600,6 +600,20 @@ class SyncDataController {
 
       await vBody('machine-check', body);
 
+      const factory = await FactoryModel.findOne({
+        name: body['factory'],
+      }).lean();
+
+      if (!factory) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Factory not found',
+        };
+      }
+
+      body['factory'] = factory._id;
+
       if (body.date) {
         body.date = new Date(body.date);
       }
@@ -642,6 +656,20 @@ class SyncDataController {
 
       await vBody('machine-logs-file', body);
 
+      const factory = await FactoryModel.findOne({
+        name: body['factory'],
+      }).lean();
+
+      if (!factory) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Factory not found',
+        };
+      }
+
+      body['factory'] = factory._id;
+
       const filter = {
         filename: body.filename,
         machine: body.machine,
@@ -660,9 +688,14 @@ class SyncDataController {
       );
 
       return res.status(200).json(
-        createResponseSuccess(200, 'Success', 'Success sync machine logs file', {
-          id: machineLogsFile._id,
-        })
+        createResponseSuccess(
+          200,
+          'Success',
+          'Success sync machine logs file',
+          {
+            id: machineLogsFile._id,
+          }
+        )
       );
     } catch (err) {
       console.error('Error syncing machine logs file:', {
@@ -681,6 +714,20 @@ class SyncDataController {
       delete body['is_integrated'];
 
       await vBody('machine-logs-data', body);
+
+      const factory = await FactoryModel.findOne({
+        name: body['factory'],
+      }).lean();
+
+      if (!factory) {
+        throw {
+          code: 404,
+          title: 'Not Found',
+          message: 'Factory not found',
+        };
+      }
+
+      body['factory'] = factory._id;
 
       if (body.date) {
         body.date = new Date(body.date);
@@ -705,9 +752,14 @@ class SyncDataController {
       );
 
       return res.status(200).json(
-        createResponseSuccess(200, 'Success', 'Success sync machine logs data', {
-          id: machineLogsData._id,
-        })
+        createResponseSuccess(
+          200,
+          'Success',
+          'Success sync machine logs data',
+          {
+            id: machineLogsData._id,
+          }
+        )
       );
     } catch (err) {
       console.error('Error syncing machine logs data:', {
