@@ -104,7 +104,9 @@ class MachineCheckController {
         };
       }
 
-      const machineCheck = await MachineCheckModel.findById(id)
+      const machineCheck = await MachineCheckModel.find({
+        machine_check_id: id,
+      })
         .populate('factory')
         .lean();
 
@@ -116,14 +118,16 @@ class MachineCheckController {
         };
       }
 
-      return res.status(200).json(
-        createResponseSuccess(
-          200,
-          'Success',
-          'Success get machine check detail',
-          machineCheck
-        )
-      );
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            'Success',
+            'Success get machine check detail',
+            machineCheck
+          )
+        );
     } catch (err) {
       next(err);
     }
