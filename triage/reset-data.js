@@ -15,6 +15,7 @@ const dayjs = require('dayjs');
 const WABroadcastModel = require('../models/wa-broadcast');
 const CompanyModel = require('../models/company');
 const MachineCheckModel = require('../models/machine-check');
+const MachineLogsFileModel = require('../models/machine-logs-file');
 
 // console.log(generateRandomPassword(6));
 
@@ -244,8 +245,9 @@ connectToDatabase().then(async (res) => {
   // );
 
   // const response = await InspectionDataModel.findOne({}).sort({ date: -1 });
-  // const response = await MachineCheckModel.find({}).lean();
+  const response = await MachineLogsFileModel.find({}).lean();
 
-  console.log({ response: response.grading_result });
+  console.log({ response: response });
   console.log('Done');
+  process.exit();
 });

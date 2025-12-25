@@ -1952,6 +1952,12 @@ class DashboardV4Controller {
   }
 
   static async generateExcel(req, res) {
+    const vendoryTypeDict = {
+      1: 'Inti',
+      2: 'Eksternal',
+      3: 'Plasma',
+    };
+
     // const user = req.user
     const { targetDate, targetEnd, company, factory } = req.query;
     if (!targetDate || !targetEnd) {
@@ -2009,6 +2015,7 @@ class DashboardV4Controller {
         'Surat Jalan',
         'Plat Nomor',
         'Vendor',
+        'Tipe Vendor',
         'Jumlah Janjang',
         'TBS Diterima',
         'TBS Ditolak',
@@ -2699,6 +2706,7 @@ class DashboardV4Controller {
         item.delivery_number,
         vehicleNumber,
         item.vendor_name,
+        vendoryTypeDict?.[item.vendor_type] || '-',
         item.grading_result.total_tandan,
         item.grading_result.total_accepted,
         item.grading_result.total_rejected,
