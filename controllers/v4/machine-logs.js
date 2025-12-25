@@ -24,8 +24,7 @@ class MachineLogsController {
 
       // Filter by machine
       if (machine) {
-        const regexPattern = new RegExp(machine || '', 'i');
-        qp['machine'] = { $regex: regexPattern };
+        qp['machine'] = { $regex: machine, $options: 'i' };
       }
 
       // Filter by date
@@ -35,8 +34,7 @@ class MachineLogsController {
 
       // Filter by filename
       if (filename) {
-        const regexPattern = new RegExp(filename || '', 'i');
-        qp['filename'] = { $regex: regexPattern };
+        qp['filename'] = { $regex: filename, $options: 'i' };
       }
 
       const machineLogsFiles = await MachineLogsFileModel.aggregate([
@@ -137,8 +135,7 @@ class MachineLogsController {
 
       // Filter by machine
       if (machine) {
-        const regexPattern = new RegExp(machine || '', 'i');
-        qp['machine'] = { $regex: regexPattern };
+        qp['machine'] = machine
       }
 
       // Filter by status
@@ -148,20 +145,17 @@ class MachineLogsController {
 
       // Filter by subject
       if (subject) {
-        const regexPattern = new RegExp(subject || '', 'i');
-        qp['subject'] = { $regex: regexPattern };
+        qp['subject'] = { $regex: subject, $options: 'i' };
       }
 
       // Filter by code
       if (code) {
-        const regexPattern = new RegExp(code || '', 'i');
-        qp['code'] = { $regex: regexPattern };
+        qp['code'] = { $regex: code, $options: 'i' };
       }
 
       // Filter by filename
       if (filename) {
-        const regexPattern = new RegExp(filename || '', 'i');
-        qp['filename'] = { $regex: regexPattern };
+        qp['filename'] = { $regex: filename, $options: 'i' };
       }
 
       // Filter by date range
