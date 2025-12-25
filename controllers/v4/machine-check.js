@@ -24,8 +24,7 @@ class MachineCheckController {
 
       // Filter by machine
       if (machine) {
-        const regexPattern = new RegExp(machine || '', 'i');
-        qp['machine'] = { $regex: regexPattern };
+        qp['machine'] = machine;
       }
 
       // Filter by type
@@ -96,8 +95,7 @@ class MachineCheckController {
 
       // Filter by machine
       if (machine) {
-        const regexPattern = new RegExp(machine || '', 'i');
-        qp['machine'] = { $regex: regexPattern };
+        qp['machine'] = { $regex: machine, $options: 'i' };
       }
 
       // Filter by date
