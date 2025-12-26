@@ -1866,6 +1866,7 @@ class DashboardV4Controller {
                 vendor_name: k,
                 supply: countPercentage(v.count, totalInspection),
                 percent: v.percent / v.count,
+                total: v.total,
               };
             })
             .sort((a, b) => b.supply - a.supply),
@@ -3867,86 +3868,109 @@ class DashboardV4Controller {
           avgClassificationVendor['matang'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['matang'][vendorName]['count'] += 1;
         avgClassificationVendor['matang'][vendorName]['percent'] +=
           percentMatang;
+        avgClassificationVendor['matang'][vendorName]['total'] += totalMatang;
 
         if (!avgClassificationVendor['lewat_matang'][vendorName]) {
           avgClassificationVendor['lewat_matang'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['lewat_matang'][vendorName]['count'] += 1;
         avgClassificationVendor['lewat_matang'][vendorName]['percent'] +=
           percentLewatMatang;
+        avgClassificationVendor['lewat_matang'][vendorName]['total'] +=
+          totalLewatMatang;
 
         if (!avgClassificationVendor['mentah'][vendorName]) {
           avgClassificationVendor['mentah'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['mentah'][vendorName]['count'] += 1;
         avgClassificationVendor['mentah'][vendorName]['percent'] +=
           percentMentah;
+        avgClassificationVendor['mentah'][vendorName]['total'] += totalMentah;
 
         if (!avgClassificationVendor['janjang_kosong'][vendorName]) {
           avgClassificationVendor['janjang_kosong'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['janjang_kosong'][vendorName]['count'] += 1;
         avgClassificationVendor['janjang_kosong'][vendorName]['percent'] +=
           percentJangkos;
+        avgClassificationVendor['janjang_kosong'][vendorName]['total'] +=
+          totalJanjangKosong;
 
         if (!avgClassificationVendor['buah_kecil_3'][vendorName]) {
           avgClassificationVendor['buah_kecil_3'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['buah_kecil_3'][vendorName]['count'] += 1;
         avgClassificationVendor['buah_kecil_3'][vendorName]['percent'] +=
           percentBuahKecil3;
+        avgClassificationVendor['buah_kecil_3'][vendorName]['total'] +=
+          totalBuahKecil3;
 
         if (!avgClassificationVendor['buah_kecil_5'][vendorName]) {
           avgClassificationVendor['buah_kecil_5'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['buah_kecil_5'][vendorName]['count'] += 1;
         avgClassificationVendor['buah_kecil_5'][vendorName]['percent'] +=
           percentBuahKecil5;
+        avgClassificationVendor['buah_kecil_5'][vendorName]['total'] +=
+          totalBuahKecil5;
 
         if (!avgClassificationVendor['tangkai_panjang'][vendorName]) {
           avgClassificationVendor['tangkai_panjang'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['tangkai_panjang'][vendorName]['count'] += 1;
         avgClassificationVendor['tangkai_panjang'][vendorName]['percent'] +=
           percentTangkaiPanjang;
+        avgClassificationVendor['tangkai_panjang'][vendorName]['total'] +=
+          totalTangkaiPanjang;
 
         // new
         if (!avgClassificationVendor['mentah_diterima'][vendorName]) {
           avgClassificationVendor['mentah_diterima'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['mentah_diterima'][vendorName]['count'] += 1;
         avgClassificationVendor['mentah_diterima'][vendorName]['percent'] +=
           percentMentahDiterima;
+        avgClassificationVendor['mentah_diterima'][vendorName]['total'] +=
+          totalMentahDiterima;
         if (!avgClassificationVendor['janjang_kosong_diterima'][vendorName]) {
           avgClassificationVendor['janjang_kosong_diterima'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['janjang_kosong_diterima'][vendorName][
@@ -3955,10 +3979,14 @@ class DashboardV4Controller {
         avgClassificationVendor['janjang_kosong_diterima'][vendorName][
           'percent'
         ] += percentJanjangKosongDiterima;
+        avgClassificationVendor['janjang_kosong_diterima'][vendorName][
+          'total'
+        ] += totalJanjangKosongDiterima;
         if (!avgClassificationVendor['buah_kecil_5_diterima'][vendorName]) {
           avgClassificationVendor['buah_kecil_5_diterima'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
@@ -3967,20 +3995,26 @@ class DashboardV4Controller {
         avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
           'percent'
         ] += percentBuahKecil5Diterima;
+        avgClassificationVendor['buah_kecil_5_diterima'][vendorName]['total'] +=
+          totalBuahKecil5Diterima;
         if (!avgClassificationVendor['matang_ditolak'][vendorName]) {
           avgClassificationVendor['matang_ditolak'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['matang_ditolak'][vendorName]['count'] += 1;
         avgClassificationVendor['matang_ditolak'][vendorName]['percent'] +=
           percentMatangDitolak;
+        avgClassificationVendor['matang_ditolak'][vendorName]['total'] +=
+          totalMatangDitolak;
 
         if (!avgClassificationVendor['lewat_matang_ditolak'][vendorName]) {
           avgClassificationVendor['lewat_matang_ditolak'][vendorName] = {
             count: 0,
             percent: 0,
+            total: 0,
           };
         }
         avgClassificationVendor['lewat_matang_ditolak'][vendorName][
@@ -3989,6 +4023,8 @@ class DashboardV4Controller {
         avgClassificationVendor['lewat_matang_ditolak'][vendorName][
           'percent'
         ] += percentLewatMatangDitolak;
+        avgClassificationVendor['lewat_matang_ditolak'][vendorName]['total'] +=
+          totalLewatMatangDitolak;
 
         if (!avgAcceptedVendor[vendorName]) {
           avgAcceptedVendor[vendorName] = [];
@@ -4429,6 +4465,7 @@ class DashboardV4Controller {
                 vendor_name: k,
                 supply: countPercentage(v.count, totalInspection),
                 percent: v.percent / v.count,
+                total: v.total,
               };
             })
             .sort((a, b) => b.supply - a.supply),
