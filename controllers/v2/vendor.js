@@ -45,7 +45,11 @@ class VendorV2Controller {
         { $sort: { updatedAt: -1 } },
       ]);
 
-      const totalData = await VendorV2Model.count({});
+      const totalData = await VendorV2Model.count({
+        ...query,
+        ...qp,
+        factory: new ObjectId(factory),
+      });
 
       return res.status(200).json(
         createResponseSuccess(
