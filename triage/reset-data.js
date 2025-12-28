@@ -250,190 +250,190 @@ connectToDatabase().then(async (res) => {
   // console.log({ response: response });
 
   // Fix vendor references for factory 68fc9b419a7c87b51e2002b5
-  // const factoryId = '68fc9b419a7c87b51e2002b5';
+  const factoryId = '68fc9b419a7c87b51e2002b5';
 
-  // const inspections = await InspectionDataModel.find({
-  //   factory: factoryId,
-  // }).lean();
-
-  // console.log(
-  //   `Found ${inspections.length} inspections for factory ${factoryId}`
-  // );
-
-  // // Get unique vendors (by vendor_id + name combination)
-  // const uniqueVendorsMap = {};
-  // inspections.forEach((inspection) => {
-  //   if (inspection.vendor_name && inspection.vendor_id) {
-  //     const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
-  //     if (!uniqueVendorsMap[key]) {
-  //       uniqueVendorsMap[key] = {
-  //         vendor_id: inspection.vendor_id,
-  //         vendor_name: inspection.vendor_name.trim(),
-  //         vendor_type: inspection.vendor_type || 1,
-  //       };
-  //     }
-  //   }
-  // });
-
-  // const uniqueVendors = Object.values(uniqueVendorsMap);
-  // console.log(`Found ${uniqueVendors.length} unique vendors to process`);
-
-  // // Create a map to store vendor ObjectIds
-  // const vendorIdMap = {};
-
-  // // Process each unique vendor using upsert to prevent duplicates
-  // await uniqueVendors.reduce(async (p, vendorData) => {
-  //   await p;
-
-  //   // Use findOneAndUpdate with upsert to atomically create if not exists
-  //   const vendor = await VendorV2Model.findOneAndUpdate(
-  //     {
-  //       id: vendorData.vendor_id,
-  //       factory: factoryId,
-  //     },
-  //     {
-  //       $setOnInsert: {
-  //         id: vendorData.vendor_id,
-  //         factory: factoryId,
-  //         name: vendorData.vendor_name,
-  //         type: vendorData.vendor_type,
-  //       },
-  //     },
-  //     {
-  //       upsert: true,
-  //       new: true,
-  //     }
-  //   ).lean();
-
-  //   const key = `${vendorData.vendor_id}_${vendorData.vendor_name}`;
-  //   vendorIdMap[key] = vendor._id;
-  //   console.log(
-  //     `Processed vendor: ${vendorData.vendor_name} (ID: ${vendorData.vendor_id}) -> ${vendor._id}`
-  //   );
-  // }, Promise.resolve());
-
-  // console.log('All vendors processed, now updating inspections...');
-
-  // // Now update all inspections with correct vendor ObjectIds
-  // let updated = 0;
-  // let skipped = 0;
-
-  // await inspections.reduce(async (p, inspection) => {
-  //   await p;
-
-  //   if (!inspection.vendor_name || !inspection.vendor_id) {
-  //     console.log(
-  //       `Skipping inspection ${inspection._id} - missing vendor info`
-  //     );
-  //     skipped++;
-  //     return;
-  //   }
-
-  //   const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
-  //   const vendorObjectId = vendorIdMap[key];
-
-  //   if (!vendorObjectId) {
-  //     console.log(`No vendor ObjectId found for ${key}`);
-  //     skipped++;
-  //     return;
-  //   }
-
-  //   // Update inspection data with vendor ObjectId
-  //   await InspectionDataModel.findByIdAndUpdate(inspection._id, {
-  //     $set: {
-  //       vendor: vendorObjectId,
-  //     },
-  //   });
-
-  //   updated++;
-  //   console.log(
-  //     `Updated inspection ${inspection._id} with vendor ${vendorObjectId} (${inspection.vendor_name})`
-  //   );
-  // }, Promise.resolve());
-
-  // console.log(
-  //   `Done! Updated ${updated} inspections, skipped ${skipped} inspections`
-  // );
-
-  // Remove duplicate vendors from VendorV2Model across ALL factories
-  const vendors = await VendorV2Model.find({}).lean();
-  console.log(`Found ${vendors.length} total vendors across all factories`);
-
-  // Group vendors by unique key (name + factory)
-  const vendorGroups = {};
-  vendors.forEach((vendor) => {
-    const key = `${vendor.name.trim()}_${vendor.factory}`;
-    if (!vendorGroups[key]) {
-      vendorGroups[key] = [];
-    }
-    vendorGroups[key].push(vendor);
-  });
-
-  const duplicateGroups = Object.entries(vendorGroups).filter(
-    ([, group]) => group.length > 1
-  );
+  const inspections = await InspectionDataModel.find({
+    factory: factoryId,
+  }).lean();
 
   console.log(
-    `Found ${duplicateGroups.length} groups with duplicate vendor names`
+    `Found ${inspections.length} inspections for factory ${factoryId}`
   );
 
-  let totalDuplicates = 0;
-  let deletedCount = 0;
-  let migratedCount = 0;
+  // Get unique vendors (by vendor_id + name combination)
+  const uniqueVendorsMap = {};
+  inspections.forEach((inspection) => {
+    if (inspection.vendor_name && inspection.vendor_id) {
+      const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
+      if (!uniqueVendorsMap[key]) {
+        uniqueVendorsMap[key] = {
+          vendor_id: inspection.vendor_id,
+          vendor_name: inspection.vendor_name.trim(),
+          vendor_type: inspection.vendor_type || 1,
+        };
+      }
+    }
+  });
 
-  // Process each group to find and remove duplicates
-  await duplicateGroups.reduce(async (p, [key, group]) => {
+  const uniqueVendors = Object.values(uniqueVendorsMap);
+  console.log(`Found ${uniqueVendors.length} unique vendors to process`);
+
+  // Create a map to store vendor ObjectIds
+  const vendorIdMap = {};
+
+  // Process each unique vendor using upsert to prevent duplicates
+  await uniqueVendors.reduce(async (p, vendorData) => {
     await p;
 
-    totalDuplicates += group.length - 1;
-    console.log(
-      `\nProcessing ${group.length} duplicates for "${group[0].name}" (${key})`
-    );
-
-    // Sort by createdAt to keep the oldest one
-    group.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
-    // Keep the first one (oldest)
-    const toKeep = group[0];
-    const toDelete = group.slice(1);
-
-    console.log(`  Keeping: ${toKeep._id} (created: ${toKeep.createdAt})`);
-
-    for (const vendor of toDelete) {
-      // Check if this vendor is used in any inspection
-      const inspectionCount = await InspectionDataModel.countDocuments({
-        vendor: vendor._id,
-      });
-
-      if (inspectionCount > 0) {
-        console.log(
-          `  Migrating ${inspectionCount} inspections from ${vendor._id} to ${toKeep._id}`
-        );
-
-        // Migrate inspections to the kept vendor
-        await InspectionDataModel.updateMany(
-          { vendor: vendor._id },
-          { $set: { vendor: toKeep._id } }
-        );
-
-        migratedCount += inspectionCount;
+    // Use findOneAndUpdate with upsert to atomically create if not exists
+    const vendor = await VendorV2Model.findOneAndUpdate(
+      {
+        id: vendorData.vendor_id,
+        factory: factoryId,
+      },
+      {
+        $setOnInsert: {
+          id: vendorData.vendor_id,
+          factory: factoryId,
+          name: vendorData.vendor_name,
+          type: vendorData.vendor_type,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
       }
+    ).lean();
 
-      // Now safe to delete
-      await VendorV2Model.findByIdAndDelete(vendor._id);
-      console.log(
-        `  Deleted ${vendor._id} (created: ${vendor.createdAt}) - ${inspectionCount} inspections migrated`
-      );
-      deletedCount++;
-    }
+    const key = `${vendorData.vendor_id}_${vendorData.vendor_name}`;
+    vendorIdMap[key] = vendor._id;
+    console.log(
+      `Processed vendor: ${vendorData.vendor_name} (ID: ${vendorData.vendor_id}) -> ${vendor._id}`
+    );
   }, Promise.resolve());
 
-  console.log(`
-Summary:
-- Total duplicate vendors found: ${totalDuplicates}
-- Successfully deleted: ${deletedCount}
-- Inspections migrated: ${migratedCount}
-  `);
+  console.log('All vendors processed, now updating inspections...');
+
+  // Now update all inspections with correct vendor ObjectIds
+  let updated = 0;
+  let skipped = 0;
+
+  await inspections.reduce(async (p, inspection) => {
+    await p;
+
+    if (!inspection.vendor_name || !inspection.vendor_id) {
+      console.log(
+        `Skipping inspection ${inspection._id} - missing vendor info`
+      );
+      skipped++;
+      return;
+    }
+
+    const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
+    const vendorObjectId = vendorIdMap[key];
+
+    if (!vendorObjectId) {
+      console.log(`No vendor ObjectId found for ${key}`);
+      skipped++;
+      return;
+    }
+
+    // Update inspection data with vendor ObjectId
+    await InspectionDataModel.findByIdAndUpdate(inspection._id, {
+      $set: {
+        vendor: vendorObjectId,
+      },
+    });
+
+    updated++;
+    console.log(
+      `Updated inspection ${inspection._id} with vendor ${vendorObjectId} (${inspection.vendor_name})`
+    );
+  }, Promise.resolve());
+
+  console.log(
+    `Done! Updated ${updated} inspections, skipped ${skipped} inspections`
+  );
+
+  //   // Remove duplicate vendors from VendorV2Model across ALL factories
+  //   const vendors = await VendorV2Model.find({}).lean();
+  //   console.log(`Found ${vendors.length} total vendors across all factories`);
+
+  //   // Group vendors by unique key (name + factory)
+  //   const vendorGroups = {};
+  //   vendors.forEach((vendor) => {
+  //     const key = `${vendor.name.trim()}_${vendor.factory}`;
+  //     if (!vendorGroups[key]) {
+  //       vendorGroups[key] = [];
+  //     }
+  //     vendorGroups[key].push(vendor);
+  //   });
+
+  //   const duplicateGroups = Object.entries(vendorGroups).filter(
+  //     ([, group]) => group.length > 1
+  //   );
+
+  //   console.log(
+  //     `Found ${duplicateGroups.length} groups with duplicate vendor names`
+  //   );
+
+  //   let totalDuplicates = 0;
+  //   let deletedCount = 0;
+  //   let migratedCount = 0;
+
+  //   // Process each group to find and remove duplicates
+  //   await duplicateGroups.reduce(async (p, [key, group]) => {
+  //     await p;
+
+  //     totalDuplicates += group.length - 1;
+  //     console.log(
+  //       `\nProcessing ${group.length} duplicates for "${group[0].name}" (${key})`
+  //     );
+
+  //     // Sort by createdAt to keep the oldest one
+  //     group.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+  //     // Keep the first one (oldest)
+  //     const toKeep = group[0];
+  //     const toDelete = group.slice(1);
+
+  //     console.log(`  Keeping: ${toKeep._id} (created: ${toKeep.createdAt})`);
+
+  //     for (const vendor of toDelete) {
+  //       // Check if this vendor is used in any inspection
+  //       const inspectionCount = await InspectionDataModel.countDocuments({
+  //         vendor: vendor._id,
+  //       });
+
+  //       if (inspectionCount > 0) {
+  //         console.log(
+  //           `  Migrating ${inspectionCount} inspections from ${vendor._id} to ${toKeep._id}`
+  //         );
+
+  //         // Migrate inspections to the kept vendor
+  //         await InspectionDataModel.updateMany(
+  //           { vendor: vendor._id },
+  //           { $set: { vendor: toKeep._id } }
+  //         );
+
+  //         migratedCount += inspectionCount;
+  //       }
+
+  //       // Now safe to delete
+  //       await VendorV2Model.findByIdAndDelete(vendor._id);
+  //       console.log(
+  //         `  Deleted ${vendor._id} (created: ${vendor.createdAt}) - ${inspectionCount} inspections migrated`
+  //       );
+  //       deletedCount++;
+  //     }
+  //   }, Promise.resolve());
+
+  //   console.log(`
+  // Summary:
+  // - Total duplicate vendors found: ${totalDuplicates}
+  // - Successfully deleted: ${deletedCount}
+  // - Inspections migrated: ${migratedCount}
+  //   `);
 
   console.log('Done');
   process.exit();

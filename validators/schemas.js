@@ -156,6 +156,7 @@ const schemas = {
     name: Joi.string().required(),
     type: Joi.number().required(),
     factory: Joi.string().required(),
+    bjr: Joi.string().optional(),
   }),
 
   'machine-check': Joi.object({
