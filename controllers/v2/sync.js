@@ -121,6 +121,7 @@ class SyncDataController {
             type: body['vendor_type'],
             factory: factory._id,
             vendor_id: body['vendor_id'],
+            bjr: body['bjr'] || '',
           },
           {
             upsert: true,

@@ -24,6 +24,9 @@ const SCHEMA = new Schema(
     vendor_id: {
       type: String,
     },
+    bjr: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
