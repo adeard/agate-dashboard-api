@@ -4287,8 +4287,7 @@ class DashboardV4Controller {
           total_multiple: item['grading_result']['total_multiple'],
           percent_multiple: countPercentage(
             item['grading_result']['total_multiple'],
-            item['grading_result']['total_tandan'],
-            true
+            item['grading_result']['total_tandan']
           ),
         };
 
