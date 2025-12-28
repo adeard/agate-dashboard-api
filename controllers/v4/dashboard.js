@@ -4284,6 +4284,12 @@ class DashboardV4Controller {
           finish_date: item.finish_date,
           mesin: item.machine,
           delivery_number: item.delivery_number,
+          total_multiple: item['grading_result']['total_multiple'],
+          percent_multiple: countPercentage(
+            item['grading_result']['total_multiple'],
+            item['grading_result']['total_tandan'],
+            true
+          ),
         };
 
         if (!avgAcceptedVendorHistory[vendorName]) {
