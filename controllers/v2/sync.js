@@ -112,7 +112,7 @@ class SyncDataController {
         vendor = await VendorV2Model.findOneAndUpdate(
           {
             name: body['vendor_name'].trim(),
-            factory: body['factory'],
+            factory: factory._id,
             id: body['vendor_id'],
           },
           {
