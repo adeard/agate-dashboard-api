@@ -66,10 +66,10 @@ class SyncDataController {
       await VendorV2Model.findOneAndUpdate(
         {
           name: body['name'].trim(),
-          factory: body['factory'],
+          factory: factory._id,
           id: body['id'],
         },
-        body,
+        { ...body, factory: factory._id },
         {
           upsert: true,
           new: true,
@@ -81,6 +81,7 @@ class SyncDataController {
         .status(200)
         .json(createResponseSuccess(200, 'Success', 'Success sync vendor', {}));
     } catch (err) {
+      console.log({err}, "<<< ERROR SYNC VENDOR")
       next(err);
     }
   }
