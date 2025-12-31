@@ -17,8 +17,7 @@ const SCHEMA = new Schema(
       enum: ['daily_before', 'daily_after', 'weekly', 'monthly'],
     },
     date: {
-      type: Date,
-      default: Date.now,
+      type: String,
     },
     notes: {
       type: String,

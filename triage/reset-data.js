@@ -51,8 +51,6 @@ connectToDatabase().then(async (res) => {
   // }).lean();
   // console.log({ users });
 
-  // await blastReportToUser();
-
   // const response = await WABroadcastModel.find({}).lean();
 
   // const sinarmas = await CompanyModel.create({
@@ -249,111 +247,111 @@ connectToDatabase().then(async (res) => {
 
   // console.log({ response: response });
 
-  // Fix vendor references for factory 68fc9b419a7c87b51e2002b5
-  const factoryId = '68fc9b419a7c87b51e2002b5';
+  // // Fix vendor references for factory 68fc9b419a7c87b51e2002b5
+  // const factoryId = '68fc9b419a7c87b51e2002b5';
 
-  const inspections = await InspectionDataModel.find({
-    factory: factoryId,
-  }).lean();
+  // const inspections = await InspectionDataModel.find({
+  //   factory: factoryId,
+  // }).lean();
 
-  console.log(
-    `Found ${inspections.length} inspections for factory ${factoryId}`
-  );
+  // console.log(
+  //   `Found ${inspections.length} inspections for factory ${factoryId}`
+  // );
 
-  // Get unique vendors (by vendor_id + name combination)
-  const uniqueVendorsMap = {};
-  inspections.forEach((inspection) => {
-    if (inspection.vendor_name && inspection.vendor_id) {
-      const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
-      if (!uniqueVendorsMap[key]) {
-        uniqueVendorsMap[key] = {
-          vendor_id: inspection.vendor_id,
-          vendor_name: inspection.vendor_name.trim(),
-          vendor_type: inspection.vendor_type || 1,
-        };
-      }
-    }
-  });
+  // // Get unique vendors (by vendor_id + name combination)
+  // const uniqueVendorsMap = {};
+  // inspections.forEach((inspection) => {
+  //   if (inspection.vendor_name && inspection.vendor_id) {
+  //     const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
+  //     if (!uniqueVendorsMap[key]) {
+  //       uniqueVendorsMap[key] = {
+  //         vendor_id: inspection.vendor_id,
+  //         vendor_name: inspection.vendor_name.trim(),
+  //         vendor_type: inspection.vendor_type || 1,
+  //       };
+  //     }
+  //   }
+  // });
 
-  const uniqueVendors = Object.values(uniqueVendorsMap);
-  console.log(`Found ${uniqueVendors.length} unique vendors to process`);
+  // const uniqueVendors = Object.values(uniqueVendorsMap);
+  // console.log(`Found ${uniqueVendors.length} unique vendors to process`);
 
-  // Create a map to store vendor ObjectIds
-  const vendorIdMap = {};
+  // // Create a map to store vendor ObjectIds
+  // const vendorIdMap = {};
 
-  // Process each unique vendor using upsert to prevent duplicates
-  await uniqueVendors.reduce(async (p, vendorData) => {
-    await p;
+  // // Process each unique vendor using upsert to prevent duplicates
+  // await uniqueVendors.reduce(async (p, vendorData) => {
+  //   await p;
 
-    // Use findOneAndUpdate with upsert to atomically create if not exists
-    const vendor = await VendorV2Model.findOneAndUpdate(
-      {
-        id: vendorData.vendor_id,
-        factory: factoryId,
-      },
-      {
-        $setOnInsert: {
-          id: vendorData.vendor_id,
-          factory: factoryId,
-          name: vendorData.vendor_name,
-          type: vendorData.vendor_type,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    ).lean();
+  //   // Use findOneAndUpdate with upsert to atomically create if not exists
+  //   const vendor = await VendorV2Model.findOneAndUpdate(
+  //     {
+  //       id: vendorData.vendor_id,
+  //       factory: factoryId,
+  //     },
+  //     {
+  //       $setOnInsert: {
+  //         id: vendorData.vendor_id,
+  //         factory: factoryId,
+  //         name: vendorData.vendor_name,
+  //         type: vendorData.vendor_type,
+  //       },
+  //     },
+  //     {
+  //       upsert: true,
+  //       new: true,
+  //     }
+  //   ).lean();
 
-    const key = `${vendorData.vendor_id}_${vendorData.vendor_name}`;
-    vendorIdMap[key] = vendor._id;
-    console.log(
-      `Processed vendor: ${vendorData.vendor_name} (ID: ${vendorData.vendor_id}) -> ${vendor._id}`
-    );
-  }, Promise.resolve());
+  //   const key = `${vendorData.vendor_id}_${vendorData.vendor_name}`;
+  //   vendorIdMap[key] = vendor._id;
+  //   console.log(
+  //     `Processed vendor: ${vendorData.vendor_name} (ID: ${vendorData.vendor_id}) -> ${vendor._id}`
+  //   );
+  // }, Promise.resolve());
 
-  console.log('All vendors processed, now updating inspections...');
+  // console.log('All vendors processed, now updating inspections...');
 
-  // Now update all inspections with correct vendor ObjectIds
-  let updated = 0;
-  let skipped = 0;
+  // // Now update all inspections with correct vendor ObjectIds
+  // let updated = 0;
+  // let skipped = 0;
 
-  await inspections.reduce(async (p, inspection) => {
-    await p;
+  // await inspections.reduce(async (p, inspection) => {
+  //   await p;
 
-    if (!inspection.vendor_name || !inspection.vendor_id) {
-      console.log(
-        `Skipping inspection ${inspection._id} - missing vendor info`
-      );
-      skipped++;
-      return;
-    }
+  //   if (!inspection.vendor_name || !inspection.vendor_id) {
+  //     console.log(
+  //       `Skipping inspection ${inspection._id} - missing vendor info`
+  //     );
+  //     skipped++;
+  //     return;
+  //   }
 
-    const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
-    const vendorObjectId = vendorIdMap[key];
+  //   const key = `${inspection.vendor_id}_${inspection.vendor_name.trim()}`;
+  //   const vendorObjectId = vendorIdMap[key];
 
-    if (!vendorObjectId) {
-      console.log(`No vendor ObjectId found for ${key}`);
-      skipped++;
-      return;
-    }
+  //   if (!vendorObjectId) {
+  //     console.log(`No vendor ObjectId found for ${key}`);
+  //     skipped++;
+  //     return;
+  //   }
 
-    // Update inspection data with vendor ObjectId
-    await InspectionDataModel.findByIdAndUpdate(inspection._id, {
-      $set: {
-        vendor: vendorObjectId,
-      },
-    });
+  //   // Update inspection data with vendor ObjectId
+  //   await InspectionDataModel.findByIdAndUpdate(inspection._id, {
+  //     $set: {
+  //       vendor: vendorObjectId,
+  //     },
+  //   });
 
-    updated++;
-    console.log(
-      `Updated inspection ${inspection._id} with vendor ${vendorObjectId} (${inspection.vendor_name})`
-    );
-  }, Promise.resolve());
+  //   updated++;
+  //   console.log(
+  //     `Updated inspection ${inspection._id} with vendor ${vendorObjectId} (${inspection.vendor_name})`
+  //   );
+  // }, Promise.resolve());
 
-  console.log(
-    `Done! Updated ${updated} inspections, skipped ${skipped} inspections`
-  );
+  // console.log(
+  //   `Done! Updated ${updated} inspections, skipped ${skipped} inspections`
+  // );
 
   //   // Remove duplicate vendors from VendorV2Model across ALL factories
   //   const vendors = await VendorV2Model.find({}).lean();
