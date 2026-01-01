@@ -81,7 +81,7 @@ class SyncDataController {
         .status(200)
         .json(createResponseSuccess(200, 'Success', 'Success sync vendor', {}));
     } catch (err) {
-      console.log({err}, "<<< ERROR SYNC VENDOR")
+      console.log({ err }, '<<< ERROR SYNC VENDOR');
       next(err);
     }
   }
@@ -634,7 +634,7 @@ class SyncDataController {
 
       const machineCheck = await MachineCheckModel.findOneAndUpdate(
         filter,
-        body,
+        { ...body, date_string: body.date },
         {
           upsert: true,
           new: true,
