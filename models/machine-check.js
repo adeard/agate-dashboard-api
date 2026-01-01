@@ -17,7 +17,7 @@ const SCHEMA = new Schema(
       enum: ['daily_before', 'daily_after', 'weekly', 'monthly'],
     },
     date: {
-      type: String,
+      type: Date,
     },
     notes: {
       type: String,
@@ -28,6 +28,9 @@ const SCHEMA = new Schema(
       ref: 'GradingHQ_FACTORY',
     },
     machine: {
+      type: String,
+    },
+    date_string: {
       type: String,
     },
   },
