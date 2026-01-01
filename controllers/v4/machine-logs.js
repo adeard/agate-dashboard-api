@@ -158,14 +158,16 @@ class MachineLogsController {
         qp['filename'] = { $regex: filename, $options: 'i' };
       }
 
-      // Filter by date range
+      // Filter by date range (date is stored as string with time)
       if (start_date || end_date) {
         qp['date'] = {};
         if (start_date) {
-          qp['date']['$gte'] = new Date(start_date);
+          // If date doesn't include time, add start of day
+          qp['date']['$gte'] = start_date.includes(':') ? start_date : `${start_date} 00:00:00`;
         }
         if (end_date) {
-          qp['date']['$lte'] = new Date(end_date);
+          // If date doesn't include time, add end of day
+          qp['date']['$lte'] = end_date.includes(':') ? end_date : `${end_date} 23:59:59`;
         }
       }
 
