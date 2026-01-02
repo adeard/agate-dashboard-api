@@ -752,7 +752,10 @@ class SyncDataController {
 
       const machineLogsData = await MachineLogsDataModel.findOneAndUpdate(
         filter,
-        body,
+        {
+          ...body,
+          date_string: dayjs(body['date']).format('HH:mm:ss DD/MM/YYYY'),
+        },
         {
           upsert: true,
           new: true,
