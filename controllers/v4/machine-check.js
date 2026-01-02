@@ -13,6 +13,7 @@ class MachineCheckController {
         type = '',
         start_date = '',
         end_date = '',
+        group = '',
       } = req.query;
 
       let qp = {};
@@ -41,6 +42,10 @@ class MachineCheckController {
         if (end_date) {
           qp['date']['$lte'] = new Date(end_date);
         }
+      }
+
+      if (group) {
+        qp['group'] = String(group).trim;
       }
 
       const machineChecks = await MachineCheckModel.aggregate([
