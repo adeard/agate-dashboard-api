@@ -167,7 +167,7 @@ const schemas = {
     notes: Joi.string().optional(),
     factory: Joi.string().required(),
     machine: Joi.string().required(),
-    group: Joi.string().allow(null).optional,
+    group: Joi.string().allow(null).optional(),
   }),
 
   'machine-logs-file': Joi.object({
