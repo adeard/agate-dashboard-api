@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const NAME = 'GradingHQ_gMachineCheck';
+const NAME = 'GradingHQ_MachineCheck';
 
 const SCHEMA = new Schema(
   {
@@ -30,7 +30,7 @@ const SCHEMA = new Schema(
     machine: {
       type: String,
     },
-    date_string: {
+    group: {
       type: String,
     },
   },
