@@ -45,7 +45,7 @@ class MachineCheckController {
       }
 
       if (group) {
-        qp['group'] = String(group).trim;
+        qp['group'] = String(group).trim();
       }
 
       const machineChecks = await MachineCheckModel.aggregate([

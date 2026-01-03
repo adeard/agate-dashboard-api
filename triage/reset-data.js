@@ -16,6 +16,7 @@ const WABroadcastModel = require('../models/wa-broadcast');
 const CompanyModel = require('../models/company');
 const MachineCheckModel = require('../models/machine-check');
 const MachineLogsFileModel = require('../models/machine-logs-file');
+const MachineLogsDataModel = require('../models/machine-logs-data');
 
 // console.log(generateRandomPassword(6));
 
@@ -432,6 +433,9 @@ connectToDatabase().then(async (res) => {
   // - Successfully deleted: ${deletedCount}
   // - Inspections migrated: ${migratedCount}
   //   `);
+
+  await MachineLogsFileModel.deleteMany({});
+  await MachineLogsDataModel.deleteMany({});
 
   console.log('Done');
   process.exit();
