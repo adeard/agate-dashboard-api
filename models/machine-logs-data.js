@@ -5,6 +5,10 @@ const NAME = 'GradingHQ_gMachineLogsData';
 const SCHEMA = new Schema(
   {
     date: {
+      type: Date,
+      required: true,
+    },
+    date_string: {
       type: String,
       required: true,
     },
