@@ -108,6 +108,11 @@ class MachineCheckController {
         qp['date'] = new Date(date);
       }
 
+      // Filter by date
+      if (group) {
+        qp['group'] = String(group).trim();
+      }
+
       const machineChecks = await MachineCheckModel.aggregate([
         {
           $match: qp,
