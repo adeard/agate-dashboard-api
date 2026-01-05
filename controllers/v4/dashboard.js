@@ -2410,15 +2410,20 @@ class DashboardV4Controller {
         item.grading_result['classification_summary']['MENTAH'][
           'BUAH KECIL DIBAWAH 5KG'
         ];
+      // const totalJanjangKosong =
+      //   item.grading_result['classification_summary']['JANJANG KOSONG'][
+      //     'TOTAL'
+      //   ] -
+      //   item.grading_result['classification_summary']['JANJANG KOSONG'][
+      //     'BUAH KECIL DIBAWAH 3KG'
+      //   ] -
+      //   item.grading_result['classification_summary']['JANJANG KOSONG'][
+      //     'BUAH KECIL DIBAWAH 5KG'
+      //   ];
+
       const totalJanjangKosong =
         item.grading_result['classification_summary']['JANJANG KOSONG'][
           'TOTAL'
-        ] -
-        item.grading_result['classification_summary']['JANJANG KOSONG'][
-          'BUAH KECIL DIBAWAH 3KG'
-        ] -
-        item.grading_result['classification_summary']['JANJANG KOSONG'][
-          'BUAH KECIL DIBAWAH 5KG'
         ];
 
       const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
@@ -2427,8 +2432,10 @@ class DashboardV4Controller {
         (obj, key) => {
           const data = item['grading_result']['classification_summary'][key];
 
-          obj['totalBuahKecil3'] += data['BUAH KECIL DIBAWAH 3KG'];
-          obj['totalBuahKecil5'] += data['BUAH KECIL DIBAWAH 5KG'];
+          obj['totalBuahKecil3'] +=
+            key === 'JANJANG KOSONG' ? 0 : data['BUAH KECIL DIBAWAH 3KG'];
+          obj['totalBuahKecil5'] +=
+            key === 'JANJANG KOSONG' ? 0 : data['BUAH KECIL DIBAWAH 5KG'];
           obj['totalTangkaiPanjang'] += data['TANGKAI PANJANG'];
 
           return obj;

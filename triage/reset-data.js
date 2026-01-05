@@ -17,6 +17,7 @@ const CompanyModel = require('../models/company');
 const MachineCheckModel = require('../models/machine-check');
 const MachineLogsFileModel = require('../models/machine-logs-file');
 const MachineLogsDataModel = require('../models/machine-logs-data');
+const { name } = require('dayjs/locale/id');
 
 // console.log(generateRandomPassword(6));
 
@@ -434,8 +435,21 @@ connectToDatabase().then(async (res) => {
   // - Inspections migrated: ${migratedCount}
   //   `);
 
-  await MachineLogsFileModel.deleteMany({});
-  await MachineLogsDataModel.deleteMany({});
+  // await MachineLogsFileModel.deleteMany({});
+
+  const comp = await CompanyModel.create({
+    name: 'Group HPI',
+    initial: 'HPI',
+    image_name: '',
+    location: 'Sumatera',
+  });
+  const factory = await FactoryModel.create({
+    name: 'ENGM',
+    company: comp._id,
+    location: '',
+  });
+
+  console.log({ factory });
 
   console.log('Done');
   process.exit();
