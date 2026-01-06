@@ -110,6 +110,19 @@ const utilsInspection = {
       item.grading_result['rejected_summary']['JANJANG KOSONG'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
+    const totalRusakDimakanTikus = item.grading_result['rejected_summary']?.[
+      'RUSAK DIMAKAN TIKUS'
+    ]
+      ? item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'TOTAL'
+        ] -
+        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
     const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
       item.grading_result['rejected_summary']
     ).reduce(
@@ -163,6 +176,10 @@ const utilsInspection = {
       totalBuahKecil3 + totalBuahKecil5,
       totalTandan
     );
+    const percentRusakDimakanTikus = countPercentage(
+      totalRusakDimakanTikus,
+      totalTandan
+    );
 
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
@@ -210,6 +227,9 @@ const utilsInspection = {
       percentMentahDiterima,
       percentJanjangKosongDiterima,
       percentBuahKecil5Diterima,
+      percentBuahKecil5Diterima,
+      totalRusakDimakanTikus,
+      percentRusakDimakanTikus,
     };
   },
   getAllMonitoringData: (inspections) => {
@@ -408,6 +428,19 @@ const utilsInspection = {
           'BUAH KECIL DIBAWAH 5KG'
         ]
       : 0;
+    const totalRusakDimakanTikus = item.grading_result['rejected_summary']?.[
+      'RUSAK DIMAKAN TIKUS'
+    ]
+      ? item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'TOTAL'
+        ] -
+        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'BUAH KECIL DIBAWAH 3KG'
+        ] -
+        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
+          'BUAH KECIL DIBAWAH 5KG'
+        ]
+      : 0;
 
     const totalMatangDitolak = item.grading_result['rejected_summary']?.[
       'MATANG'
@@ -486,6 +519,10 @@ const utilsInspection = {
       totalTandan
     );
 
+    const percentRusakDimakanTikus = countPercentage(
+      totalRusakDimakanTikus,
+      totalTandan
+    );
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
       totalTandan
@@ -525,7 +562,8 @@ const utilsInspection = {
       totalBuahKecil3 +
       totalBuahKecil5 +
       totalMatangDitolak +
-      totalLewatMatangDitolak;
+      totalLewatMatangDitolak +
+      totalRusakDimakanTikus;
 
     const totalMultiple = item.grading_result?.['total_multiple'] || 0;
 
@@ -565,6 +603,10 @@ const utilsInspection = {
       totalLewatMatangDitolak,
       percentMatangDitolak,
       percentLewatMatangDitolak,
+      percentMatangDitolak,
+      percentLewatMatangDitolak,
+      totalRusakDimakanTikus,
+      percentRusakDimakanTikus,
     };
   },
 };
@@ -1071,7 +1113,21 @@ class DashboardV4Controller {
 
       const weeks = generateWeeks(year);
       const days = generateDatesByYear(year, 'DD/MM/YY');
-      const months = generateMonths(year);
+      let months = generateMonths(year);
+
+      if (date_from && date_to) {
+        months = [];
+        let currentMonth = dayjs(date_from).startOf('month');
+        const endMonth = dayjs(date_to).endOf('month');
+
+        while (
+          currentMonth.isBefore(endMonth) ||
+          currentMonth.isSame(endMonth, 'month')
+        ) {
+          months.push(currentMonth.format('MMMM YYYY'));
+          currentMonth = currentMonth.add(1, 'month');
+        }
+      }
 
       let q = { company: user.company };
 
@@ -1138,6 +1194,7 @@ class DashboardV4Controller {
         buah_kecil_3: [],
         buah_kecil_5: [],
         tangkai_panjang: [],
+        rusak_dimakan_tikus: []
       };
       const avgAcceptedVendor = {};
       const summaryPerformance = {
@@ -1179,6 +1236,7 @@ class DashboardV4Controller {
         buah_kecil_3: {},
         buah_kecil_5: {},
         tangkai_panjang: {},
+        rusak_dimakan_tikus: {},
       };
       let avgClassificationVendor = {
         matang: {},
@@ -1191,6 +1249,7 @@ class DashboardV4Controller {
         buah_kecil_3: {},
         buah_kecil_5: {},
         tangkai_panjang: {},
+        rusak_dimakan_tikus: {},
       };
 
       let avgAcceptedVendorHistory = {};
@@ -1244,6 +1303,7 @@ class DashboardV4Controller {
           percentMentahDiterima,
           percentJanjangKosongDiterima,
           percentBuahKecil5Diterima,
+          percentRusakDimakanTikus,
         } = utilsInspection.getTotalAndPercentClassification(item, totalTandan);
 
         avgClassification['matang'].push(percentMatang);
@@ -1253,6 +1313,7 @@ class DashboardV4Controller {
         avgClassification['buah_kecil_3'].push(percentBuahKecil3);
         avgClassification['buah_kecil_5'].push(percentBuahKecil5);
         avgClassification['tangkai_panjang'].push(percentTangkaiPanjang);
+        avgClassification['rusak_dimakan_tikus'].push(percentRusakDimakanTikus);
 
         avgClassification['mentah_diterima'].push(percentMentahDiterima);
         avgClassification['janjang_kosong_diterima'].push(
@@ -1297,6 +1358,13 @@ class DashboardV4Controller {
         }
         avgClassificationTren['tangkai_panjang'][day].push(
           percentTangkaiPanjang
+        );
+
+        if (!avgClassificationTren['rusak_dimakan_tikus'][day]) {
+          avgClassificationTren['rusak_dimakan_tikus'][day] = [];
+        }
+        avgClassificationTren['rusak_dimakan_tikus'][day].push(
+          percentRusakDimakanTikus
         );
 
         // new
@@ -1388,6 +1456,16 @@ class DashboardV4Controller {
         avgClassificationVendor['tangkai_panjang'][vendorName]['count'] += 1;
         avgClassificationVendor['tangkai_panjang'][vendorName]['percent'] +=
           percentTangkaiPanjang;
+
+        if (!avgClassificationVendor['rusak_dimakan_tikus'][vendorName]) {
+          avgClassificationVendor['rusak_dimakan_tikus'][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
+        }
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] += 1;
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['percent'] +=
+          percentRusakDimakanTikus;
 
         // new
         if (!avgClassificationVendor['mentah_diterima'][vendorName]) {
