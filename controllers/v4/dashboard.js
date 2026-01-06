@@ -3727,7 +3727,21 @@ class DashboardV4Controller {
 
       const weeks = generateWeeks(year);
       const days = generateDatesByYear(year, 'DD/MM/YY');
-      const months = generateMonths(year);
+      let months = generateMonths(year);
+
+      if (date_from && date_to) {
+        months = [];
+        let currentMonth = dayjs(date_from).startOf('month');
+        const endMonth = dayjs(date_to).endOf('month');
+
+        while (
+          currentMonth.isBefore(endMonth) ||
+          currentMonth.isSame(endMonth, 'month')
+        ) {
+          months.push(currentMonth.format('MMMM YYYY'));
+          currentMonth = currentMonth.add(1, 'month');
+        }
+      }
 
       let q = { company: user.company };
 
@@ -3798,6 +3812,7 @@ class DashboardV4Controller {
         buah_kecil_5: [],
         matang_ditolak: [],
         lewat_matang_ditolak: [],
+        rusak_dimakan_tikus: [],
       };
       const avgAcceptedVendor = {};
       const summaryPerformance = {
@@ -3841,6 +3856,7 @@ class DashboardV4Controller {
         tangkai_panjang: {},
         matang_ditolak: {},
         lewat_matang_ditolak: {},
+        rusak_dimakan_tikus: {},
       };
       let avgClassificationVendor = {
         matang: {},
@@ -3855,6 +3871,7 @@ class DashboardV4Controller {
         tangkai_panjang: {},
         matang_ditolak: {},
         lewat_matang_ditolak: {},
+        rusak_dimakan_tikus: {},
       };
 
       let avgAcceptedVendorHistory = {};
@@ -3920,6 +3937,8 @@ class DashboardV4Controller {
           percentLewatMatangDitolak,
 
           totalMultiple,
+          percentRusakDimakanTikus,
+          totalRusakDimakanTikus
         } = utilsInspection.getTotalAndPercentClassificationNew(
           item,
           totalTandan
@@ -3949,6 +3968,7 @@ class DashboardV4Controller {
 
         avgClassification['matang_ditolak'].push(totalMatangDitolak);
         avgClassification['lewat_matang_ditolak'].push(totalLewatMatangDitolak);
+        avgClassification['rusak_dimakan_tikus'].push(totalRusakDimakanTikus);
 
         if (!avgClassificationTren['matang'][day]) {
           avgClassificationTren['matang'][day] = [];
@@ -4016,6 +4036,13 @@ class DashboardV4Controller {
         }
         avgClassificationTren['lewat_matang_ditolak'][day].push(
           percentLewatMatangDitolak
+        );
+
+        if (!avgClassificationTren['rusak_dimakan_tikus'][day]) {
+          avgClassificationTren['rusak_dimakan_tikus'][day] = [];
+        }
+        avgClassificationTren['rusak_dimakan_tikus'][day].push(
+          percentRusakDimakanTikus
         );
 
         if (!avgClassificationVendor['matang'][vendorName]) {
@@ -4179,6 +4206,19 @@ class DashboardV4Controller {
         ] += percentLewatMatangDitolak;
         avgClassificationVendor['lewat_matang_ditolak'][vendorName]['total'] +=
           totalLewatMatangDitolak;
+
+        if (!avgClassificationVendor['rusak_dimakan_tikus'][vendorName]) {
+          avgClassificationVendor['rusak_dimakan_tikus'][vendorName] = {
+            count: 0,
+            percent: 0,
+            total: 0,
+          };
+        }
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] += 1;
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['percent'] +=
+          percentRusakDimakanTikus;
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['total'] +=
+          totalRusakDimakanTikus;
 
         if (!avgAcceptedVendor[vendorName]) {
           avgAcceptedVendor[vendorName] = [];
