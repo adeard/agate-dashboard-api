@@ -110,19 +110,21 @@ const utilsInspection = {
       item.grading_result['rejected_summary']['JANJANG KOSONG'][
         'BUAH KECIL DIBAWAH 5KG'
       ];
-    const totalRusakDimakanTikus = item.grading_result['rejected_summary']?.[
-      'RUSAK DIMAKAN TIKUS'
-    ]
-      ? item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'TOTAL'
-        ] -
-        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'BUAH KECIL DIBAWAH 3KG'
-        ] -
-        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'BUAH KECIL DIBAWAH 5KG'
-        ]
-      : 0;
+
+
+    const { totalRusakDimakanTikus } = Object.keys(
+      item.grading_result['rejected_summary']
+    ).reduce(
+      (obj, key) => {
+        const data = item['grading_result']['rejected_summary'][key];
+
+        obj['totalRusakDimakanTikus'] += data['RUSAK DIMAKAN TIKUS'] || 0;
+
+        return obj;
+      },
+      { totalRusakDimakanTikus: 0 }
+    );
+
     const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
       item.grading_result['rejected_summary']
     ).reduce(
@@ -428,19 +430,21 @@ const utilsInspection = {
           'BUAH KECIL DIBAWAH 5KG'
         ]
       : 0;
-    const totalRusakDimakanTikus = item.grading_result['rejected_summary']?.[
-      'RUSAK DIMAKAN TIKUS'
-    ]
-      ? item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'TOTAL'
-        ] -
-        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'BUAH KECIL DIBAWAH 3KG'
-        ] -
-        item.grading_result['rejected_summary']['RUSAK DIMAKAN TIKUS'][
-          'BUAH KECIL DIBAWAH 5KG'
-        ]
-      : 0;
+
+
+    const { totalRusakDimakanTikus } = Object.keys(
+      item.grading_result['rejected_summary']
+    ).reduce(
+      (obj, key) => {
+        const data = item['grading_result']['rejected_summary'][key];
+
+        obj['totalRusakDimakanTikus'] += data['RUSAK DIMAKAN TIKUS'] || 0;
+
+        return obj;
+      },
+      { totalRusakDimakanTikus: 0 }
+    );
+
 
     const totalMatangDitolak = item.grading_result['rejected_summary']?.[
       'MATANG'
