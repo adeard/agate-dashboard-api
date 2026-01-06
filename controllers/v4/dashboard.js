@@ -725,6 +725,52 @@ const generateChartArrayFromObject = (data = {}, isArrayValue = false) => {
         })
         .filter(Boolean);
 
+      if (key === 'monthly') {
+        const monthOrder = {
+          January: 1,
+          February: 2,
+          March: 3,
+          April: 4,
+          May: 5,
+          June: 6,
+          July: 7,
+          August: 8,
+          September: 9,
+          October: 10,
+          November: 11,
+          December: 12,
+        };
+
+        obj[key].sort((a, b) => {
+          const [monthA, yearA] = a.title.split(' ');
+          const [monthB, yearB] = b.title.split(' ');
+
+          if (yearA !== yearB) {
+            return Number(yearA) - Number(yearB);
+          }
+          return monthOrder[monthA] - monthOrder[monthB];
+        });
+      } else if (key === 'daily') {
+        obj[key].sort((a, b) => {
+          const [dayA, monthA, yearA] = a.title.split('/');
+          const [dayB, monthB, yearB] = b.title.split('/');
+          
+          const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
+          const dateB = new Date(`${yearB}-${monthB}-${dayB}`); // Assuming DD/MM/YYYY format based on usage
+          
+          // Fallback if parsing fails or logical comparison
+          if (dateA && dateB && !isNaN(dateA) && !isNaN(dateB)) {
+             return dateA - dateB;
+          }
+           // if date format is DD/MM/YY
+           const fullYearA = Number(yearA) < 100 ? 2000 + Number(yearA) : Number(yearA);
+           const fullYearB = Number(yearB) < 100 ? 2000 + Number(yearB) : Number(yearB);
+            const dA = new Date(fullYearA, Number(monthA)-1, Number(dayA));
+            const dB = new Date(fullYearB, Number(monthB)-1, Number(dayB));
+            return dA - dB;
+        });
+      }
+
       return obj;
     },
     { daily: [], monthly: [], weekly: [] }
@@ -1652,6 +1698,7 @@ class DashboardV4Controller {
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
+            'Rusak Dimakan Tikus',
           ],
           [
             percentMentah,
@@ -1659,6 +1706,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            percentRusakDimakanTikus,
           ],
           true
         );
@@ -1672,6 +1720,7 @@ class DashboardV4Controller {
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
+            'Rusak Dimakan Tikus',
           ],
           [
             percentMentah,
@@ -1679,6 +1728,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            percentRusakDimakanTikus,
           ],
           true
         );
@@ -1692,6 +1742,7 @@ class DashboardV4Controller {
             'Janjang Kosong',
             'Buah <3kg',
             'Buah 3-5kg',
+            'Rusak Dimakan Tikus',
           ],
           [
             percentMentah,
@@ -1699,6 +1750,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            percentRusakDimakanTikus,
           ],
           true
         );
