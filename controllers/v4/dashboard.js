@@ -795,6 +795,7 @@ function processInspectionData(inspections) {
     percent_janjang_kosong: false,
     percent_buah_kecil: false,
     percent_tangkai_panjang: false,
+    percent_rusak_dimakan_tikus: false,
   };
 
   // Get all percentage metrics (excluding "percent_accepted" as it's not in the ranking criteria)
@@ -845,6 +846,7 @@ function processVendorData(vendors) {
     avg_janjang_kosong: false,
     avg_buah_kecil: false,
     avg_tangkai_panjang: false,
+    avg_rusak_dimakan_tikus: false,
     avg_accepted: true,
     count: true,
     percent_supply: true,
@@ -1036,6 +1038,7 @@ function addRankingsWithTieHandling(data, classification) {
     'tangkai_panjang',
     'buah_kecil_3',
     'buah_kecil_5',
+    'rusak_dimakan_tikus',
   ];
 
   // Determine sort direction based on classification
@@ -1730,6 +1733,7 @@ class DashboardV4Controller {
             mentah: 0,
             janjang_kosong: 0,
             buah_kecil: 0,
+            rusak_dimakan_tikus: 0,
           };
         }
 
@@ -1742,6 +1746,8 @@ class DashboardV4Controller {
         averageVendor[vendorName]['mentah'] += percentMentah;
         averageVendor[vendorName]['janjang_kosong'] += percentJangkos;
         averageVendor[vendorName]['buah_kecil'] += percentBuahKecil;
+        averageVendor[vendorName]['rusak_dimakan_tikus'] +=
+          percentRusakDimakanTikus;
 
         const payload = {
           _id: item._id,
@@ -1756,6 +1762,7 @@ class DashboardV4Controller {
           percent_buah_kecil: percentBuahKecil3,
           percent_buah_kecil_5: percentBuahKecil5,
           percent_tangkai_panjang: percentTangkaiPanjang,
+          percent_rusak_dimakan_tikus: percentRusakDimakanTikus,
           total_tandan: item['grading_result']['total_tandan'],
           vendor_name: vendorName,
           vehicle_number: item['vehicle_number'],
@@ -1784,6 +1791,7 @@ class DashboardV4Controller {
             avg_janjang_kosong: 0,
             avg_tangkai_panjang: 0,
             avg_buah_kecil: 0,
+            avg_rusak_dimakan_tikus: 0,
           };
         }
         avgAcceptedVendorHistoryDaily[vendorName][day]['trucks'] += 1;
@@ -1803,6 +1811,8 @@ class DashboardV4Controller {
           percentBuahKecil;
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_tangkai_panjang'] +=
           percentTangkaiPanjang;
+        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_rusak_dimakan_tikus'] +=
+          percentRusakDimakanTikus;
 
         return payload;
       });
@@ -1880,6 +1890,11 @@ class DashboardV4Controller {
             ),
             avg_tangkai_panjang: (
               value.tangkai_panjang / value.count
+            ).toLocaleString('en', {
+              maximumFractionDigits: 2,
+            }),
+            avg_rusak_dimakan_tikus: (
+              value.rusak_dimakan_tikus / value.count
             ).toLocaleString('en', {
               maximumFractionDigits: 2,
             }),
@@ -1974,6 +1989,8 @@ class DashboardV4Controller {
               avg_tangkai_panjang:
                 dayData['avg_tangkai_panjang'] / dayData['trucks'],
               avg_buah_kecil: dayData['avg_buah_kecil'] / dayData['trucks'],
+              avg_rusak_dimakan_tikus:
+                dayData['avg_rusak_dimakan_tikus'] / dayData['trucks'],
             };
           })
           .filter((e) => Boolean(e.avg_accepted));
