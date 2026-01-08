@@ -355,7 +355,7 @@ class InspectionDataController {
 
       const isUtjmKjgm =
         factory &&
-        ['UTJM', 'KJGM'].some((loc) => factory.location.includes(loc));
+        ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeCols = (arr) => {
