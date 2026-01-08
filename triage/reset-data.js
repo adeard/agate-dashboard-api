@@ -37,15 +37,16 @@ connectToDatabase().then(async (res) => {
   //   name: 'LNGM',
   // }).lean();
 
-  // await UserModel.create({
-  //   full_name: 'Accelego',
-  //   email: 'hi@accelego.id',
-  //   password: hashPassword('admin123'),
-  //   access_factory: [factory._id],
-  //   status: 1,
-  //   whatsapp_number: '6281385784854',
-  //   subscribe_notification: 1,
-  // });
+  await UserModel.create({
+    full_name: 'Admin HPI',
+    email: 'adminhpi@accelego.id',
+    password: hashPassword('123'),
+    access_factory: ['6959fd4584e3955ce63dac95'],
+    status: 1,
+    whatsapp_number: '6281385784854',
+    subscribe_notification: 1,
+    company: '6959fd4484e3955ce63dac93',
+  });
 
   // const users = await UserModel.find({
   //   whatsapp_number: { $exists: true },
@@ -437,19 +438,32 @@ connectToDatabase().then(async (res) => {
 
   // await MachineLogsFileModel.deleteMany({});
 
-  const comp = await CompanyModel.create({
-    name: 'Group HPI',
-    initial: 'HPI',
-    image_name: '',
-    location: 'Sumatera',
-  });
-  const factory = await FactoryModel.create({
-    name: 'ENGM',
-    company: comp._id,
-    location: '',
-  });
+  // const comp = await CompanyModel.create({
+  //   name: 'Group HPI',
+  //   initial: 'HPI',
+  //   image_name: '',
+  //   location: 'Sumatera',
+  // });
+  // const factory = await FactoryModel.create({
+  //   name: 'ENGM',
+  //   company: comp._id,
+  //   location: '',
+  // });
 
-  console.log({ factory });
+  // await CompanyModel.findByIdAndUpdate('6959fd4484e3955ce63dac93', {
+  //   $set: {
+  //     location: 'Mempawah, Kalimantan Barat',
+  //     image_name: 'hpi-logo.png',
+  //   },
+  // });
+  // await FactoryModel.findByIdAndUpdate('6959fd4584e3955ce63dac95', {
+  //   $set: {
+  //     location: 'Mempawah, Kalimantan Barat',
+  //   },
+  // });
+  // const company = await FactoryModel.find({}).lean();
+
+  // console.log({ company });
 
   console.log('Done');
   process.exit();

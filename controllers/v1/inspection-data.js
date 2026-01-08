@@ -353,6 +353,23 @@ class InspectionDataController {
         };
       });
 
+      const isUtjmKjgm =
+        factory &&
+        ['UTJM', 'KJGM'].some((loc) => factory.location.includes(loc));
+
+      if (isUtjmKjgm) {
+        const mergeCols = (arr) => {
+          arr.forEach((item) => {
+            item['BUAH KECIL DIBAWAH 5KG'] =
+              (item['BUAH KECIL DIBAWAH 5KG'] || 0) +
+              (item['BUAH KECIL DIBAWAH 3KG'] || 0);
+            item['BUAH KECIL DIBAWAH 3KG'] = 0;
+          });
+        };
+        mergeCols(acceptedData);
+        mergeCols(rejectedData);
+      }
+
       let total_accepted_percent =
         inspections['grading_result']['total_accepted'] > 0
           ? countPercentage(
@@ -413,6 +430,7 @@ class InspectionDataController {
       const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
+        is_utjm_kjgm: isUtjmKjgm,
         sinarmas_logo_img: getImageFile(
           companyData ? companyData.image_name : 'sinarmas-logo.png'
         ),
