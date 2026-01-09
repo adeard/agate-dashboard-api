@@ -1709,6 +1709,28 @@ class InspectionDataController {
       //   plasma: demografikPlasma['classification_summary'],
       // });
 
+      const isUtjmKjgm =
+        factory &&
+        ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
+
+      if (isUtjmKjgm) {
+        const mergeClassification = (summaryObj) => {
+          const summary = summaryObj.classification_summary;
+          Object.keys(summary).forEach((key) => {
+            const item = summary[key];
+            item['BUAH KECIL DIBAWAH 5KG'] =
+              (item['BUAH KECIL DIBAWAH 5KG'] || 0) +
+              (item['BUAH KECIL DIBAWAH 3KG'] || 0);
+            item['BUAH KECIL DIBAWAH 3KG'] = 0;
+          });
+        };
+
+        mergeClassification(demografikSemua);
+        mergeClassification(demografikInti);
+        mergeClassification(demografikExternal);
+        mergeClassification(demografikPlasma);
+      }
+
       demografikSemua['total_accepted_percent'] = countPercentage(
         demografikSemua['total_accepted'],
         demografikSemua['total_tandan']
@@ -1877,6 +1899,7 @@ class InspectionDataController {
       const companyData = await CompanyModel.findById(user.company).lean();
 
       let data = {
+        is_utjm_kjgm: isUtjmKjgm,
         start_date: dayjs(yesterday.startOf('day')).format(
           'DD/MM/YYYY HH:mm:ss'
         ),
