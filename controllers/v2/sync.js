@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { default: axios } = require('axios');
 const FactoryModel = require('../../models/factory');
+const CompanyModel = require('../../models/company');
 const InspectionDataModel = require('../../models/inspection-data');
 const VendorV2Model = require('../../models/v2/vendor');
 const WABroadcastModel = require('../../models/wa-broadcast');
@@ -162,12 +163,7 @@ class SyncDataController {
 
       delete body['is_integrated'];
 
-      if (
-        !body['company'] ||
-        !mongoose.Types.ObjectId.isValid(body['company'])
-      ) {
-        body['company'] = '68697f15a05bd58ea7bd5dd0';
-      }
+      body['company'] = factory.company;
 
       await vBody('inspection-data', body);
 
