@@ -5,6 +5,8 @@ async function getCompanyLimitTandan(user) {
     const company = await CompanyModel.findById(user.company).lean();
     if (company && company.name === 'Kencana') {
       return 10;
+    } else if (company && company.name === 'HPI') {
+      return 70;
     } else {
       return 200;
     }
