@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { default: axios } = require('axios');
 const FactoryModel = require('../../models/factory');
 const InspectionDataModel = require('../../models/inspection-data');
@@ -91,6 +92,8 @@ class SyncDataController {
       const body = req.body;
       const { direct = null } = req.query;
 
+      console.log({ body });
+
       const factory = await FactoryModel.findOne({
         name: body['factory'],
       }).lean();
@@ -159,7 +162,10 @@ class SyncDataController {
 
       delete body['is_integrated'];
 
-      if (!body['company']) {
+      if (
+        !body['company'] ||
+        !mongoose.Types.ObjectId.isValid(body['company'])
+      ) {
         body['company'] = '68697f15a05bd58ea7bd5dd0';
       }
 
