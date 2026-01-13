@@ -163,7 +163,7 @@ class SyncDataController {
 
       delete body['is_integrated'];
 
-      body['company'] = factory.company;
+      body['company'] = factory.company.toString();
 
       await vBody('inspection-data', body);
 
