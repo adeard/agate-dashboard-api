@@ -9,6 +9,7 @@ const { vBody } = require('../../validators/joi');
 const generatePdf = require('../../lib/pdf');
 const getImageFile = require('../../utils/get-image-file');
 const CompanyModel = require('../../models/company');
+const { getCompanyLimitTandan } = require('../../utils/inspection');
 
 const countPercentage = (number = 0, divider = 1) => {
   let percent =
@@ -354,8 +355,7 @@ class InspectionDataController {
       });
 
       const isUtjmKjgm =
-        factory &&
-        ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
+        factory && ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeCols = (arr) => {
@@ -890,6 +890,17 @@ class InspectionDataController {
           message: 'Pemeriksaan tidak ditemukan.',
         };
       }
+
+      const limit = await getCompanyLimitTandan(user);
+
+      inspections = inspections.filter(
+        (e) =>
+          e.grading_result?.total_tandan > limit &&
+          e.vehicle_number !== 'BH 1240 ALB' &&
+          e.vendor_name !== 'Vendor 2 Plasma' &&
+          e.vendor_name !== 'Vendor B' &&
+          e.vehicle_number !== 'BH 4321 ALB'
+      );
 
       let demografikSemua = {
         ...baseObjectSemua,
@@ -1580,6 +1591,17 @@ class InspectionDataController {
         };
       }
 
+      const limit = await getCompanyLimitTandan(user);
+
+      inspections = inspections.filter(
+        (e) =>
+          e.grading_result?.total_tandan > limit &&
+          e.vehicle_number !== 'BH 1240 ALB' &&
+          e.vendor_name !== 'Vendor 2 Plasma' &&
+          e.vendor_name !== 'Vendor B' &&
+          e.vehicle_number !== 'BH 4321 ALB'
+      );
+
       const factory = await FactoryModel.findById(factoryId).lean();
 
       let demografikSemua = {
@@ -1710,8 +1732,7 @@ class InspectionDataController {
       // });
 
       const isUtjmKjgm =
-        factory &&
-        ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
+        factory && ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeClassification = (summaryObj) => {

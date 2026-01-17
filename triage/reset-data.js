@@ -236,10 +236,10 @@ connectToDatabase().then(async (res) => {
   //   return;
   // }, Promise.resolve());
 
-  // await UserModel.findOneAndUpdate(
-  //   { email: 'staff.vpm.pbro@sinarmas-agri.com' },
-  //   { $set: { password: hashPassword('agate123') } }
-  // );
+  await UserModel.findOneAndUpdate(
+    { email: 'samaris@hartonoplantation.com' },
+    { $set: { password: hashPassword('agate123') } }
+  );
   // await UserModel.findOneAndUpdate(
   //   { email: 'pc.libm@sinarmas-agri.com' },
   //   { $set: { password: hashPassword('agate123') } }
@@ -475,12 +475,14 @@ connectToDatabase().then(async (res) => {
   //   }
   // ).lean();
 
-  const insepection = await InspectionDataModel.find({
-    company: '68697f15a05bd58ea7bd5dd2',
-  }).lean();
+  // const insepection = await InspectionDataModel.find({
+  //   company: '68697f15a05bd58ea7bd5dd2',
+  // }).lean();
 
-  console.log({ insepection });
+  // console.log({ insepection });
   // console.log({ company });
+
+  // await InspectionDataModel.findByIdAndDelete('6965e7516dcc537bb8440582');
 
   console.log('Done');
   process.exit();
