@@ -891,7 +891,7 @@ class InspectionDataController {
         };
       }
 
-      const limit = await getCompanyLimitTandan(user);
+      const limit = await getCompanyLimitTandan({ company: factory.company });
 
       inspections = inspections.filter(
         (e) =>
