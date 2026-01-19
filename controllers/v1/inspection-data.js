@@ -1591,6 +1591,8 @@ class InspectionDataController {
         };
       }
 
+      const factory = await FactoryModel.findById(factoryId).lean();
+
       const limit = await getCompanyLimitTandan(user);
 
       inspections = inspections.filter(
@@ -1601,8 +1603,6 @@ class InspectionDataController {
           e.vendor_name !== 'Vendor B' &&
           e.vehicle_number !== 'BH 4321 ALB'
       );
-
-      const factory = await FactoryModel.findById(factoryId).lean();
 
       let demografikSemua = {
         ...baseObjectSemua,
