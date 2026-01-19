@@ -891,6 +891,8 @@ class InspectionDataController {
         };
       }
 
+      const factory = await FactoryModel.findById(factoryId).lean();
+
       const limit = await getCompanyLimitTandan({ company: factory.company });
 
       inspections = inspections.filter(
@@ -921,8 +923,6 @@ class InspectionDataController {
       let demografikVendorInti = {};
       let demografikVendorExternal = {};
       let demografikVendorPlasma = {};
-
-      const factory = await FactoryModel.findById(factoryId).lean();
 
       inspections.forEach((inspection) => {
         if (!inspection.grading_result) return;
