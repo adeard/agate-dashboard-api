@@ -881,7 +881,7 @@ class InspectionDataController {
         };
       }
 
-      const inspections = await InspectionDataModel.find(q).lean();
+      let inspections = await InspectionDataModel.find(q).lean();
 
       if (!inspections.length) {
         throw {
