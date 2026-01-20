@@ -2177,6 +2177,7 @@ class DashboardV4Controller {
         'Waktu Mulai',
         'Waktu Selesai',
         'Durasi',
+        'TBS per Menit',
         'Plat Nomor',
         'Vendor',
         'Tipe Vendor',
@@ -2867,6 +2868,11 @@ class DashboardV4Controller {
       avgVendor[vendorName]['trucks'][vehicleNumber]['buah_kecil'] +=
         percentBuahKecil;
 
+      const durations = dayjs(item.finish_date).diff(
+        dayjs(item.date),
+        'minutes',
+      );
+
       rawDataExcel.push([
         index + 1,
         date,
@@ -2874,7 +2880,10 @@ class DashboardV4Controller {
         item.delivery_number,
         dayjs(item.date).format('HH:mm'),
         dayjs(item.finish_date).format('HH:mm'),
-        dayjs(item.finish_date).diff(dayjs(item.date), 'minutes'),
+        durations,
+        Math.floor(
+          Number(Number(item.grading_result.total_tandan) / Number(durations)),
+        ),
         vehicleNumber,
         item.vendor_name,
         vendoryTypeDict?.[item.vendor_type] || '-',
