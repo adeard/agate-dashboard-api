@@ -2197,9 +2197,13 @@ class DashboardV4Controller {
       ],
     ];
 
+    // Prepare the Excel data
+    const trukPerHari = [['No', 'Tanggal', 'Total Truk']];
+
     let totalAllTandan = 0;
 
     const avgWeek = {};
+    const gradingTrucks = {};
     const avgWeekDemography = {};
     const bestAcceptedTrucks = {};
     const hourDataReject = {
@@ -2318,6 +2322,19 @@ class DashboardV4Controller {
       const minute = dayjs(item.date).minute();
       const week = getWeekNumber(item.date);
       const day = dayjs(item.date).format('dddd');
+
+      // Track daily truck counts for gradingTrucks
+      if (!gradingTrucks[date]) {
+        gradingTrucks[date] = {
+          Truk: 0,
+          'Mesin 1': 0,
+          'Mesin 2': 0,
+          'Mesin 3': 0,
+          'Mesin 4': 0,
+        };
+      }
+      gradingTrucks[date]['Truk'] += 1;
+      gradingTrucks[date][`Mesin ${item.machine}`] += 1;
 
       if (!daysDateArray.some((e) => e?.date === date)) {
         daysDateArray.push({ date: date, day });
@@ -2905,6 +2922,11 @@ class DashboardV4Controller {
 
         item.grading_result.total_matang_katro,
       ]);
+    });
+
+    // Populate trukPerHari from gradingTrucks
+    Object.entries(gradingTrucks).forEach(([date, trucks], index) => {
+      trukPerHari.push([index + 1, date, trucks['Truk']]);
     });
 
     const avgWeekData = [
@@ -3697,6 +3719,8 @@ class DashboardV4Controller {
       wsDailyTruck,
       'Daily Truck Day Time',
     );
+    const wsTrukPerHari = XLSX.utils.aoa_to_sheet(trukPerHari);
+    XLSX.utils.book_append_sheet(workbook, wsTrukPerHari, 'Total Truk Harian');
 
     // Write the file
     // XLSX.writeFile(workbook, `Report${new Date().toISOString()}.xlsx`);
