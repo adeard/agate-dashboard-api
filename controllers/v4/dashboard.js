@@ -26,9 +26,9 @@ const utilsInspection = {
           Number(
             item.grading_result['accepted_summary'][k][
               'BUAH KECIL DIBAWAH 5KG'
-            ] || 0
+            ] || 0,
           ),
-        0
+        0,
       ) + Number(item.grading_result['total_rejected']);
     const totalAcceptedModified =
       Number(item.grading_result['total_accepted']) -
@@ -38,20 +38,20 @@ const utilsInspection = {
           Number(
             item.grading_result['accepted_summary'][k][
               'BUAH KECIL DIBAWAH 5KG'
-            ] || 0
+            ] || 0,
           ),
-        0
+        0,
       );
     const totalFined = item.grading_result['total_fined'];
 
     const percentAcceptedModified = countPercentage(
       totalAcceptedModified,
-      totalTandan
+      totalTandan,
     );
 
     const percentAccepted = countPercentage(
       item['grading_result']['total_accepted'],
-      item['grading_result']['total_tandan']
+      item['grading_result']['total_tandan'],
     );
 
     const totalMatang =
@@ -111,9 +111,8 @@ const utilsInspection = {
         'BUAH KECIL DIBAWAH 5KG'
       ];
 
-
     const { totalRusakDimakanTikus } = Object.keys(
-      item.grading_result['rejected_summary']
+      item.grading_result['rejected_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['rejected_summary'][key];
@@ -122,11 +121,11 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalRusakDimakanTikus: 0 }
+      { totalRusakDimakanTikus: 0 },
     );
 
     const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
-      item.grading_result['rejected_summary']
+      item.grading_result['rejected_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['rejected_summary'][key];
@@ -136,11 +135,11 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalBuahKecil3: 0, totalBuahKecil5: 0 }
+      { totalBuahKecil3: 0, totalBuahKecil5: 0 },
     );
 
     const { totalBuahKecil5Diterima } = Object.keys(
-      item.grading_result['accepted_summary']
+      item.grading_result['accepted_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['accepted_summary'][key];
@@ -149,10 +148,10 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalBuahKecil5Diterima: 0 }
+      { totalBuahKecil5Diterima: 0 },
     );
     const { totalTangkaiPanjang } = Object.keys(
-      item.grading_result['accepted_summary']
+      item.grading_result['accepted_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['accepted_summary'][key];
@@ -161,14 +160,14 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalTangkaiPanjang: 0 }
+      { totalTangkaiPanjang: 0 },
     );
 
     const percentMatang = countPercentage(totalMatang, totalTandan);
     const percentLewatMatang = countPercentage(totalLewatMatang, totalTandan);
     const percentTangkaiPanjang = countPercentage(
       totalTangkaiPanjang,
-      totalAcceptedModified
+      totalAcceptedModified,
     );
     const percentMentah = countPercentage(totalMentah, totalTandan);
     const percentJangkos = countPercentage(totalJanjangKosong, totalTandan);
@@ -176,24 +175,24 @@ const utilsInspection = {
     const percentBuahKecil5 = countPercentage(totalBuahKecil5, totalTandan);
     const percentBuahKecil = countPercentage(
       totalBuahKecil3 + totalBuahKecil5,
-      totalTandan
+      totalTandan,
     );
     const percentRusakDimakanTikus = countPercentage(
       totalRusakDimakanTikus,
-      totalTandan
+      totalTandan,
     );
 
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
-      totalTandan
+      totalTandan,
     );
     const percentJanjangKosongDiterima = countPercentage(
       totalJanjangKosongDiterima,
-      totalTandan
+      totalTandan,
     );
     const percentBuahKecil5Diterima = countPercentage(
       totalBuahKecil5Diterima,
-      totalTandan
+      totalTandan,
     );
 
     // console.log({
@@ -237,7 +236,7 @@ const utilsInspection = {
   getAllMonitoringData: (inspections) => {
     const totalTandan = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
-      0
+      0,
     );
 
     const totalRejected = inspections.reduce((curr, item) => {
@@ -248,9 +247,9 @@ const utilsInspection = {
             Number(
               item.grading_result['rejected_summary'][k][
                 'BUAH KECIL DIBAWAH 5KG'
-              ] || 0
+              ] || 0,
             ),
-          0
+          0,
         ) +
         Number(item.grading_result['total_rejected']) +
         curr
@@ -266,16 +265,16 @@ const utilsInspection = {
             Number(
               item.grading_result['accepted_summary'][k][
                 'BUAH KECIL DIBAWAH 5KG'
-              ] || 0
+              ] || 0,
             ),
-          0
+          0,
         ) +
         curr
       );
     }, 0);
     const totalFined = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
-      0
+      0,
     );
     const totalInspection = inspections.length;
 
@@ -297,7 +296,7 @@ const utilsInspection = {
   getAllMonitoringDataNew: (inspections) => {
     const totalTandan = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
-      0
+      0,
     );
 
     const totalRejected = inspections.reduce((curr, item) => {
@@ -309,7 +308,7 @@ const utilsInspection = {
     }, 0);
     const totalFined = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
-      0
+      0,
     );
     const totalInspection = inspections.length;
 
@@ -338,9 +337,9 @@ const utilsInspection = {
           Number(
             item.grading_result['accepted_summary'][k][
               'BUAH KECIL DIBAWAH 5KG'
-            ] || 0
+            ] || 0,
           ),
-        0
+        0,
       ) + Number(item.grading_result['total_rejected']);
     let totalAcceptedModified =
       Number(item.grading_result['total_accepted']) -
@@ -350,20 +349,20 @@ const utilsInspection = {
           Number(
             item.grading_result['accepted_summary'][k][
               'BUAH KECIL DIBAWAH 5KG'
-            ] || 0
+            ] || 0,
           ),
-        0
+        0,
       );
     const totalFined = item.grading_result['total_fined'];
 
     const percentAcceptedModified = countPercentage(
       totalAcceptedModified,
-      totalTandan
+      totalTandan,
     );
 
     const percentAccepted = countPercentage(
       item['grading_result']['total_accepted'],
-      item['grading_result']['total_tandan']
+      item['grading_result']['total_tandan'],
     );
 
     const totalMatang = item.grading_result['accepted_summary']?.['MATANG']
@@ -431,9 +430,8 @@ const utilsInspection = {
         ]
       : 0;
 
-
     const { totalRusakDimakanTikus } = Object.keys(
-      item.grading_result['rejected_summary']
+      item.grading_result['rejected_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['rejected_summary'][key];
@@ -442,9 +440,8 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalRusakDimakanTikus: 0 }
+      { totalRusakDimakanTikus: 0 },
     );
-
 
     const totalMatangDitolak = item.grading_result['rejected_summary']?.[
       'MATANG'
@@ -470,7 +467,7 @@ const utilsInspection = {
       : 0;
 
     const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
-      item.grading_result['rejected_summary']
+      item.grading_result['rejected_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['rejected_summary'][key];
@@ -480,11 +477,11 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalBuahKecil3: 0, totalBuahKecil5: 0 }
+      { totalBuahKecil3: 0, totalBuahKecil5: 0 },
     );
 
     const { totalBuahKecil5Diterima } = Object.keys(
-      item.grading_result['accepted_summary']
+      item.grading_result['accepted_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['accepted_summary'][key];
@@ -493,10 +490,10 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalBuahKecil5Diterima: 0 }
+      { totalBuahKecil5Diterima: 0 },
     );
     const { totalTangkaiPanjang } = Object.keys(
-      item.grading_result['accepted_summary']
+      item.grading_result['accepted_summary'],
     ).reduce(
       (obj, key) => {
         const data = item['grading_result']['accepted_summary'][key];
@@ -505,14 +502,14 @@ const utilsInspection = {
 
         return obj;
       },
-      { totalTangkaiPanjang: 0 }
+      { totalTangkaiPanjang: 0 },
     );
 
     const percentMatang = countPercentage(totalMatang, totalTandan);
     const percentLewatMatang = countPercentage(totalLewatMatang, totalTandan);
     const percentTangkaiPanjang = countPercentage(
       totalTangkaiPanjang,
-      totalAcceptedModified
+      totalAcceptedModified,
     );
     const percentMentah = countPercentage(totalMentah, totalTandan);
     const percentJangkos = countPercentage(totalJanjangKosong, totalTandan);
@@ -520,32 +517,32 @@ const utilsInspection = {
     const percentBuahKecil5 = countPercentage(totalBuahKecil5, totalTandan);
     const percentBuahKecil = countPercentage(
       totalBuahKecil3 + totalBuahKecil5,
-      totalTandan
+      totalTandan,
     );
 
     const percentRusakDimakanTikus = countPercentage(
       totalRusakDimakanTikus,
-      totalTandan
+      totalTandan,
     );
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
-      totalTandan
+      totalTandan,
     );
     const percentJanjangKosongDiterima = countPercentage(
       totalJanjangKosongDiterima,
-      totalTandan
+      totalTandan,
     );
     const percentBuahKecil5Diterima = countPercentage(
       totalBuahKecil5Diterima,
-      totalTandan
+      totalTandan,
     );
     const percentMatangDitolak = countPercentage(
       totalMatangDitolak,
-      totalTandan
+      totalTandan,
     );
     const percentLewatMatangDitolak = countPercentage(
       totalLewatMatangDitolak,
-      totalTandan
+      totalTandan,
     );
 
     // console.log({
@@ -660,7 +657,7 @@ const setChartDataValue = (
   time,
   keyItem,
   valueItem,
-  asArray = false
+  asArray = false,
 ) => {
   if (Array.isArray(keyItem)) {
     keyItem.forEach((key, index) => {
@@ -720,7 +717,7 @@ const generateChartArrayFromObject = (data = {}, isArrayValue = false) => {
                         t,
                         k2 === 'Didenda'
                           ? data[key][k]['Diterima']
-                          : data[key][k]['Total']
+                          : data[key][k]['Total'],
                       ),
                 };
               })
@@ -758,26 +755,28 @@ const generateChartArrayFromObject = (data = {}, isArrayValue = false) => {
         obj[key].sort((a, b) => {
           const [dayA, monthA, yearA] = a.title.split('/');
           const [dayB, monthB, yearB] = b.title.split('/');
-          
+
           const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
           const dateB = new Date(`${yearB}-${monthB}-${dayB}`); // Assuming DD/MM/YYYY format based on usage
-          
+
           // Fallback if parsing fails or logical comparison
           if (dateA && dateB && !isNaN(dateA) && !isNaN(dateB)) {
-             return dateA - dateB;
+            return dateA - dateB;
           }
-           // if date format is DD/MM/YY
-           const fullYearA = Number(yearA) < 100 ? 2000 + Number(yearA) : Number(yearA);
-           const fullYearB = Number(yearB) < 100 ? 2000 + Number(yearB) : Number(yearB);
-            const dA = new Date(fullYearA, Number(monthA)-1, Number(dayA));
-            const dB = new Date(fullYearB, Number(monthB)-1, Number(dayB));
-            return dA - dB;
+          // if date format is DD/MM/YY
+          const fullYearA =
+            Number(yearA) < 100 ? 2000 + Number(yearA) : Number(yearA);
+          const fullYearB =
+            Number(yearB) < 100 ? 2000 + Number(yearB) : Number(yearB);
+          const dA = new Date(fullYearA, Number(monthA) - 1, Number(dayA));
+          const dB = new Date(fullYearB, Number(monthB) - 1, Number(dayB));
+          return dA - dB;
         });
       }
 
       return obj;
     },
-    { daily: [], monthly: [], weekly: [] }
+    { daily: [], monthly: [], weekly: [] },
   );
 };
 
@@ -821,7 +820,7 @@ const generateChartArrayFromObjectTrucks = (data = {}) => {
 
       return obj;
     },
-    { daily: [], monthly: [], weekly: [] }
+    { daily: [], monthly: [], weekly: [] },
   );
 };
 
@@ -945,7 +944,7 @@ function processVendorData(vendors) {
   metricsToRank.forEach((metric) => {
     // Filter vendors that have this metric
     const vendorsWithMetric = normalizedVendors.filter(
-      (v) => v[metric] !== undefined
+      (v) => v[metric] !== undefined,
     );
 
     if (vendorsWithMetric.length === 0) return;
@@ -1160,8 +1159,8 @@ class DashboardV4Controller {
       ids = Array.isArray(ids)
         ? ids
         : typeof ids === 'string'
-        ? ids.split(',')
-        : [];
+          ? ids.split(',')
+          : [];
       const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
       const weeks = generateWeeks(year);
@@ -1222,7 +1221,7 @@ class DashboardV4Controller {
           e.vehicle_number !== 'BH 1240 ALB' &&
           e.vendor_name !== 'Vendor 2 Plasma' &&
           e.vendor_name !== 'Vendor B' &&
-          e.vehicle_number !== 'BH 4321 ALB'
+          e.vehicle_number !== 'BH 4321 ALB',
       );
 
       const {
@@ -1247,7 +1246,7 @@ class DashboardV4Controller {
         buah_kecil_3: [],
         buah_kecil_5: [],
         tangkai_panjang: [],
-        rusak_dimakan_tikus: []
+        rusak_dimakan_tikus: [],
       };
       const avgAcceptedVendor = {};
       const summaryPerformance = {
@@ -1324,7 +1323,7 @@ class DashboardV4Controller {
         const { day, monthYear } = getDateMonthYearDay(
           dateForGrouping,
           true,
-          'DD/MM/YY'
+          'DD/MM/YY',
         );
         const week = getWeekNumber(dateForGrouping);
 
@@ -1370,10 +1369,10 @@ class DashboardV4Controller {
 
         avgClassification['mentah_diterima'].push(percentMentahDiterima);
         avgClassification['janjang_kosong_diterima'].push(
-          percentJanjangKosongDiterima
+          percentJanjangKosongDiterima,
         );
         avgClassification['buah_kecil_5_diterima'].push(
-          percentBuahKecil5Diterima
+          percentBuahKecil5Diterima,
         );
 
         if (!avgClassificationTren['matang'][day]) {
@@ -1410,14 +1409,14 @@ class DashboardV4Controller {
           avgClassificationTren['tangkai_panjang'][day] = [];
         }
         avgClassificationTren['tangkai_panjang'][day].push(
-          percentTangkaiPanjang
+          percentTangkaiPanjang,
         );
 
         if (!avgClassificationTren['rusak_dimakan_tikus'][day]) {
           avgClassificationTren['rusak_dimakan_tikus'][day] = [];
         }
         avgClassificationTren['rusak_dimakan_tikus'][day].push(
-          percentRusakDimakanTikus
+          percentRusakDimakanTikus,
         );
 
         // new
@@ -1425,19 +1424,19 @@ class DashboardV4Controller {
           avgClassificationTren['mentah_diterima'][day] = [];
         }
         avgClassificationTren['mentah_diterima'][day].push(
-          percentMentahDiterima
+          percentMentahDiterima,
         );
         if (!avgClassificationTren['janjang_kosong_diterima'][day]) {
           avgClassificationTren['janjang_kosong_diterima'][day] = [];
         }
         avgClassificationTren['janjang_kosong_diterima'][day].push(
-          percentJanjangKosongDiterima
+          percentJanjangKosongDiterima,
         );
         if (!avgClassificationTren['buah_kecil_5_diterima'][day]) {
           avgClassificationTren['buah_kecil_5_diterima'][day] = [];
         }
         avgClassificationTren['buah_kecil_5_diterima'][day].push(
-          percentBuahKecil5Diterima
+          percentBuahKecil5Diterima,
         );
 
         if (!avgClassificationVendor['matang'][vendorName]) {
@@ -1516,7 +1515,8 @@ class DashboardV4Controller {
             percent: 0,
           };
         }
-        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] += 1;
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] +=
+          1;
         avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['percent'] +=
           percentRusakDimakanTikus;
 
@@ -1548,9 +1548,8 @@ class DashboardV4Controller {
             percent: 0,
           };
         }
-        avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
-          'count'
-        ] += 1;
+        avgClassificationVendor['buah_kecil_5_diterima'][vendorName]['count'] +=
+          1;
         avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
           'percent'
         ] += percentBuahKecil5Diterima;
@@ -1571,7 +1570,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
         setChartDataValue(
           summaryPerformance,
@@ -1583,7 +1582,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
         setChartDataValue(
           summaryPerformance,
@@ -1595,7 +1594,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
 
         // Grading Trucks
@@ -1610,7 +1609,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
         setChartDataValue(
           gradingTrucks,
@@ -1623,7 +1622,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
         setChartDataValue(
           gradingTrucks,
@@ -1636,7 +1635,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
 
         // Fruit Accepted
@@ -1646,7 +1645,7 @@ class DashboardV4Controller {
           day,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
         setChartDataValue(
           fruitAccepted,
@@ -1654,7 +1653,7 @@ class DashboardV4Controller {
           week,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
         setChartDataValue(
           fruitAccepted,
@@ -1662,7 +1661,7 @@ class DashboardV4Controller {
           monthYear,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
 
         // Fruit Tp
@@ -1672,7 +1671,7 @@ class DashboardV4Controller {
           day,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
         setChartDataValue(
           fruitTp,
@@ -1680,7 +1679,7 @@ class DashboardV4Controller {
           week,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
         setChartDataValue(
           fruitTp,
@@ -1688,7 +1687,7 @@ class DashboardV4Controller {
           monthYear,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
 
         // Fruit Rejected
@@ -1712,7 +1711,7 @@ class DashboardV4Controller {
             percentBuahKecil5,
             percentRusakDimakanTikus,
           ],
-          true
+          true,
         );
         setChartDataValue(
           fruitRejected,
@@ -1734,7 +1733,7 @@ class DashboardV4Controller {
             percentBuahKecil5,
             percentRusakDimakanTikus,
           ],
-          true
+          true,
         );
         setChartDataValue(
           fruitRejected,
@@ -1756,7 +1755,7 @@ class DashboardV4Controller {
             percentBuahKecil5,
             percentRusakDimakanTikus,
           ],
-          true
+          true,
         );
 
         if (!item['score']) {
@@ -1867,8 +1866,9 @@ class DashboardV4Controller {
           percentBuahKecil;
         avgAcceptedVendorHistoryDaily[vendorName][day]['avg_tangkai_panjang'] +=
           percentTangkaiPanjang;
-        avgAcceptedVendorHistoryDaily[vendorName][day]['avg_rusak_dimakan_tikus'] +=
-          percentRusakDimakanTikus;
+        avgAcceptedVendorHistoryDaily[vendorName][day][
+          'avg_rusak_dimakan_tikus'
+        ] += percentRusakDimakanTikus;
 
         return payload;
       });
@@ -1886,7 +1886,7 @@ class DashboardV4Controller {
 
           return obj;
         },
-        {}
+        {},
       );
       const averageVendorAccepted = Object.entries(avgAcceptedVendor).reduce(
         (obj, [key, value]) => {
@@ -1896,14 +1896,14 @@ class DashboardV4Controller {
 
           return obj;
         },
-        {}
+        {},
       );
 
       const lowestRanked = processInspectionData(lowest).sort(
-        (a, b) => a.percent_accepted - b.percent_accepted
+        (a, b) => a.percent_accepted - b.percent_accepted,
       );
       const highestRanked = processInspectionData(highest).sort(
-        (a, b) => b.percent_accepted - a.percent_accepted
+        (a, b) => b.percent_accepted - a.percent_accepted,
       );
 
       const averageVendorData = Object.entries(averageVendor).map(
@@ -1913,7 +1913,7 @@ class DashboardV4Controller {
             count: value.count,
             percent_supply: countPercentage(
               value.count,
-              totalInspection
+              totalInspection,
             ).toLocaleString('en', {
               maximumFractionDigits: 2,
             }),
@@ -1928,7 +1928,7 @@ class DashboardV4Controller {
               'en',
               {
                 maximumFractionDigits: 2,
-              }
+              },
             ),
             avg_mentah: (value.mentah / value.count).toLocaleString('en', {
               maximumFractionDigits: 2,
@@ -1942,7 +1942,7 @@ class DashboardV4Controller {
               'en',
               {
                 maximumFractionDigits: 2,
-              }
+              },
             ),
             avg_tangkai_panjang: (
               value.tangkai_panjang / value.count
@@ -1955,7 +1955,7 @@ class DashboardV4Controller {
               maximumFractionDigits: 2,
             }),
           };
-        }
+        },
       );
 
       const rocSummaryPerformance = Object.entries(summaryPerformance).reduce(
@@ -2002,11 +2002,11 @@ class DashboardV4Controller {
 
           return obj;
         },
-        {}
+        {},
       );
 
       const avgClassificationVendorData = Object.entries(
-        avgClassificationVendor
+        avgClassificationVendor,
       ).reduce((o, [key, value]) => {
         o[key] = addRankingsWithTieHandling(
           Object.entries(value)
@@ -2019,14 +2019,14 @@ class DashboardV4Controller {
               };
             })
             .sort((a, b) => b.supply - a.supply),
-          key
+          key,
         );
 
         return o;
       }, {});
 
       const avgAcceptedVendorHistoryDailyData = Object.entries(
-        avgAcceptedVendorHistoryDaily
+        avgAcceptedVendorHistoryDaily,
       ).reduce((obj, [vendor, data]) => {
         // console.log({ data });
         obj[vendor] = Object.entries(data)
@@ -2054,7 +2054,7 @@ class DashboardV4Controller {
       }, {});
 
       const avgClassificationTrenData = Object.entries(
-        avgClassificationTren
+        avgClassificationTren,
       ).reduce((obj, [c, data]) => {
         obj[c] = Object.entries(data).map(([d, value]) => {
           const sum = value.reduce((n, c) => n + (c || 0), 0);
@@ -2104,7 +2104,7 @@ class DashboardV4Controller {
             vendor: processVendorData(averageVendorData),
           },
           rocs: rocSummaryPerformance,
-        })
+        }),
       );
     } catch (err) {
       console.log({ err });
@@ -2159,11 +2159,11 @@ class DashboardV4Controller {
         e.grading_result?.total_tandan > limit &&
         e.vehicle_number !== 'BH 1240 ALB' &&
         e.vendor_name !== 'Vendor 2 Plasma' &&
-        e.vendor_name !== 'Vendor B'
+        e.vendor_name !== 'Vendor B',
     );
 
     const periodString = `${dayjs(targetDate).format('MMMM YYYY')} - ${dayjs(
-      targetEnd
+      targetEnd,
     ).format('MMMM YYYY')}`;
 
     // Prepare the Excel data
@@ -2174,6 +2174,9 @@ class DashboardV4Controller {
         'Tanggal',
         'Mesin AGATE',
         'Surat Jalan',
+        'Waktu Mulai',
+        'Waktu Selesai',
+        'Durasi',
         'Plat Nomor',
         'Vendor',
         'Tipe Vendor',
@@ -2451,9 +2454,9 @@ class DashboardV4Controller {
             Number(
               item.grading_result['accepted_summary'][k][
                 'BUAH KECIL DIBAWAH 5KG'
-              ] || 0
+              ] || 0,
             ),
-          0
+          0,
         ) + Number(item.grading_result['total_rejected']);
       const totalAcceptedModified =
         Number(item.grading_result['total_accepted']) -
@@ -2463,22 +2466,22 @@ class DashboardV4Controller {
             Number(
               item.grading_result['accepted_summary'][k][
                 'BUAH KECIL DIBAWAH 5KG'
-              ] || 0
+              ] || 0,
             ),
-          0
+          0,
         );
 
       const percentAccepted = countPercentage(
         totalAcceptedModified,
-        item.grading_result['total_tandan']
+        item.grading_result['total_tandan'],
       );
       const percentRejected = countPercentage(
         totalRejectedModified,
-        item.grading_result['total_tandan']
+        item.grading_result['total_tandan'],
       );
       const percentFined = countPercentage(
         item.grading_result['total_fined'],
-        totalAcceptedModified
+        totalAcceptedModified,
       );
 
       avgWeek[week]['accepted'].push(percentAccepted);
@@ -2578,7 +2581,7 @@ class DashboardV4Controller {
         ];
 
       const { totalBuahKecil3, totalBuahKecil5 } = Object.keys(
-        item.grading_result['classification_summary']
+        item.grading_result['classification_summary'],
       ).reduce(
         (obj, key) => {
           const data = item['grading_result']['classification_summary'][key];
@@ -2591,11 +2594,11 @@ class DashboardV4Controller {
 
           return obj;
         },
-        { totalBuahKecil3: 0, totalBuahKecil5: 0 }
+        { totalBuahKecil3: 0, totalBuahKecil5: 0 },
       );
 
       const { totalTangkaiPanjang } = Object.keys(
-        item.grading_result['accepted_summary']
+        item.grading_result['accepted_summary'],
       ).reduce(
         (obj, key) => {
           const data = item['grading_result']['accepted_summary'][key];
@@ -2604,20 +2607,20 @@ class DashboardV4Controller {
 
           return obj;
         },
-        { totalTangkaiPanjang: 0 }
+        { totalTangkaiPanjang: 0 },
       );
 
       const percentMatang = countPercentage(totalMatang, totalTandan);
       const percentLewatMatang = countPercentage(totalLewatMatang, totalTandan);
       const percentTangkaiPanjang = countPercentage(
         totalTangkaiPanjang,
-        totalAcceptedModified
+        totalAcceptedModified,
       );
       const percentMentah = countPercentage(totalMentah, totalTandan);
       const percentJangkos = countPercentage(totalJanjangKosong, totalTandan);
       const percentBuahKecil = countPercentage(
         totalBuahKecil3 + totalBuahKecil5,
-        totalTandan
+        totalTandan,
       );
 
       const duration = getDurationMs(item['date'], item['finish_date']);
@@ -2675,9 +2678,8 @@ class DashboardV4Controller {
               count: 0,
             };
           }
-          totalJanjangObjDuration['<600']['trucks'][vehicleNumber][
-            'count'
-          ] += 1;
+          totalJanjangObjDuration['<600']['trucks'][vehicleNumber]['count'] +=
+            1;
 
           if (!totalJanjangObjDuration['<600']['vendors'][vendorName]) {
             totalJanjangObjDuration['<600']['vendors'][vendorName] = {
@@ -2739,9 +2741,8 @@ class DashboardV4Controller {
               count: 0,
             };
           }
-          totalJanjangObjDuration['<1000']['trucks'][vehicleNumber][
-            'count'
-          ] += 1;
+          totalJanjangObjDuration['<1000']['trucks'][vehicleNumber]['count'] +=
+            1;
 
           if (!totalJanjangObjDuration['<1000']['vendors'][vendorName]) {
             totalJanjangObjDuration['<1000']['vendors'][vendorName] = {
@@ -2803,9 +2804,8 @@ class DashboardV4Controller {
               count: 0,
             };
           }
-          totalJanjangObjDuration['>1000']['trucks'][vehicleNumber][
-            'count'
-          ] += 1;
+          totalJanjangObjDuration['>1000']['trucks'][vehicleNumber]['count'] +=
+            1;
 
           if (!totalJanjangObjDuration['>1000']['vendors'][vendorName]) {
             totalJanjangObjDuration['>1000']['vendors'][vendorName] = {
@@ -2819,15 +2819,15 @@ class DashboardV4Controller {
 
       avgWeekDemography[week]['accepted']['matang'].push(percentMatang);
       avgWeekDemography[week]['accepted']['lewat_matang'].push(
-        percentLewatMatang
+        percentLewatMatang,
       );
       avgWeekDemography[week]['accepted']['tangkai_panjang'].push(
-        percentTangkaiPanjang
+        percentTangkaiPanjang,
       );
 
       avgWeekDemography[week]['rejected']['mentah'].push(percentMentah);
       avgWeekDemography[week]['rejected']['janjang_kosong'].push(
-        percentJangkos
+        percentJangkos,
       );
       avgWeekDemography[week]['rejected']['buah_kecil'].push(percentBuahKecil);
 
@@ -2872,6 +2872,9 @@ class DashboardV4Controller {
         date,
         item.machine,
         item.delivery_number,
+        dayjs(item.date).format('HH:mm'),
+        dayjs(item.finish_date).format('HH:mm'),
+        dayjs(item.finish_date).diff(dayjs(item.date), 'minutes'),
         vehicleNumber,
         item.vendor_name,
         vendoryTypeDict?.[item.vendor_type] || '-',
@@ -2987,7 +2990,7 @@ class DashboardV4Controller {
         truck: k,
         ...bestAcceptedTrucks[k],
         avg_accepted: Number(
-          bestAcceptedTrucks[k]['accepted'] / bestAcceptedTrucks[k]['count']
+          bestAcceptedTrucks[k]['accepted'] / bestAcceptedTrucks[k]['count'],
         ),
       }))
       .sort((a, b) => b.avg_accepted - a.avg_accepted)
@@ -3043,7 +3046,7 @@ class DashboardV4Controller {
         truck: k,
         ...bestAcceptedTrucks[k],
         avg_accepted: Number(
-          bestAcceptedTrucks[k]['accepted'] / bestAcceptedTrucks[k]['count']
+          bestAcceptedTrucks[k]['accepted'] / bestAcceptedTrucks[k]['count'],
         ),
       }))
       .sort((a, b) => a.avg_accepted - b.avg_accepted)
@@ -3084,11 +3087,11 @@ class DashboardV4Controller {
       '07:00 - 18:00',
       countPercentage(
         hourDataReject['before6pm'].total_accepted,
-        hourDataReject['before6pm'].total_tandan
+        hourDataReject['before6pm'].total_tandan,
       ).toFixed(2),
       countPercentage(
         hourDataReject['before6pm'].total_rejected,
-        hourDataReject['before6pm'].total_tandan
+        hourDataReject['before6pm'].total_tandan,
       ).toFixed(2),
     ]);
     hourDataRejectData.push([
@@ -3096,11 +3099,11 @@ class DashboardV4Controller {
       '18:00 - 03:00',
       countPercentage(
         hourDataReject['after6pm'].total_accepted,
-        hourDataReject['after6pm'].total_tandan
+        hourDataReject['after6pm'].total_tandan,
       ).toFixed(2),
       countPercentage(
         hourDataReject['after6pm'].total_rejected,
-        hourDataReject['after6pm'].total_tandan
+        hourDataReject['after6pm'].total_tandan,
       ).toFixed(2),
     ]);
     hourDataRejectData.push(['']);
@@ -3161,36 +3164,36 @@ class DashboardV4Controller {
       totalJanjangObj['<600'].total_trucks,
       countPercentage(
         totalJanjangObj['<600'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObj['<600'].total_janjang,
       countPercentage(
         totalJanjangObj['<600'].total_accepted,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].matang,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].lewat_matang,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].tangkai_panjang,
-        totalJanjangObj['<600'].total_accepted
+        totalJanjangObj['<600'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].mentah,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].janjang_kosong,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<600'].buah_kecil,
-        totalJanjangObj['<600'].total_janjang
+        totalJanjangObj['<600'].total_janjang,
       ).toFixed(2),
     ]);
     totalJanjangData.push([
@@ -3200,36 +3203,36 @@ class DashboardV4Controller {
       totalJanjangObj['<1000'].total_trucks,
       countPercentage(
         totalJanjangObj['<1000'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObj['<1000'].total_janjang,
       countPercentage(
         totalJanjangObj['<1000'].total_accepted,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].matang,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].lewat_matang,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].tangkai_panjang,
-        totalJanjangObj['<1000'].total_accepted
+        totalJanjangObj['<1000'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].mentah,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].janjang_kosong,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['<1000'].buah_kecil,
-        totalJanjangObj['<1000'].total_janjang
+        totalJanjangObj['<1000'].total_janjang,
       ).toFixed(2),
     ]);
     totalJanjangData.push([
@@ -3239,36 +3242,36 @@ class DashboardV4Controller {
       totalJanjangObj['>1000'].total_trucks,
       countPercentage(
         totalJanjangObj['>1000'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObj['>1000'].total_janjang,
       countPercentage(
         totalJanjangObj['>1000'].total_accepted,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].matang,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].lewat_matang,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].tangkai_panjang,
-        totalJanjangObj['>1000'].total_accepted
+        totalJanjangObj['>1000'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].mentah,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].janjang_kosong,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObj['>1000'].buah_kecil,
-        totalJanjangObj['>1000'].total_janjang
+        totalJanjangObj['>1000'].total_janjang,
       ).toFixed(2),
     ]);
     totalJanjangData.push(['']);
@@ -3278,8 +3281,8 @@ class DashboardV4Controller {
         category === '<600'
           ? '400 - 600 Janjang'
           : category === '<1000'
-          ? '601 - 1000 Janjang'
-          : '> 1000 Janjang';
+            ? '601 - 1000 Janjang'
+            : '> 1000 Janjang';
       totalJanjangData.push([`Kategori ${categoryTotal}`]);
       totalJanjangData.push([
         'No',
@@ -3461,42 +3464,42 @@ class DashboardV4Controller {
       totalJanjangObjDuration['<600'].total_trucks,
       countPercentage(
         totalJanjangObjDuration['<600'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObjDuration['<600'].total_janjang,
       countPercentage(
         totalJanjangObjDuration['<600'].total_accepted,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].matang,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].lewat_matang,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].tangkai_panjang,
-        totalJanjangObjDuration['<600'].total_accepted
+        totalJanjangObjDuration['<600'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].mentah,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].janjang_kosong,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<600'].buah_kecil,
-        totalJanjangObjDuration['<600'].total_janjang
+        totalJanjangObjDuration['<600'].total_janjang,
       ).toFixed(2),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration['<600'].duration /
-            totalJanjangObjDuration['<600'].total_trucks
-        )
+            totalJanjangObjDuration['<600'].total_trucks,
+        ),
       ),
     ]);
     totalJanjangDurationData.push([
@@ -3506,42 +3509,42 @@ class DashboardV4Controller {
       totalJanjangObjDuration['<1000'].total_trucks,
       countPercentage(
         totalJanjangObjDuration['<1000'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObjDuration['<1000'].total_janjang,
       countPercentage(
         totalJanjangObjDuration['<1000'].total_accepted,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].matang,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].lewat_matang,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].tangkai_panjang,
-        totalJanjangObjDuration['<1000'].total_accepted
+        totalJanjangObjDuration['<1000'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].mentah,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].janjang_kosong,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['<1000'].buah_kecil,
-        totalJanjangObjDuration['<1000'].total_janjang
+        totalJanjangObjDuration['<1000'].total_janjang,
       ).toFixed(2),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration['<1000'].duration /
-            totalJanjangObjDuration['<1000'].total_trucks
-        )
+            totalJanjangObjDuration['<1000'].total_trucks,
+        ),
       ),
     ]);
     totalJanjangDurationData.push([
@@ -3551,42 +3554,42 @@ class DashboardV4Controller {
       totalJanjangObjDuration['>1000'].total_trucks,
       countPercentage(
         totalJanjangObjDuration['>1000'].total_trucks,
-        data?.length
+        data?.length,
       ).toFixed(2),
       totalJanjangObjDuration['>1000'].total_janjang,
       countPercentage(
         totalJanjangObjDuration['>1000'].total_accepted,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].matang,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].lewat_matang,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].tangkai_panjang,
-        totalJanjangObjDuration['>1000'].total_accepted
+        totalJanjangObjDuration['>1000'].total_accepted,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].mentah,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].janjang_kosong,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       countPercentage(
         totalJanjangObjDuration['>1000'].buah_kecil,
-        totalJanjangObjDuration['>1000'].total_janjang
+        totalJanjangObjDuration['>1000'].total_janjang,
       ).toFixed(2),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration['>1000'].duration /
-            totalJanjangObjDuration['>1000'].total_trucks
-        )
+            totalJanjangObjDuration['>1000'].total_trucks,
+        ),
       ),
     ]);
 
@@ -3645,7 +3648,7 @@ class DashboardV4Controller {
     XLSX.utils.book_append_sheet(
       workbook,
       wsAvgWeekDemography,
-      'Average Demografi Klasifikasi'
+      'Average Demografi Klasifikasi',
     );
     const wsBestAccepted = XLSX.utils.aoa_to_sheet(bestAcceptedTrucksData);
     XLSX.utils.book_append_sheet(workbook, wsBestAccepted, 'Best 20 Accepted');
@@ -3653,7 +3656,7 @@ class DashboardV4Controller {
     XLSX.utils.book_append_sheet(
       workbook,
       wsWorsttAccepted,
-      'Top 20 Worst Trucks'
+      'Top 20 Worst Trucks',
     );
     const wsHourTruck = XLSX.utils.aoa_to_sheet(hourDataRejectData);
     XLSX.utils.book_append_sheet(workbook, wsHourTruck, 'Reject by Shift Data');
@@ -3661,29 +3664,29 @@ class DashboardV4Controller {
     XLSX.utils.book_append_sheet(
       workbook,
       wsTotalJanjang,
-      'Total Tandan Recap'
+      'Total Tandan Recap',
     );
     const wsMachineUtility = XLSX.utils.aoa_to_sheet(machineUtilityWeekData);
     XLSX.utils.book_append_sheet(
       workbook,
       wsMachineUtility,
-      'Machine Utilities'
+      'Machine Utilities',
     );
     const wsAvgVendor = XLSX.utils.aoa_to_sheet(avgVendorData);
     XLSX.utils.book_append_sheet(workbook, wsAvgVendor, 'Average Vendor');
     const wsTotalJanjangDuration = XLSX.utils.aoa_to_sheet(
-      totalJanjangDurationData
+      totalJanjangDurationData,
     );
     XLSX.utils.book_append_sheet(
       workbook,
       wsTotalJanjangDuration,
-      'Total Tandan Duration Recap'
+      'Total Tandan Duration Recap',
     );
     const wsDailyTruck = XLSX.utils.aoa_to_sheet(dailyTruckCountData);
     XLSX.utils.book_append_sheet(
       workbook,
       wsDailyTruck,
-      'Daily Truck Day Time'
+      'Daily Truck Day Time',
     );
 
     // Write the file
@@ -3699,11 +3702,11 @@ class DashboardV4Controller {
     // Set headers for file download
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=Report-${new Date().toISOString()}.xlsx`
+      `attachment; filename=Report-${new Date().toISOString()}.xlsx`,
     );
     res.setHeader(
       'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
 
     // Send the buffer
@@ -3725,8 +3728,8 @@ class DashboardV4Controller {
       ids = Array.isArray(ids)
         ? ids
         : typeof ids === 'string'
-        ? ids.split(',')
-        : [];
+          ? ids.split(',')
+          : [];
       const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
       const weeks = generateWeeks(year);
@@ -3789,7 +3792,7 @@ class DashboardV4Controller {
           e.vehicle_number !== 'BH 1240 ALB' &&
           e.vendor_name !== 'Vendor 2 Plasma' &&
           e.vendor_name !== 'Vendor B' &&
-          e.vehicle_number !== 'BH 4321 ALB'
+          e.vehicle_number !== 'BH 4321 ALB',
       );
 
       const {
@@ -3903,7 +3906,7 @@ class DashboardV4Controller {
         const { day, monthYear } = getDateMonthYearDay(
           dateForGrouping,
           true,
-          'DD/MM/YY'
+          'DD/MM/YY',
         );
         const week = getWeekNumber(dateForGrouping);
 
@@ -3942,10 +3945,10 @@ class DashboardV4Controller {
 
           totalMultiple,
           percentRusakDimakanTikus,
-          totalRusakDimakanTikus
+          totalRusakDimakanTikus,
         } = utilsInspection.getTotalAndPercentClassificationNew(
           item,
-          totalTandan
+          totalTandan,
         );
 
         grandTotalAccepted += totalAcceptedModified;
@@ -3964,10 +3967,10 @@ class DashboardV4Controller {
 
         avgClassification['mentah_diterima'].push(totalMentahDiterima);
         avgClassification['janjang_kosong_diterima'].push(
-          totalJanjangKosongDiterima
+          totalJanjangKosongDiterima,
         );
         avgClassification['buah_kecil_5_diterima'].push(
-          totalBuahKecil5Diterima
+          totalBuahKecil5Diterima,
         );
 
         avgClassification['matang_ditolak'].push(totalMatangDitolak);
@@ -4008,7 +4011,7 @@ class DashboardV4Controller {
           avgClassificationTren['tangkai_panjang'][day] = [];
         }
         avgClassificationTren['tangkai_panjang'][day].push(
-          percentTangkaiPanjang
+          percentTangkaiPanjang,
         );
 
         // new
@@ -4016,19 +4019,19 @@ class DashboardV4Controller {
           avgClassificationTren['mentah_diterima'][day] = [];
         }
         avgClassificationTren['mentah_diterima'][day].push(
-          percentMentahDiterima
+          percentMentahDiterima,
         );
         if (!avgClassificationTren['janjang_kosong_diterima'][day]) {
           avgClassificationTren['janjang_kosong_diterima'][day] = [];
         }
         avgClassificationTren['janjang_kosong_diterima'][day].push(
-          percentJanjangKosongDiterima
+          percentJanjangKosongDiterima,
         );
         if (!avgClassificationTren['buah_kecil_5_diterima'][day]) {
           avgClassificationTren['buah_kecil_5_diterima'][day] = [];
         }
         avgClassificationTren['buah_kecil_5_diterima'][day].push(
-          percentBuahKecil5Diterima
+          percentBuahKecil5Diterima,
         );
         if (!avgClassificationTren['matang_ditolak'][day]) {
           avgClassificationTren['matang_ditolak'][day] = [];
@@ -4039,14 +4042,14 @@ class DashboardV4Controller {
           avgClassificationTren['lewat_matang_ditolak'][day] = [];
         }
         avgClassificationTren['lewat_matang_ditolak'][day].push(
-          percentLewatMatangDitolak
+          percentLewatMatangDitolak,
         );
 
         if (!avgClassificationTren['rusak_dimakan_tikus'][day]) {
           avgClassificationTren['rusak_dimakan_tikus'][day] = [];
         }
         avgClassificationTren['rusak_dimakan_tikus'][day].push(
-          percentRusakDimakanTikus
+          percentRusakDimakanTikus,
         );
 
         if (!avgClassificationVendor['matang'][vendorName]) {
@@ -4174,9 +4177,8 @@ class DashboardV4Controller {
             total: 0,
           };
         }
-        avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
-          'count'
-        ] += 1;
+        avgClassificationVendor['buah_kecil_5_diterima'][vendorName]['count'] +=
+          1;
         avgClassificationVendor['buah_kecil_5_diterima'][vendorName][
           'percent'
         ] += percentBuahKecil5Diterima;
@@ -4202,9 +4204,8 @@ class DashboardV4Controller {
             total: 0,
           };
         }
-        avgClassificationVendor['lewat_matang_ditolak'][vendorName][
-          'count'
-        ] += 1;
+        avgClassificationVendor['lewat_matang_ditolak'][vendorName]['count'] +=
+          1;
         avgClassificationVendor['lewat_matang_ditolak'][vendorName][
           'percent'
         ] += percentLewatMatangDitolak;
@@ -4218,7 +4219,8 @@ class DashboardV4Controller {
             total: 0,
           };
         }
-        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] += 1;
+        avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['count'] +=
+          1;
         avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['percent'] +=
           percentRusakDimakanTikus;
         avgClassificationVendor['rusak_dimakan_tikus'][vendorName]['total'] +=
@@ -4240,7 +4242,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
         setChartDataValue(
           summaryPerformance,
@@ -4252,7 +4254,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
         setChartDataValue(
           summaryPerformance,
@@ -4264,7 +4266,7 @@ class DashboardV4Controller {
             totalRejectedModified,
             totalFinedItem,
             totalTandanItem,
-          ]
+          ],
         );
 
         // Grading Trucks
@@ -4279,7 +4281,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
         setChartDataValue(
           gradingTrucks,
@@ -4292,7 +4294,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
         setChartDataValue(
           gradingTrucks,
@@ -4305,7 +4307,7 @@ class DashboardV4Controller {
             item.machine === 2 ? 1 : 0,
             item.machine === 3 ? 1 : 0,
             item.machine === 4 ? 1 : 0,
-          ]
+          ],
         );
 
         // Fruit Accepted
@@ -4315,7 +4317,7 @@ class DashboardV4Controller {
           day,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
         setChartDataValue(
           fruitAccepted,
@@ -4323,7 +4325,7 @@ class DashboardV4Controller {
           week,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
         setChartDataValue(
           fruitAccepted,
@@ -4331,7 +4333,7 @@ class DashboardV4Controller {
           monthYear,
           ['Matang', 'Lewat Matang'],
           [percentMatang, percentLewatMatang],
-          true
+          true,
         );
 
         // Fruit Tp
@@ -4341,7 +4343,7 @@ class DashboardV4Controller {
           day,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
         setChartDataValue(
           fruitTp,
@@ -4349,7 +4351,7 @@ class DashboardV4Controller {
           week,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
         setChartDataValue(
           fruitTp,
@@ -4357,7 +4359,7 @@ class DashboardV4Controller {
           monthYear,
           ['Tangkai Panjang'],
           [percentTangkaiPanjang],
-          true
+          true,
         );
 
         // Fruit Rejected
@@ -4379,7 +4381,7 @@ class DashboardV4Controller {
             percentBuahKecil3,
             percentBuahKecil5,
           ],
-          true
+          true,
         );
         setChartDataValue(
           fruitRejected,
@@ -4399,7 +4401,7 @@ class DashboardV4Controller {
             percentBuahKecil3,
             percentBuahKecil5,
           ],
-          true
+          true,
         );
         setChartDataValue(
           fruitRejected,
@@ -4419,7 +4421,7 @@ class DashboardV4Controller {
             percentBuahKecil3,
             percentBuahKecil5,
           ],
-          true
+          true,
         );
 
         if (!item['score']) {
@@ -4485,7 +4487,7 @@ class DashboardV4Controller {
           total_multiple: item['grading_result']['total_multiple'],
           percent_multiple: countPercentage(
             item['grading_result']['total_multiple'],
-            item['grading_result']['total_tandan']
+            item['grading_result']['total_tandan'],
           ),
         };
 
@@ -4538,13 +4540,13 @@ class DashboardV4Controller {
           obj[key] = value?.length
             ? countPercentage(
                 value.reduce((tot, num) => tot + Number(num || 0), 0),
-                grandTotalTandan
+                grandTotalTandan,
               )
             : 0;
 
           return obj;
         },
-        {}
+        {},
       );
       const averageVendorAccepted = Object.entries(avgAcceptedVendor).reduce(
         (obj, [key, value]) => {
@@ -4554,14 +4556,14 @@ class DashboardV4Controller {
 
           return obj;
         },
-        {}
+        {},
       );
 
       const lowestRanked = processInspectionData(lowest).sort(
-        (a, b) => a.percent_accepted - b.percent_accepted
+        (a, b) => a.percent_accepted - b.percent_accepted,
       );
       const highestRanked = processInspectionData(highest).sort(
-        (a, b) => b.percent_accepted - a.percent_accepted
+        (a, b) => b.percent_accepted - a.percent_accepted,
       );
 
       const averageVendorData = Object.entries(averageVendor).map(
@@ -4571,7 +4573,7 @@ class DashboardV4Controller {
             count: value.count,
             percent_supply: countPercentage(
               value.count,
-              totalInspection
+              totalInspection,
             ).toLocaleString('en', {
               maximumFractionDigits: 2,
             }),
@@ -4586,7 +4588,7 @@ class DashboardV4Controller {
               'en',
               {
                 maximumFractionDigits: 2,
-              }
+              },
             ),
             avg_mentah: (value.mentah / value.count).toLocaleString('en', {
               maximumFractionDigits: 2,
@@ -4600,7 +4602,7 @@ class DashboardV4Controller {
               'en',
               {
                 maximumFractionDigits: 2,
-              }
+              },
             ),
             avg_tangkai_panjang: (
               value.tangkai_panjang / value.count
@@ -4608,7 +4610,7 @@ class DashboardV4Controller {
               maximumFractionDigits: 2,
             }),
           };
-        }
+        },
       );
 
       const rocSummaryPerformance = Object.entries(summaryPerformance).reduce(
@@ -4655,11 +4657,11 @@ class DashboardV4Controller {
 
           return obj;
         },
-        {}
+        {},
       );
 
       const avgClassificationVendorData = Object.entries(
-        avgClassificationVendor
+        avgClassificationVendor,
       ).reduce((o, [key, value]) => {
         o[key] = addRankingsWithTieHandling(
           Object.entries(value)
@@ -4672,14 +4674,14 @@ class DashboardV4Controller {
               };
             })
             .sort((a, b) => b.supply - a.supply),
-          key
+          key,
         );
 
         return o;
       }, {});
 
       const avgAcceptedVendorHistoryDailyData = Object.entries(
-        avgAcceptedVendorHistoryDaily
+        avgAcceptedVendorHistoryDaily,
       ).reduce((obj, [vendor, data]) => {
         // console.log({ data });
         obj[vendor] = Object.entries(data)
@@ -4705,7 +4707,7 @@ class DashboardV4Controller {
       }, {});
 
       const avgClassificationTrenData = Object.entries(
-        avgClassificationTren
+        avgClassificationTren,
       ).reduce((obj, [c, data]) => {
         obj[c] = Object.entries(data).map(([d, value]) => {
           const sum = value.reduce((n, c) => n + (c || 0), 0);
@@ -4761,7 +4763,7 @@ class DashboardV4Controller {
             vendor: processVendorData(averageVendorData),
           },
           rocs: rocSummaryPerformance,
-        })
+        }),
       );
     } catch (err) {
       console.log({ err });
