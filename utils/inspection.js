@@ -8,7 +8,7 @@ async function getCompanyLimitTandan(user) {
     } else if (company && company.name.includes('HPI')) {
       return 70;
     } else {
-      return 200;
+      return 30;
     }
   }
   return 200; // Default value if limit_tandan is not set
