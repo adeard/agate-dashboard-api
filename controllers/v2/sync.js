@@ -76,7 +76,7 @@ class SyncDataController {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
-        }
+        },
       );
 
       return res
@@ -133,7 +133,7 @@ class SyncDataController {
             new: true,
             setDefaultsOnInsert: true,
             returnDocument: true,
-          }
+          },
         );
         // vendor = await VendorV2Model.create({
         //   id: body['vendor_id'],
@@ -170,6 +170,8 @@ class SyncDataController {
       body['factory'] = factory._id;
       body['vendor'] = vendor._id;
 
+      console.log({ body }, '<<<< BODY SYNC DATA INSPECTION');
+
       const doc = await InspectionDataModel.findOneAndUpdate(
         { id: body['id'] },
         body,
@@ -178,7 +180,7 @@ class SyncDataController {
           new: true,
           setDefaultsOnInsert: true,
           returnDocument: true,
-        }
+        },
       );
 
       // if (direct && doc.grading_result['total_tandan'] > 100) {
@@ -537,8 +539,8 @@ class SyncDataController {
             200,
             'Success',
             'Success create integrate inspection',
-            { success: true }
-          )
+            { success: true },
+          ),
         );
     } catch (err) {
       console.log({ err });
@@ -578,7 +580,7 @@ class SyncDataController {
         return res.status(200).json(
           createResponseSuccess(200, 'Success', 'Success integrate image', {
             url: null,
-          })
+          }),
         );
       }
 
@@ -595,8 +597,8 @@ class SyncDataController {
             200,
             'Success',
             'Success create integrate inspection',
-            { url: file.url }
-          )
+            { url: file.url },
+          ),
         );
     } catch (err) {
       console.log({ err });
@@ -642,13 +644,13 @@ class SyncDataController {
           new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
-        }
+        },
       );
 
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success sync machine check', {
           id: machineCheck._id,
-        })
+        }),
       );
     } catch (err) {
       console.error('Error syncing machine check:', {
@@ -696,7 +698,7 @@ class SyncDataController {
           new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
-        }
+        },
       );
 
       return res.status(200).json(
@@ -706,8 +708,8 @@ class SyncDataController {
           'Success sync machine logs file',
           {
             id: machineLogsFile._id,
-          }
-        )
+          },
+        ),
       );
     } catch (err) {
       console.error('Error syncing machine logs file:', {
@@ -763,7 +765,7 @@ class SyncDataController {
           new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
-        }
+        },
       );
 
       return res.status(200).json(
@@ -773,8 +775,8 @@ class SyncDataController {
           'Success sync machine logs data',
           {
             id: machineLogsData._id,
-          }
-        )
+          },
+        ),
       );
     } catch (err) {
       console.error('Error syncing machine logs data:', {

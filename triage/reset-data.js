@@ -236,10 +236,10 @@ connectToDatabase().then(async (res) => {
   //   return;
   // }, Promise.resolve());
 
-  await UserModel.findOneAndUpdate(
-    { email: 'samaris@hartonoplantation.com' },
-    { $set: { password: hashPassword('agate123') } }
-  );
+  // await UserModel.findOneAndUpdate(
+  //   { email: 'samaris@hartonoplantation.com' },
+  //   { $set: { password: hashPassword('agate123') } },
+  // );
   // await UserModel.findOneAndUpdate(
   //   { email: 'pc.libm@sinarmas-agri.com' },
   //   { $set: { password: hashPassword('agate123') } }
@@ -439,16 +439,18 @@ connectToDatabase().then(async (res) => {
   // await MachineLogsFileModel.deleteMany({});
 
   // const comp = await CompanyModel.create({
-  //   name: 'Group HPI',
-  //   initial: 'HPI',
+  //   name: 'Agrotema',
+  //   initial: 'AGTM',
   //   image_name: '',
-  //   location: 'Sumatera',
+  //   location: 'Bayunng Lencir, Jambi',
   // });
   // const factory = await FactoryModel.create({
-  //   name: 'ENGM',
+  //   name: 'BYLM',
   //   company: comp._id,
-  //   location: '',
+  //   location: 'Bayunng Lencir, Jambi',
   // });
+
+  // console.log({ comp, factory });
 
   // await CompanyModel.findByIdAndUpdate('6959fd4484e3955ce63dac93', {
   //   $set: {
@@ -461,7 +463,8 @@ connectToDatabase().then(async (res) => {
   //     location: 'Mempawah, Kalimantan Barat',
   //   },
   // });
-  // const company = await FactoryModel.find({}).lean();
+  const company = await FactoryModel.find({}).lean();
+  console.log({ company });
 
   // const inspection = await InspectionDataModel.updateMany(
   //   {
