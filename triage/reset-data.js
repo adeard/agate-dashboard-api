@@ -33,20 +33,22 @@ connectToDatabase().then(async (res) => {
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
 
-  // const factory = await FactoryModel.findOne({
-  //   name: 'LNGM',
-  // }).lean();
+  const factory = await FactoryModel.findOne({
+    name: 'BYLM',
+  }).lean();
 
-  // await UserModel.create({
-  //   full_name: 'Admin HPI',
-  //   email: 'adminhpi@accelego.id',
-  //   password: hashPassword('123'),
-  //   access_factory: ['6959fd4584e3955ce63dac95'],
-  //   status: 1,
-  //   whatsapp_number: '6281385784854',
-  //   subscribe_notification: 1,
-  //   company: '6959fd4484e3955ce63dac93',
-  // });
+  console.log({ factory });
+
+  await UserModel.create({
+    full_name: 'Admin Agrotema',
+    email: 'agrotema@accelego.id',
+    password: hashPassword('1234'),
+    access_factory: ['699be68839fb2f1e96d62a01'],
+    status: 1,
+    whatsapp_number: '6281385784854',
+    subscribe_notification: 1,
+    company: '699be68739fb2f1e96d629ff',
+  });
 
   // const users = await UserModel.find({
   //   whatsapp_number: { $exists: true },
@@ -463,8 +465,8 @@ connectToDatabase().then(async (res) => {
   //     location: 'Mempawah, Kalimantan Barat',
   //   },
   // });
-  const company = await FactoryModel.find({}).lean();
-  console.log({ company });
+  // const company = await FactoryModel.find({}).lean();
+  // console.log({ company });
 
   // const inspection = await InspectionDataModel.updateMany(
   //   {

@@ -162,6 +162,7 @@ class SyncDataController {
       // }
 
       delete body['is_integrated'];
+      body['is_integrated'] = true;
 
       body['company'] = factory.company.toString();
 

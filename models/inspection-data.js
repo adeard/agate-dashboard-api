@@ -44,6 +44,21 @@ const SCHEMA = new Schema(
       required: false,
       default: null,
     },
+    over_ripe_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    long_stash_e_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    pest_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
     long_stash_fined_in_kg: {
       type: Number,
       required: false,
@@ -152,6 +167,10 @@ const SCHEMA = new Schema(
     },
     ticket_number: {
       type: String,
+    },
+    is_integrated: {
+      type: Boolean,
+      default: true,
     },
     is_integrated_wb: {
       type: Boolean,

@@ -121,6 +121,9 @@ const schemas = {
     classification_rejected: Joi.array().items(Joi.string()).required(),
     unripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     half_ripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    over_ripe_fined_in_kg: Joi.number().allow(null), // Optional field
+    long_stash_e_fined_in_kg: Joi.number().allow(null), // Optional field
+    pest_fined_in_kg: Joi.number().allow(null), // Optional field
     long_stash_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     small_fruit_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     small_fruit_5_fined_in_kg: Joi.number().integer().allow(null), // Optional field
@@ -148,6 +151,7 @@ const schemas = {
     total_multiple: Joi.number().optional(), // Optional field,
     ticket_number: Joi.any().optional(), // Optional field
     is_integrated_wb: Joi.boolean().default(false), // Optional field
+    is_integrated: Joi.boolean().default(true), // Optional field
     demo_mode: Joi.boolean().default(false), // Optional field
   }),
 
