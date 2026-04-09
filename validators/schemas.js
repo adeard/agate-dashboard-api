@@ -91,7 +91,7 @@ const schemas = {
       not_detected: Joi.number(),
       detected_more_than_one: Joi.number(),
     }).required(),
-    notes: Joi.string().allow('').allow(null).optional(),
+    notes: Joi.string().optional(),
   }),
 
   'inspection-data': Joi.object({
@@ -186,7 +186,7 @@ const schemas = {
     date: Joi.string().required(),
     status: Joi.string().required(),
     subject: Joi.string().required(),
-    notes: Joi.string().required(),
+    notes: Joi.string().optional(),
     code: Joi.string().required(),
     message: Joi.string().required(),
     filename: Joi.string().required(),
