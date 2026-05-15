@@ -1,15 +1,15 @@
-const dayjs = require('dayjs');
-const FactoryModel = require('../../models/factory');
-const InspectionDataModel = require('../../models/inspection-data');
+const dayjs = require("dayjs");
+const FactoryModel = require("../../models/factory");
+const InspectionDataModel = require("../../models/inspection-data");
 const {
   createResponseSuccess,
   capitalizeString,
-} = require('../../utils/helpers');
-const { vBody } = require('../../validators/joi');
-const generatePdf = require('../../lib/pdf');
-const getImageFile = require('../../utils/get-image-file');
-const CompanyModel = require('../../models/company');
-const { getCompanyLimitTandan } = require('../../utils/inspection');
+} = require("../../utils/helpers");
+const { vBody } = require("../../validators/joi");
+const generatePdf = require("../../lib/pdf");
+const getImageFile = require("../../utils/get-image-file");
+const CompanyModel = require("../../models/company");
+const { getCompanyLimitTandan } = require("../../utils/inspection");
 
 const countPercentage = (number = 0, divider = 1) => {
   let percent =
@@ -18,16 +18,17 @@ const countPercentage = (number = 0, divider = 1) => {
 };
 
 let dictBuahKecil = {
-  'BUAH KECIL DIBAWAH 5KG': 'Buah 3-5kg',
-  'BUAH KECIL DIBAWAH 3KG': 'Buah <3kg',
+  "BUAH KECIL DIBAWAH 5KG": "Buah 3-5kg",
+  "BUAH KECIL DIBAWAH 3KG": "Buah <3kg",
+  "BUAH KECIL DIBAWAH 2KG": "Buah <2kg",
 };
 
 function calculateAndAppendTotals(data) {
-  const totalCounts = { label: 'Total' };
+  const totalCounts = { label: "Total" };
 
   // Initialize the keys with 0
   Object.keys(data[0]).forEach((key) => {
-    if (key !== 'label' && key !== 'DENDA') {
+    if (key !== "label" && key !== "DENDA") {
       totalCounts[key] = 0;
     }
   });
@@ -35,7 +36,7 @@ function calculateAndAppendTotals(data) {
   // Sum up the values for each key
   data.forEach((entry) => {
     Object.keys(entry).forEach((key) => {
-      if (key !== 'label' && key !== 'DENDA') {
+      if (key !== "label" && key !== "DENDA") {
         totalCounts[key] += entry[key];
       }
     });
@@ -59,7 +60,7 @@ function generateClassificationResultArray(summary) {
 
 const changeValueToLocalestring = (obj) => {
   return Object.keys(obj).reduce((o, k) => {
-    o[k] = typeof obj[k] === 'number' ? obj[k].toLocaleString() : obj[k];
+    o[k] = typeof obj[k] === "number" ? obj[k].toLocaleString() : obj[k];
 
     return o;
   }, {});
@@ -70,47 +71,47 @@ class InspectionDataController {
     try {
       const user = req.user;
       const {
-        name = '',
-        delivery_number = '',
-        vehicle_number = '',
-        vendor_id = '',
-        date_from = '',
-        date_to = '',
+        name = "",
+        delivery_number = "",
+        vehicle_number = "",
+        vendor_id = "",
+        date_from = "",
+        date_to = "",
         limit_minimum = 0,
       } = req.query;
       const { factoryId } = req.params;
       // console.log({ user });
 
       let q = {
-        'grading_result.total_tandan': { $gte: Number(limit_minimum) },
+        "grading_result.total_tandan": { $gte: Number(limit_minimum) },
         company: user.company,
       };
 
       if (factoryId) {
-        q['factory'] = factoryId;
+        q["factory"] = factoryId;
       }
       if (name) {
-        const regexPattern = new RegExp(name || '', 'i');
-        q['name'] = { $regex: regexPattern };
+        const regexPattern = new RegExp(name || "", "i");
+        q["name"] = { $regex: regexPattern };
       }
 
       if (delivery_number) {
-        const regexPattern = new RegExp(delivery_number || '', 'i');
-        q['delivery_number'] = { $regex: regexPattern };
+        const regexPattern = new RegExp(delivery_number || "", "i");
+        q["delivery_number"] = { $regex: regexPattern };
       }
       if (vehicle_number) {
-        const regexPattern = new RegExp(vehicle_number || '', 'i');
-        q['vehicle_number'] = { $regex: regexPattern };
+        const regexPattern = new RegExp(vehicle_number || "", "i");
+        q["vehicle_number"] = { $regex: regexPattern };
       }
       if (vendor_id) {
-        q['vendor'] = vendor_id;
+        q["vendor"] = vendor_id;
       }
 
       if (date_from && date_to) {
-        q['date'] = {
+        q["date"] = {
           $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
           $lte: dayjs(date_to)
-            .add(1, 'day')
+            .add(1, "day")
             .hour(5)
             .minute(59)
             .second(59)
@@ -126,26 +127,26 @@ class InspectionDataController {
 
       const totalAllTandon = inspections.reduce(
         (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
-        0
+        0,
       );
       const totalRejected = inspections.reduce(
         (curr, acc) => Number(acc.grading_result.total_rejected || 0) + curr,
-        0
+        0,
       );
       const totalAccepted = inspections.reduce(
         (curr, acc) => Number(acc.grading_result.total_accepted || 0) + curr,
-        0
+        0,
       );
       const totalFined = inspections.reduce(
         (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
-        0
+        0,
       );
 
       return res.status(200).json(
         createResponseSuccess(
           200,
-          'Success',
-          'Success get all inspections',
+          "Success",
+          "Success get all inspections",
           inspections,
           {
             total_data: totalData,
@@ -153,8 +154,8 @@ class InspectionDataController {
             total_fined: totalFined,
             total_rejected: totalRejected,
             total_tandan: totalAllTandon,
-          }
-        )
+          },
+        ),
       );
     } catch (err) {
       next(err);
@@ -167,7 +168,7 @@ class InspectionDataController {
       const body = req.body;
 
       const founded = await InspectionDataModel.findOne({
-        id: body['id'],
+        id: body["id"],
       }).lean();
 
       if (founded) {
@@ -176,25 +177,25 @@ class InspectionDataController {
           .json(
             createResponseSuccess(
               200,
-              'Success',
-              'Inspection already integrated',
-              {}
-            )
+              "Success",
+              "Inspection already integrated",
+              {},
+            ),
           );
       }
 
-      delete body['is_integrated'];
+      delete body["is_integrated"];
 
-      await vBody('inspection-data', body);
+      await vBody("inspection-data", body);
 
       await InspectionDataModel.findOneAndUpdate(
-        { id: body['id'] },
+        { id: body["id"] },
         { ...body, company: user.company },
         {
           upsert: true,
           new: true,
           setDefaultsOnInsert: true,
-        }
+        },
       );
 
       return res
@@ -202,10 +203,10 @@ class InspectionDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success create new inspection',
-            {}
-          )
+            "Success",
+            "Success create new inspection",
+            {},
+          ),
         );
     } catch (err) {
       console.log({ err });
@@ -217,20 +218,19 @@ class InspectionDataController {
     try {
       const { inspectionId } = req.params;
 
-      const inspections = await InspectionDataModel.findById(
-        inspectionId
-      ).lean();
+      const inspections =
+        await InspectionDataModel.findById(inspectionId).lean();
 
       return res
         .status(200)
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success get detail inspections',
+            "Success",
+            "Success get detail inspections",
             inspections,
-            {}
-          )
+            {},
+          ),
         );
     } catch (err) {
       next(err);
@@ -243,7 +243,7 @@ class InspectionDataController {
 
       let q = {};
       if (factoryId) {
-        q['factory'] = factoryId;
+        q["factory"] = factoryId;
       }
 
       const inspections = await InspectionDataModel.find(q)
@@ -252,30 +252,30 @@ class InspectionDataController {
 
       let template = [
         [
-          'No',
-          'Tanggal',
-          'Waktu Mulai',
-          'Waktu Selesai',
-          'Durasi',
-          'Mesin',
-          'Vendor',
-          'Nomor Surat Jalan',
-          'Nomor Plat Kendaraan',
-          'Total Tandan',
-          'Diterima',
-          'Didenda',
-          'Ditolak',
+          "No",
+          "Tanggal",
+          "Waktu Mulai",
+          "Waktu Selesai",
+          "Durasi",
+          "Mesin",
+          "Vendor",
+          "Nomor Surat Jalan",
+          "Nomor Plat Kendaraan",
+          "Total Tandan",
+          "Diterima",
+          "Didenda",
+          "Ditolak",
         ],
       ];
 
       inspections.forEach((ins, index) => {
         template.push([
           index + 1,
-          dayjs(ins.date).format('DD/MM/YYYY'),
-          dayjs(ins.date).format('HH:mm'),
-          dayjs(ins.finish_date).format('HH:mm'),
-          dayjs(ins.finish_date).diff(dayjs(ins.date), 'minutes'),
-          ins.machine || '-',
+          dayjs(ins.date).format("DD/MM/YYYY"),
+          dayjs(ins.date).format("HH:mm"),
+          dayjs(ins.finish_date).format("HH:mm"),
+          dayjs(ins.finish_date).diff(dayjs(ins.date), "minutes"),
+          ins.machine || "-",
           ins.vendor_name,
           ins.delivery_number,
           ins.vehicle_number,
@@ -291,10 +291,10 @@ class InspectionDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success get all inspections',
-            template
-          )
+            "Success",
+            "Success get all inspections",
+            template,
+          ),
         );
     } catch (err) {
       next(err);
@@ -305,15 +305,14 @@ class InspectionDataController {
     try {
       const { inspectionId } = req.params;
 
-      const inspections = await InspectionDataModel.findById(
-        inspectionId
-      ).lean();
+      const inspections =
+        await InspectionDataModel.findById(inspectionId).lean();
 
       if (!inspections) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Pemeriksaan tidak ditemukan.',
+          title: "Not Found",
+          message: "Pemeriksaan tidak ditemukan.",
         };
       }
 
@@ -340,11 +339,11 @@ class InspectionDataController {
 
       let finedData = Object.keys(finedSummary).map((k) => {
         return {
-          label: k.includes('BUAH KECIL')
+          label: k.includes("BUAH KECIL")
             ? dictBuahKecil[k]
             : capitalizeString(k),
           ...finedSummary[k],
-          'TOTAL DENDA': finedSummary[k]['TOTAL'] * finedSummary[k]['DENDA'],
+          "TOTAL DENDA": finedSummary[k]["TOTAL"] * finedSummary[k]["DENDA"],
         };
       });
       let classificationData = Object.keys(classificationSummary).map((k) => {
@@ -355,15 +354,17 @@ class InspectionDataController {
       });
 
       const isUtjmKjgm =
-        factory && ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
+        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
+      const isLngm =
+        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeCols = (arr) => {
           arr.forEach((item) => {
-            item['BUAH KECIL DIBAWAH 5KG'] =
-              (item['BUAH KECIL DIBAWAH 5KG'] || 0) +
-              (item['BUAH KECIL DIBAWAH 3KG'] || 0);
-            item['BUAH KECIL DIBAWAH 3KG'] = 0;
+            item["BUAH KECIL DIBAWAH 5KG"] =
+              (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
+            item["BUAH KECIL DIBAWAH 3KG"] = 0;
           });
         };
         mergeCols(acceptedData);
@@ -371,24 +372,24 @@ class InspectionDataController {
       }
 
       let total_accepted_percent =
-        inspections['grading_result']['total_accepted'] > 0
+        inspections["grading_result"]["total_accepted"] > 0
           ? countPercentage(
-              inspections['grading_result']['total_accepted'],
-              inspections['grading_result']['total_tandan']
+              inspections["grading_result"]["total_accepted"],
+              inspections["grading_result"]["total_tandan"],
             )
           : 0;
       let total_rejected_percent =
-        inspections['grading_result']['total_rejected'] > 0
+        inspections["grading_result"]["total_rejected"] > 0
           ? countPercentage(
-              inspections['grading_result']['total_rejected'],
-              inspections['grading_result']['total_tandan']
+              inspections["grading_result"]["total_rejected"],
+              inspections["grading_result"]["total_tandan"],
             )
           : 0;
       let total_fined_percent =
-        inspections['grading_result']['total_fined'] > 0
+        inspections["grading_result"]["total_fined"] > 0
           ? countPercentage(
-              inspections['grading_result']['total_fined'],
-              inspections['grading_result']['total_accepted']
+              inspections["grading_result"]["total_fined"],
+              inspections["grading_result"]["total_accepted"],
             )
           : 0;
       let total_percent =
@@ -396,25 +397,25 @@ class InspectionDataController {
         Number(Number(total_accepted_percent).toFixed(1));
 
       let total_multiple_percent =
-        inspections['grading_result']['total_multiple'] > 0
+        inspections["grading_result"]["total_multiple"] > 0
           ? countPercentage(
-              inspections['grading_result']['total_multiple'],
-              inspections['grading_result']['total_tandan']
+              inspections["grading_result"]["total_multiple"],
+              inspections["grading_result"]["total_tandan"],
             )
           : 0;
 
       let classificationResult = generateClassificationResultArray(
-        classificationData
+        classificationData,
       ).map((e) => changeValueToLocalestring(e));
 
       let acceptedResult = acceptedData.length
         ? generateClassificationResultArray(acceptedData).map((e) =>
-            changeValueToLocalestring(e)
+            changeValueToLocalestring(e),
           )
         : null;
       let rejectedResult = rejectedData.length
         ? generateClassificationResultArray(rejectedData).map((e) =>
-            changeValueToLocalestring(e)
+            changeValueToLocalestring(e),
           )
         : null;
 
@@ -423,45 +424,46 @@ class InspectionDataController {
       //   : null;
 
       let totalResultRejected = rejectedResult
-        ? rejectedResult.find((e) => e.label.toLowerCase() === 'total')
+        ? rejectedResult.find((e) => e.label.toLowerCase() === "total")
         : null;
       // console.log({ totalResult });
 
       const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
+        is_lngm: isLngm,
         is_utjm_kjgm: isUtjmKjgm,
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : 'sinarmas-logo.png'
+          companyData ? companyData.image_name : "sinarmas-logo.png",
         ),
-        agate_logo_img: getImageFile('agate-logo.png'),
-        location: factory ? factory.location : '-',
+        agate_logo_img: getImageFile("agate-logo.png"),
+        location: factory ? factory.location : "-",
         vendor_type:
-          Number(inspections['vendor_type']) === 1
-            ? 'Inti'
-            : Number(inspections['vendor_type']) === 2
-            ? 'Eksternal'
-            : 'Plasma',
-        vendor: inspections['vendor_name'],
-        delivery_number: inspections['delivery_number'],
-        vehicle_number: inspections['vehicle_number'],
-        date: dayjs(inspections['date']).format('DD/MM/YYYY HH:mm:ss'),
-        finish_date: dayjs(inspections['finish_date']).format(
-          'DD/MM/YYYY HH:mm:ss'
+          Number(inspections["vendor_type"]) === 1
+            ? "Inti"
+            : Number(inspections["vendor_type"]) === 2
+              ? "Eksternal"
+              : "Plasma",
+        vendor: inspections["vendor_name"],
+        delivery_number: inspections["delivery_number"],
+        vehicle_number: inspections["vehicle_number"],
+        date: dayjs(inspections["date"]).format("DD/MM/YYYY HH:mm:ss"),
+        finish_date: dayjs(inspections["finish_date"]).format(
+          "DD/MM/YYYY HH:mm:ss",
         ),
-        machine: inspections['machine'],
-        date_string: dayjs(inspections['date']).format('DD/MM/YYYY'),
+        machine: inspections["machine"],
+        date_string: dayjs(inspections["date"]).format("DD/MM/YYYY"),
         grading_result: {
           total_tandan:
-            inspections['grading_result']['total_tandan'].toLocaleString(),
+            inspections["grading_result"]["total_tandan"].toLocaleString(),
           total_accepted:
-            inspections['grading_result']['total_accepted'].toLocaleString(),
+            inspections["grading_result"]["total_accepted"].toLocaleString(),
           total_rejected:
-            inspections['grading_result']['total_rejected'].toLocaleString(),
+            inspections["grading_result"]["total_rejected"].toLocaleString(),
           total_fined:
-            inspections['grading_result']['total_fined'].toLocaleString(),
+            inspections["grading_result"]["total_fined"].toLocaleString(),
           total_multiple:
-            inspections['grading_result']['total_multiple'].toLocaleString(),
+            inspections["grading_result"]["total_multiple"].toLocaleString(),
           total_accepted_percent: total_accepted_percent,
           total_rejected_percent: total_rejected_percent,
           total_fined_percent: total_fined_percent,
@@ -472,28 +474,28 @@ class InspectionDataController {
         accepted_result: acceptedResult,
         rejected_result: rejectedData.length
           ? generateClassificationResultArray(rejectedData).map((e) =>
-              changeValueToLocalestring(e)
+              changeValueToLocalestring(e),
             )
           : null,
         fined_result: finedData.length
           ? generateClassificationResultArray(finedData).map((e) =>
-              changeValueToLocalestring(e)
+              changeValueToLocalestring(e),
             )
           : null,
 
         report: {
           total_tandan:
-            inspections['grading_result']['total_tandan'].toLocaleString(),
-          tandan_kosong: rejectedSummary?.['JANJANG KOSONG']
+            inspections["grading_result"]["total_tandan"].toLocaleString(),
+          tandan_kosong: rejectedSummary?.["JANJANG KOSONG"]
             ? Number(
-                rejectedSummary['JANJANG KOSONG']['TOTAL']
+                rejectedSummary["JANJANG KOSONG"]["TOTAL"],
               ).toLocaleString()
             : 0,
-          bjr_3: totalResultRejected?.['BUAH KECIL DIBAWAH 3KG']
-            ? totalResultRejected['BUAH KECIL DIBAWAH 3KG']
+          bjr_3: totalResultRejected?.["BUAH KECIL DIBAWAH 3KG"]
+            ? totalResultRejected["BUAH KECIL DIBAWAH 3KG"]
             : 0,
-          mentah: rejectedSummary?.['MENTAH']
-            ? Number(rejectedSummary['MENTAH']['TOTAL']).toLocaleString()
+          mentah: rejectedSummary?.["MENTAH"]
+            ? Number(rejectedSummary["MENTAH"]["TOTAL"]).toLocaleString()
             : 0,
 
           // bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
@@ -501,10 +503,10 @@ class InspectionDataController {
           //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
           //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
           // ).toLocaleString(),
-          tangkai_panjang: finedSummary['TANGKAI PANJANG']?.['TOTAL'] || 0,
+          tangkai_panjang: finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0,
           tangkai_panjang_denda: (
-            Number(finedSummary['TANGKAI PANJANG']?.['TOTAL'] || 0) *
-            Number(finedSummary['TANGKAI PANJANG']?.['DENDA'] || 0)
+            Number(finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0) *
+            Number(finedSummary["TANGKAI PANJANG"]?.["DENDA"] || 0)
           ).toLocaleString(),
         },
       };
@@ -518,11 +520,11 @@ class InspectionDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success get detail inspections',
+            "Success",
+            "Success get detail inspections",
             data,
-            {}
-          )
+            {},
+          ),
         );
     } catch (err) {
       console.log({ err });
@@ -540,42 +542,47 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -589,42 +596,47 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -638,34 +650,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -679,34 +695,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -720,34 +740,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -761,34 +785,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -802,80 +830,85 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
     try {
       const {
-        name = '',
-        delivery_number = '',
-        vehicle_number = '',
-        vendor_id = '',
-        date_from = '',
-        date_to = '',
+        name = "",
+        delivery_number = "",
+        vehicle_number = "",
+        vendor_id = "",
+        date_from = "",
+        date_to = "",
       } = req.query;
       const { factoryId } = req.params;
 
       let q = {};
       if (factoryId) {
-        q['factory'] = factoryId;
+        q["factory"] = factoryId;
       }
       if (name) {
-        const regexPattern = new RegExp(name || '', 'i');
-        q['name'] = {
+        const regexPattern = new RegExp(name || "", "i");
+        q["name"] = {
           name: { $regex: regexPattern },
         };
       }
 
       if (delivery_number) {
-        const regexPattern = new RegExp(delivery_number || '', 'i');
-        q['delivery_number'] = { $regex: regexPattern };
+        const regexPattern = new RegExp(delivery_number || "", "i");
+        q["delivery_number"] = { $regex: regexPattern };
       }
       if (vehicle_number) {
-        const regexPattern = new RegExp(vehicle_number || '', 'i');
-        q['vehicle_number'] = { $regex: regexPattern };
+        const regexPattern = new RegExp(vehicle_number || "", "i");
+        q["vehicle_number"] = { $regex: regexPattern };
       }
       if (vendor_id) {
-        q['vendor'] = vendor_id;
+        q["vendor"] = vendor_id;
       }
       if (date_from && date_to) {
-        q['date'] = {
+        q["date"] = {
           $gte: dayjs(date_from),
           $lte: dayjs(date_to),
         };
@@ -886,8 +919,8 @@ class InspectionDataController {
       if (!inspections.length) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Pemeriksaan tidak ditemukan.',
+          title: "Not Found",
+          message: "Pemeriksaan tidak ditemukan.",
         };
       }
 
@@ -898,10 +931,10 @@ class InspectionDataController {
       inspections = inspections.filter(
         (e) =>
           e.grading_result?.total_tandan > limit &&
-          e.vehicle_number !== 'BH 1240 ALB' &&
-          e.vendor_name !== 'Vendor 2 Plasma' &&
-          e.vendor_name !== 'Vendor B' &&
-          e.vehicle_number !== 'BH 4321 ALB'
+          e.vehicle_number !== "BH 1240 ALB" &&
+          e.vendor_name !== "Vendor 2 Plasma" &&
+          e.vendor_name !== "Vendor B" &&
+          e.vehicle_number !== "BH 4321 ALB",
       );
 
       let demografikSemua = {
@@ -927,80 +960,80 @@ class InspectionDataController {
       inspections.forEach((inspection) => {
         if (!inspection.grading_result) return;
 
-        const totalTandan = inspection['grading_result']['total_tandan'];
-        const totalAccepted = inspection['grading_result']['total_accepted'];
-        const totalRejected = inspection['grading_result']['total_rejected'];
-        const totalFined = inspection['grading_result']['total_fined'];
-        const totalMultiple = inspection['grading_result']['total_multiple'];
+        const totalTandan = inspection["grading_result"]["total_tandan"];
+        const totalAccepted = inspection["grading_result"]["total_accepted"];
+        const totalRejected = inspection["grading_result"]["total_rejected"];
+        const totalFined = inspection["grading_result"]["total_fined"];
+        const totalMultiple = inspection["grading_result"]["total_multiple"];
 
         const classificationSummary =
-          inspection['grading_result']['classification_summary'];
+          inspection["grading_result"]["classification_summary"];
         const acceptedSummary =
-          inspection['grading_result']['accepted_summary'];
+          inspection["grading_result"]["accepted_summary"];
         const rejectedSummary =
-          inspection['grading_result']['rejected_summary'];
-        const finedSummary = inspection['grading_result']['fined_summary'];
+          inspection["grading_result"]["rejected_summary"];
+        const finedSummary = inspection["grading_result"]["fined_summary"];
 
-        const vendorName = inspection['vendor_name']?.trim() || 'Unknown';
+        const vendorName = inspection["vendor_name"]?.trim() || "Unknown";
 
-        demografikSemua['total_tandan'] += totalTandan;
-        demografikSemua['total_accepted'] += totalAccepted;
-        demografikSemua['total_fined'] += totalFined;
-        demografikSemua['total_rejected'] += totalRejected;
-        demografikSemua['total_multiple'] += totalMultiple;
+        demografikSemua["total_tandan"] += totalTandan;
+        demografikSemua["total_accepted"] += totalAccepted;
+        demografikSemua["total_fined"] += totalFined;
+        demografikSemua["total_rejected"] += totalRejected;
+        demografikSemua["total_multiple"] += totalMultiple;
 
-        if (Number(inspection['vendor_type']) === 1) {
-          demografikInti['total_tandan'] += totalTandan;
-          demografikInti['total_accepted'] += totalAccepted;
-          demografikInti['total_fined'] += totalFined;
-          demografikInti['total_rejected'] += totalRejected;
-          demografikInti['total_multiple'] += totalMultiple;
+        if (Number(inspection["vendor_type"]) === 1) {
+          demografikInti["total_tandan"] += totalTandan;
+          demografikInti["total_accepted"] += totalAccepted;
+          demografikInti["total_fined"] += totalFined;
+          demografikInti["total_rejected"] += totalRejected;
+          demografikInti["total_multiple"] += totalMultiple;
 
           if (!demografikVendorInti[vendorName]) {
             demografikVendorInti[vendorName] = { ...baseObjectIntiVendor };
-            demografikVendorInti[vendorName]['vendor'] = vendorName;
+            demografikVendorInti[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorInti[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorInti[vendorName]['total_accepted'] += totalAccepted;
-          demografikVendorInti[vendorName]['total_fined'] += totalFined;
-          demografikVendorInti[vendorName]['total_rejected'] += totalRejected;
-        } else if (Number(inspection['vendor_type']) === 2) {
-          demografikExternal['total_tandan'] += totalTandan;
-          demografikExternal['total_accepted'] += totalAccepted;
-          demografikExternal['total_fined'] += totalFined;
-          demografikExternal['total_rejected'] += totalRejected;
-          demografikExternal['total_multiple'] += totalMultiple;
+          demografikVendorInti[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorInti[vendorName]["total_accepted"] += totalAccepted;
+          demografikVendorInti[vendorName]["total_fined"] += totalFined;
+          demografikVendorInti[vendorName]["total_rejected"] += totalRejected;
+        } else if (Number(inspection["vendor_type"]) === 2) {
+          demografikExternal["total_tandan"] += totalTandan;
+          demografikExternal["total_accepted"] += totalAccepted;
+          demografikExternal["total_fined"] += totalFined;
+          demografikExternal["total_rejected"] += totalRejected;
+          demografikExternal["total_multiple"] += totalMultiple;
 
           if (!demografikVendorExternal[vendorName]) {
             demografikVendorExternal[vendorName] = {
               ...baseObjectExternalVendor,
             };
-            demografikVendorExternal[vendorName]['vendor'] = vendorName;
+            demografikVendorExternal[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorName]['total_accepted'] +=
+          demografikVendorExternal[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorExternal[vendorName]["total_accepted"] +=
             totalAccepted;
-          demografikVendorExternal[vendorName]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorName]['total_rejected'] +=
+          demografikVendorExternal[vendorName]["total_fined"] += totalFined;
+          demografikVendorExternal[vendorName]["total_rejected"] +=
             totalRejected;
-        } else if (Number(inspection['vendor_type']) === 3) {
-          demografikPlasma['total_tandan'] += totalTandan;
-          demografikPlasma['total_accepted'] += totalAccepted;
-          demografikPlasma['total_fined'] += totalFined;
-          demografikPlasma['total_rejected'] += totalRejected;
-          demografikPlasma['total_multiple'] += totalMultiple;
+        } else if (Number(inspection["vendor_type"]) === 3) {
+          demografikPlasma["total_tandan"] += totalTandan;
+          demografikPlasma["total_accepted"] += totalAccepted;
+          demografikPlasma["total_fined"] += totalFined;
+          demografikPlasma["total_rejected"] += totalRejected;
+          demografikPlasma["total_multiple"] += totalMultiple;
 
           if (!demografikVendorPlasma[vendorName]) {
             demografikVendorPlasma[vendorName] = { ...baseObjectPlasmaVendor };
-            demografikVendorPlasma[vendorName]['vendor'] = vendorName;
+            demografikVendorPlasma[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorPlasma[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorPlasma[vendorName]['total_accepted'] += totalAccepted;
-          demografikVendorPlasma[vendorName]['total_fined'] += totalFined;
-          demografikVendorPlasma[vendorName]['total_rejected'] += totalRejected;
+          demografikVendorPlasma[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorPlasma[vendorName]["total_accepted"] += totalAccepted;
+          demografikVendorPlasma[vendorName]["total_fined"] += totalFined;
+          demografikVendorPlasma[vendorName]["total_rejected"] += totalRejected;
         }
 
         Object.keys(classificationSummary).forEach((k) => {
@@ -1009,21 +1042,21 @@ class InspectionDataController {
           Object.keys(item).forEach((ks) => {
             const value = item[ks];
 
-            demografikSemua['classification_summary'][k][ks] += value;
-            if (Number(inspection['vendor_type']) === 1) {
+            demografikSemua["classification_summary"][k][ks] += value;
+            if (Number(inspection["vendor_type"]) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorName]['classification_summary'][k][
+              demografikInti["classification_summary"][k][ks] += value;
+              demografikVendorInti[vendorName]["classification_summary"][k][
                 ks
               ] += value;
-            } else if (Number(inspection['vendor_type']) === 2) {
-              demografikExternal['classification_summary'][k][ks] += value;
-              demografikVendorExternal[vendorName]['classification_summary'][k][
+            } else if (Number(inspection["vendor_type"]) === 2) {
+              demografikExternal["classification_summary"][k][ks] += value;
+              demografikVendorExternal[vendorName]["classification_summary"][k][
                 ks
               ] += value;
-            } else if (Number(inspection['vendor_type']) === 3) {
-              demografikPlasma['classification_summary'][k][ks] += value;
-              demografikVendorPlasma[vendorName]['classification_summary'][k][
+            } else if (Number(inspection["vendor_type"]) === 3) {
+              demografikPlasma["classification_summary"][k][ks] += value;
+              demografikVendorPlasma[vendorName]["classification_summary"][k][
                 ks
               ] += value;
             }
@@ -1038,107 +1071,107 @@ class InspectionDataController {
       //   plasma: demografikPlasma['classification_summary'],
       // });
 
-      demografikSemua['total_accepted_percent'] = countPercentage(
-        demografikSemua['total_accepted'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_accepted_percent"] = countPercentage(
+        demografikSemua["total_accepted"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['total_rejected_percent'] = countPercentage(
-        demografikSemua['total_rejected'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_rejected_percent"] = countPercentage(
+        demografikSemua["total_rejected"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['total_fined_percent'] = countPercentage(
-        demografikSemua['total_fined'],
-        demografikSemua['total_accepted']
+      demografikSemua["total_fined_percent"] = countPercentage(
+        demografikSemua["total_fined"],
+        demografikSemua["total_accepted"],
       );
-      demografikSemua['total_percent'] = countPercentage(
-        demografikSemua['total_accepted'] + demografikSemua['total_rejected'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_percent"] = countPercentage(
+        demografikSemua["total_accepted"] + demografikSemua["total_rejected"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['classification_summary'] =
+      demografikSemua["classification_summary"] =
         generateClassificationResultArray(
-          demografikSemua['classification_summary']
+          demografikSemua["classification_summary"],
         );
 
-      demografikInti['total_accepted_percent'] = countPercentage(
-        demografikInti['total_accepted'],
-        demografikInti['total_tandan']
+      demografikInti["total_accepted_percent"] = countPercentage(
+        demografikInti["total_accepted"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['total_rejected_percent'] = countPercentage(
-        demografikInti['total_rejected'],
-        demografikInti['total_tandan']
+      demografikInti["total_rejected_percent"] = countPercentage(
+        demografikInti["total_rejected"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['total_fined_percent'] = countPercentage(
-        demografikInti['total_fined'],
-        demografikInti['total_accepted']
+      demografikInti["total_fined_percent"] = countPercentage(
+        demografikInti["total_fined"],
+        demografikInti["total_accepted"],
       );
-      demografikInti['total_percent'] = countPercentage(
-        demografikInti['total_accepted'] + demografikInti['total_rejected'],
-        demografikInti['total_tandan']
+      demografikInti["total_percent"] = countPercentage(
+        demografikInti["total_accepted"] + demografikInti["total_rejected"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['classification_summary'] =
+      demografikInti["classification_summary"] =
         generateClassificationResultArray(
-          demografikInti['classification_summary']
+          demografikInti["classification_summary"],
         );
 
-      demografikExternal['total_accepted_percent'] = countPercentage(
-        demografikExternal['total_accepted'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_accepted_percent"] = countPercentage(
+        demografikExternal["total_accepted"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['total_rejected_percent'] = countPercentage(
-        demografikExternal['total_rejected'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_rejected_percent"] = countPercentage(
+        demografikExternal["total_rejected"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['total_fined_percent'] = countPercentage(
-        demografikExternal['total_fined'],
-        demografikExternal['total_accepted']
+      demografikExternal["total_fined_percent"] = countPercentage(
+        demografikExternal["total_fined"],
+        demografikExternal["total_accepted"],
       );
-      demografikExternal['total_percent'] = countPercentage(
-        demografikExternal['total_accepted'] +
-          demografikExternal['total_rejected'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_percent"] = countPercentage(
+        demografikExternal["total_accepted"] +
+          demografikExternal["total_rejected"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['classification_summary'] =
+      demografikExternal["classification_summary"] =
         generateClassificationResultArray(
-          demografikExternal['classification_summary']
+          demografikExternal["classification_summary"],
         );
 
-      demografikPlasma['total_accepted_percent'] = countPercentage(
-        demografikPlasma['total_accepted'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_accepted_percent"] = countPercentage(
+        demografikPlasma["total_accepted"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['total_rejected_percent'] = countPercentage(
-        demografikPlasma['total_rejected'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_rejected_percent"] = countPercentage(
+        demografikPlasma["total_rejected"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['total_fined_percent'] = countPercentage(
-        demografikPlasma['total_fined'],
-        demografikPlasma['total_accepted']
+      demografikPlasma["total_fined_percent"] = countPercentage(
+        demografikPlasma["total_fined"],
+        demografikPlasma["total_accepted"],
       );
-      demografikPlasma['total_percent'] = countPercentage(
-        demografikPlasma['total_accepted'] + demografikPlasma['total_rejected'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_percent"] = countPercentage(
+        demografikPlasma["total_accepted"] + demografikPlasma["total_rejected"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['classification_summary'] =
+      demografikPlasma["classification_summary"] =
         generateClassificationResultArray(
-          demografikPlasma['classification_summary']
+          demografikPlasma["classification_summary"],
         );
 
       demografikVendorInti = Object.keys(demografikVendorInti).map((key) => {
         const data = demografikVendorInti[key];
         return {
-          label: data['vendor'],
-          total_tandan: data['total_tandan'],
+          label: data["vendor"],
+          total_tandan: data["total_tandan"],
           percent_accepted: countPercentage(
-            data['total_accepted'],
-            data['total_tandan']
+            data["total_accepted"],
+            data["total_tandan"],
           ),
           percent_rejected: countPercentage(
-            data['total_rejected'],
-            data['total_tandan']
+            data["total_rejected"],
+            data["total_tandan"],
           ),
           percent_fined: countPercentage(
-            data['total_fined'],
-            data['total_accepted']
+            data["total_fined"],
+            data["total_accepted"],
           ),
         };
       });
@@ -1146,55 +1179,55 @@ class InspectionDataController {
         (key) => {
           const data = demografikVendorExternal[key];
           return {
-            label: data['vendor'],
-            total_tandan: data['total_tandan'],
+            label: data["vendor"],
+            total_tandan: data["total_tandan"],
             percent_accepted: countPercentage(
-              data['total_accepted'],
-              data['total_tandan']
+              data["total_accepted"],
+              data["total_tandan"],
             ),
             percent_rejected: countPercentage(
-              data['total_rejected'],
-              data['total_tandan']
+              data["total_rejected"],
+              data["total_tandan"],
             ),
             percent_fined: countPercentage(
-              data['total_fined'],
-              data['total_accepted']
+              data["total_fined"],
+              data["total_accepted"],
             ),
           };
-        }
+        },
       );
       demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
         (key) => {
           const data = demografikVendorPlasma[key];
           return {
-            label: data['vendor'],
-            total_tandan: data['total_tandan'],
+            label: data["vendor"],
+            total_tandan: data["total_tandan"],
             percent_accepted: countPercentage(
-              data['total_accepted'],
-              data['total_tandan']
+              data["total_accepted"],
+              data["total_tandan"],
             ),
             percent_rejected: countPercentage(
-              data['total_rejected'],
-              data['total_tandan']
+              data["total_rejected"],
+              data["total_tandan"],
             ),
             percent_fined: countPercentage(
-              data['total_fined'],
-              data['total_accepted']
+              data["total_fined"],
+              data["total_accepted"],
             ),
           };
-        }
+        },
       );
 
       const convertDataValue = (data) => {
         return Object.keys(data).reduce((obj, key) => {
-          if (key === 'classification_summary') {
+          if (key === "classification_summary") {
             obj[key] = data[key].map((e) => changeValueToLocalestring(e));
 
             return obj;
           }
 
           obj[key] =
-            typeof data[key] === 'number'
+            typeof data[key] === "number"
               ? data[key].toLocaleString()
               : data[key];
 
@@ -1206,18 +1239,18 @@ class InspectionDataController {
 
       let data = {
         start_date: date_from
-          ? dayjs(date_from).format('DD/MM/YYYY HH:mm')
-          : dayjs(inspections[0]['date']).format('DD/MM/YYYY HH:mm:ss'),
+          ? dayjs(date_from).format("DD/MM/YYYY HH:mm")
+          : dayjs(inspections[0]["date"]).format("DD/MM/YYYY HH:mm:ss"),
         end_date: date_to
-          ? dayjs(date_to).format('DD/MM/YYYY HH:mm')
-          : dayjs(inspections[inspections.length - 1]['date']).format(
-              'DD/MM/YYYY HH:mm:ss'
+          ? dayjs(date_to).format("DD/MM/YYYY HH:mm")
+          : dayjs(inspections[inspections.length - 1]["date"]).format(
+              "DD/MM/YYYY HH:mm:ss",
             ),
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : 'sinarmas-logo.png'
+          companyData ? companyData.image_name : "sinarmas-logo.png",
         ),
-        agate_logo_img: getImageFile('agate-logo.png'),
-        location: factory ? factory.location : '-',
+        agate_logo_img: getImageFile("agate-logo.png"),
+        location: factory ? factory.location : "-",
         factory: factory.name,
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
@@ -1243,11 +1276,11 @@ class InspectionDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success get detail inspections',
+            "Success",
+            "Success get detail inspections",
             data,
-            {}
-          )
+            {},
+          ),
         );
     } catch (err) {
       next(err);
@@ -1264,42 +1297,47 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1313,42 +1351,47 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1362,34 +1405,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1403,34 +1450,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1444,34 +1495,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1485,34 +1540,38 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1526,42 +1585,47 @@ class InspectionDataController {
         MENTAH: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'KURANG MATANG': {
+        "KURANG MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
         MATANG: {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'LEWAT MATANG': {
+        "LEWAT MATANG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
-        'JANJANG KOSONG': {
+        "JANJANG KOSONG": {
           TOTAL: 0,
           NORMAL: 0,
-          'RUSAK DIMAKAN TIKUS': 0,
-          'TANGKAI PANJANG': 0,
-          'BUAH KECIL DIBAWAH 3KG': 0,
-          'BUAH KECIL DIBAWAH 5KG': 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 2KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
         },
       },
     };
@@ -1570,15 +1634,15 @@ class InspectionDataController {
 
       let q = {};
 
-      let yesterday = dayjs().add(-1, 'day');
+      let yesterday = dayjs().add(-1, "day");
 
       if (factoryId) {
-        q['factory'] = factoryId;
+        q["factory"] = factoryId;
       }
 
-      q['date'] = {
-        $gte: yesterday.startOf('day'),
-        $lte: yesterday.endOf('day'),
+      q["date"] = {
+        $gte: yesterday.startOf("day"),
+        $lte: yesterday.endOf("day"),
       };
 
       const inspections = await InspectionDataModel.find(q).lean();
@@ -1586,8 +1650,8 @@ class InspectionDataController {
       if (!inspections.length) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Pemeriksaan tidak ditemukan.',
+          title: "Not Found",
+          message: "Pemeriksaan tidak ditemukan.",
         };
       }
 
@@ -1598,10 +1662,10 @@ class InspectionDataController {
       inspections = inspections.filter(
         (e) =>
           e.grading_result?.total_tandan > limit &&
-          e.vehicle_number !== 'BH 1240 ALB' &&
-          e.vendor_name !== 'Vendor 2 Plasma' &&
-          e.vendor_name !== 'Vendor B' &&
-          e.vehicle_number !== 'BH 4321 ALB'
+          e.vehicle_number !== "BH 1240 ALB" &&
+          e.vendor_name !== "Vendor 2 Plasma" &&
+          e.vendor_name !== "Vendor B" &&
+          e.vehicle_number !== "BH 4321 ALB",
       );
 
       let demografikSemua = {
@@ -1625,75 +1689,75 @@ class InspectionDataController {
       let demografikVendorPlasma = {};
 
       inspections.forEach((inspection) => {
-        const totalTandan = inspection['grading_result']['total_tandan'];
-        const totalAccepted = inspection['grading_result']['total_accepted'];
-        const totalRejected = inspection['grading_result']['total_rejected'];
-        const totalFined = inspection['grading_result']['total_fined'];
+        const totalTandan = inspection["grading_result"]["total_tandan"];
+        const totalAccepted = inspection["grading_result"]["total_accepted"];
+        const totalRejected = inspection["grading_result"]["total_rejected"];
+        const totalFined = inspection["grading_result"]["total_fined"];
 
         const classificationSummary =
-          inspection['grading_result']['classification_summary'];
+          inspection["grading_result"]["classification_summary"];
         const acceptedSummary =
-          inspection['grading_result']['accepted_summary'];
+          inspection["grading_result"]["accepted_summary"];
         const rejectedSummary =
-          inspection['grading_result']['rejected_summary'];
-        const finedSummary = inspection['grading_result']['fined_summary'];
+          inspection["grading_result"]["rejected_summary"];
+        const finedSummary = inspection["grading_result"]["fined_summary"];
 
-        const vendorName = inspection['vendor_name']?.trim() || 'Unknown';
+        const vendorName = inspection["vendor_name"]?.trim() || "Unknown";
 
-        demografikSemua['total_tandan'] += totalTandan;
-        demografikSemua['total_accepted'] += totalAccepted;
-        demografikSemua['total_fined'] += totalFined;
-        demografikSemua['total_rejected'] += totalRejected;
+        demografikSemua["total_tandan"] += totalTandan;
+        demografikSemua["total_accepted"] += totalAccepted;
+        demografikSemua["total_fined"] += totalFined;
+        demografikSemua["total_rejected"] += totalRejected;
 
-        if (Number(inspection['vendor_type']) === 1) {
-          demografikInti['total_tandan'] += totalTandan;
-          demografikInti['total_accepted'] += totalAccepted;
-          demografikInti['total_fined'] += totalFined;
-          demografikInti['total_rejected'] += totalRejected;
+        if (Number(inspection["vendor_type"]) === 1) {
+          demografikInti["total_tandan"] += totalTandan;
+          demografikInti["total_accepted"] += totalAccepted;
+          demografikInti["total_fined"] += totalFined;
+          demografikInti["total_rejected"] += totalRejected;
 
           if (!demografikVendorInti[vendorName]) {
             demografikVendorInti[vendorName] = { ...baseObjectIntiVendor };
-            demografikVendorInti[vendorName]['vendor'] = vendorName;
+            demografikVendorInti[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorInti[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorInti[vendorName]['total_accepted'] += totalAccepted;
-          demografikVendorInti[vendorName]['total_fined'] += totalFined;
-          demografikVendorInti[vendorName]['total_rejected'] += totalRejected;
-        } else if (Number(inspection['vendor_type']) === 2) {
-          demografikExternal['total_tandan'] += totalTandan;
-          demografikExternal['total_accepted'] += totalAccepted;
-          demografikExternal['total_fined'] += totalFined;
-          demografikExternal['total_rejected'] += totalRejected;
+          demografikVendorInti[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorInti[vendorName]["total_accepted"] += totalAccepted;
+          demografikVendorInti[vendorName]["total_fined"] += totalFined;
+          demografikVendorInti[vendorName]["total_rejected"] += totalRejected;
+        } else if (Number(inspection["vendor_type"]) === 2) {
+          demografikExternal["total_tandan"] += totalTandan;
+          demografikExternal["total_accepted"] += totalAccepted;
+          demografikExternal["total_fined"] += totalFined;
+          demografikExternal["total_rejected"] += totalRejected;
 
           if (!demografikVendorExternal[vendorName]) {
             demografikVendorExternal[vendorName] = {
               ...baseObjectExternalVendor,
             };
-            demografikVendorExternal[vendorName]['vendor'] = vendorName;
+            demografikVendorExternal[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorExternal[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorExternal[vendorName]['total_accepted'] +=
+          demografikVendorExternal[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorExternal[vendorName]["total_accepted"] +=
             totalAccepted;
-          demografikVendorExternal[vendorName]['total_fined'] += totalFined;
-          demografikVendorExternal[vendorName]['total_rejected'] +=
+          demografikVendorExternal[vendorName]["total_fined"] += totalFined;
+          demografikVendorExternal[vendorName]["total_rejected"] +=
             totalRejected;
-        } else if (Number(inspection['vendor_type']) === 3) {
-          demografikPlasma['total_tandan'] += totalTandan;
-          demografikPlasma['total_accepted'] += totalAccepted;
-          demografikPlasma['total_fined'] += totalFined;
-          demografikPlasma['total_rejected'] += totalRejected;
+        } else if (Number(inspection["vendor_type"]) === 3) {
+          demografikPlasma["total_tandan"] += totalTandan;
+          demografikPlasma["total_accepted"] += totalAccepted;
+          demografikPlasma["total_fined"] += totalFined;
+          demografikPlasma["total_rejected"] += totalRejected;
 
           if (!demografikVendorPlasma[vendorName]) {
             demografikVendorPlasma[vendorName] = { ...baseObjectPlasmaVendor };
-            demografikVendorPlasma[vendorName]['vendor'] = vendorName;
+            demografikVendorPlasma[vendorName]["vendor"] = vendorName;
           }
 
-          demografikVendorPlasma[vendorName]['total_tandan'] += totalTandan;
-          demografikVendorPlasma[vendorName]['total_accepted'] += totalAccepted;
-          demografikVendorPlasma[vendorName]['total_fined'] += totalFined;
-          demografikVendorPlasma[vendorName]['total_rejected'] += totalRejected;
+          demografikVendorPlasma[vendorName]["total_tandan"] += totalTandan;
+          demografikVendorPlasma[vendorName]["total_accepted"] += totalAccepted;
+          demografikVendorPlasma[vendorName]["total_fined"] += totalFined;
+          demografikVendorPlasma[vendorName]["total_rejected"] += totalRejected;
         }
 
         Object.keys(classificationSummary).forEach((k) => {
@@ -1702,21 +1766,21 @@ class InspectionDataController {
           Object.keys(item).forEach((ks) => {
             const value = item[ks];
 
-            demografikSemua['classification_summary'][k][ks] += value;
-            if (Number(inspection['vendor_type']) === 1) {
+            demografikSemua["classification_summary"][k][ks] += value;
+            if (Number(inspection["vendor_type"]) === 1) {
               // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti['classification_summary'][k][ks] += value;
-              demografikVendorInti[vendorName]['classification_summary'][k][
+              demografikInti["classification_summary"][k][ks] += value;
+              demografikVendorInti[vendorName]["classification_summary"][k][
                 ks
               ] += value;
-            } else if (Number(inspection['vendor_type']) === 2) {
-              demografikExternal['classification_summary'][k][ks] += value;
-              demografikVendorExternal[vendorName]['classification_summary'][k][
+            } else if (Number(inspection["vendor_type"]) === 2) {
+              demografikExternal["classification_summary"][k][ks] += value;
+              demografikVendorExternal[vendorName]["classification_summary"][k][
                 ks
               ] += value;
-            } else if (Number(inspection['vendor_type']) === 3) {
-              demografikPlasma['classification_summary'][k][ks] += value;
-              demografikVendorPlasma[vendorName]['classification_summary'][k][
+            } else if (Number(inspection["vendor_type"]) === 3) {
+              demografikPlasma["classification_summary"][k][ks] += value;
+              demografikVendorPlasma[vendorName]["classification_summary"][k][
                 ks
               ] += value;
             }
@@ -1732,17 +1796,20 @@ class InspectionDataController {
       // });
 
       const isUtjmKjgm =
-        factory && ['UTJM', 'KJGM'].some((loc) => factory.name.includes(loc));
+        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
+
+      const isLngm =
+        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeClassification = (summaryObj) => {
           const summary = summaryObj.classification_summary;
           Object.keys(summary).forEach((key) => {
             const item = summary[key];
-            item['BUAH KECIL DIBAWAH 5KG'] =
-              (item['BUAH KECIL DIBAWAH 5KG'] || 0) +
-              (item['BUAH KECIL DIBAWAH 3KG'] || 0);
-            item['BUAH KECIL DIBAWAH 3KG'] = 0;
+            item["BUAH KECIL DIBAWAH 5KG"] =
+              (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
+            item["BUAH KECIL DIBAWAH 3KG"] = 0;
           });
         };
 
@@ -1752,107 +1819,107 @@ class InspectionDataController {
         mergeClassification(demografikPlasma);
       }
 
-      demografikSemua['total_accepted_percent'] = countPercentage(
-        demografikSemua['total_accepted'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_accepted_percent"] = countPercentage(
+        demografikSemua["total_accepted"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['total_rejected_percent'] = countPercentage(
-        demografikSemua['total_rejected'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_rejected_percent"] = countPercentage(
+        demografikSemua["total_rejected"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['total_fined_percent'] = countPercentage(
-        demografikSemua['total_fined'],
-        demografikSemua['total_accepted']
+      demografikSemua["total_fined_percent"] = countPercentage(
+        demografikSemua["total_fined"],
+        demografikSemua["total_accepted"],
       );
-      demografikSemua['total_percent'] = countPercentage(
-        demografikSemua['total_accepted'] + demografikSemua['total_rejected'],
-        demografikSemua['total_tandan']
+      demografikSemua["total_percent"] = countPercentage(
+        demografikSemua["total_accepted"] + demografikSemua["total_rejected"],
+        demografikSemua["total_tandan"],
       );
-      demografikSemua['classification_summary'] =
+      demografikSemua["classification_summary"] =
         generateClassificationResultArray(
-          demografikSemua['classification_summary']
+          demografikSemua["classification_summary"],
         );
 
-      demografikInti['total_accepted_percent'] = countPercentage(
-        demografikInti['total_accepted'],
-        demografikInti['total_tandan']
+      demografikInti["total_accepted_percent"] = countPercentage(
+        demografikInti["total_accepted"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['total_rejected_percent'] = countPercentage(
-        demografikInti['total_rejected'],
-        demografikInti['total_tandan']
+      demografikInti["total_rejected_percent"] = countPercentage(
+        demografikInti["total_rejected"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['total_fined_percent'] = countPercentage(
-        demografikInti['total_fined'],
-        demografikInti['total_accepted']
+      demografikInti["total_fined_percent"] = countPercentage(
+        demografikInti["total_fined"],
+        demografikInti["total_accepted"],
       );
-      demografikInti['total_percent'] = countPercentage(
-        demografikInti['total_accepted'] + demografikInti['total_rejected'],
-        demografikInti['total_tandan']
+      demografikInti["total_percent"] = countPercentage(
+        demografikInti["total_accepted"] + demografikInti["total_rejected"],
+        demografikInti["total_tandan"],
       );
-      demografikInti['classification_summary'] =
+      demografikInti["classification_summary"] =
         generateClassificationResultArray(
-          demografikInti['classification_summary']
+          demografikInti["classification_summary"],
         );
 
-      demografikExternal['total_accepted_percent'] = countPercentage(
-        demografikExternal['total_accepted'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_accepted_percent"] = countPercentage(
+        demografikExternal["total_accepted"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['total_rejected_percent'] = countPercentage(
-        demografikExternal['total_rejected'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_rejected_percent"] = countPercentage(
+        demografikExternal["total_rejected"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['total_fined_percent'] = countPercentage(
-        demografikExternal['total_fined'],
-        demografikExternal['total_accepted']
+      demografikExternal["total_fined_percent"] = countPercentage(
+        demografikExternal["total_fined"],
+        demografikExternal["total_accepted"],
       );
-      demografikExternal['total_percent'] = countPercentage(
-        demografikExternal['total_accepted'] +
-          demografikExternal['total_rejected'],
-        demografikExternal['total_tandan']
+      demografikExternal["total_percent"] = countPercentage(
+        demografikExternal["total_accepted"] +
+          demografikExternal["total_rejected"],
+        demografikExternal["total_tandan"],
       );
-      demografikExternal['classification_summary'] =
+      demografikExternal["classification_summary"] =
         generateClassificationResultArray(
-          demografikExternal['classification_summary']
+          demografikExternal["classification_summary"],
         );
 
-      demografikPlasma['total_accepted_percent'] = countPercentage(
-        demografikPlasma['total_accepted'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_accepted_percent"] = countPercentage(
+        demografikPlasma["total_accepted"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['total_rejected_percent'] = countPercentage(
-        demografikPlasma['total_rejected'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_rejected_percent"] = countPercentage(
+        demografikPlasma["total_rejected"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['total_fined_percent'] = countPercentage(
-        demografikPlasma['total_fined'],
-        demografikPlasma['total_accepted']
+      demografikPlasma["total_fined_percent"] = countPercentage(
+        demografikPlasma["total_fined"],
+        demografikPlasma["total_accepted"],
       );
-      demografikPlasma['total_percent'] = countPercentage(
-        demografikPlasma['total_accepted'] + demografikPlasma['total_rejected'],
-        demografikPlasma['total_tandan']
+      demografikPlasma["total_percent"] = countPercentage(
+        demografikPlasma["total_accepted"] + demografikPlasma["total_rejected"],
+        demografikPlasma["total_tandan"],
       );
-      demografikPlasma['classification_summary'] =
+      demografikPlasma["classification_summary"] =
         generateClassificationResultArray(
-          demografikPlasma['classification_summary']
+          demografikPlasma["classification_summary"],
         );
 
       demografikVendorInti = Object.keys(demografikVendorInti).map((key) => {
         const data = demografikVendorInti[key];
         return {
-          label: data['vendor'],
-          total_tandan: data['total_tandan'],
+          label: data["vendor"],
+          total_tandan: data["total_tandan"],
           percent_accepted: countPercentage(
-            data['total_accepted'],
-            data['total_tandan']
+            data["total_accepted"],
+            data["total_tandan"],
           ),
           percent_rejected: countPercentage(
-            data['total_rejected'],
-            data['total_tandan']
+            data["total_rejected"],
+            data["total_tandan"],
           ),
           percent_fined: countPercentage(
-            data['total_fined'],
-            data['total_accepted']
+            data["total_fined"],
+            data["total_accepted"],
           ),
         };
       });
@@ -1860,55 +1927,55 @@ class InspectionDataController {
         (key) => {
           const data = demografikVendorExternal[key];
           return {
-            label: data['vendor'],
-            total_tandan: data['total_tandan'],
+            label: data["vendor"],
+            total_tandan: data["total_tandan"],
             percent_accepted: countPercentage(
-              data['total_accepted'],
-              data['total_tandan']
+              data["total_accepted"],
+              data["total_tandan"],
             ),
             percent_rejected: countPercentage(
-              data['total_rejected'],
-              data['total_tandan']
+              data["total_rejected"],
+              data["total_tandan"],
             ),
             percent_fined: countPercentage(
-              data['total_fined'],
-              data['total_accepted']
+              data["total_fined"],
+              data["total_accepted"],
             ),
           };
-        }
+        },
       );
       demografikVendorPlasma = Object.keys(demografikVendorPlasma).map(
         (key) => {
           const data = demografikVendorPlasma[key];
           return {
-            label: data['vendor'],
-            total_tandan: data['total_tandan'],
+            label: data["vendor"],
+            total_tandan: data["total_tandan"],
             percent_accepted: countPercentage(
-              data['total_accepted'],
-              data['total_tandan']
+              data["total_accepted"],
+              data["total_tandan"],
             ),
             percent_rejected: countPercentage(
-              data['total_rejected'],
-              data['total_tandan']
+              data["total_rejected"],
+              data["total_tandan"],
             ),
             percent_fined: countPercentage(
-              data['total_fined'],
-              data['total_accepted']
+              data["total_fined"],
+              data["total_accepted"],
             ),
           };
-        }
+        },
       );
 
       const convertDataValue = (data) => {
         return Object.keys(data).reduce((obj, key) => {
-          if (key === 'classification_summary') {
+          if (key === "classification_summary") {
             obj[key] = data[key].map((e) => changeValueToLocalestring(e));
 
             return obj;
           }
 
           obj[key] =
-            typeof data[key] === 'number'
+            typeof data[key] === "number"
               ? data[key].toLocaleString()
               : data[key];
 
@@ -1921,15 +1988,16 @@ class InspectionDataController {
 
       let data = {
         is_utjm_kjgm: isUtjmKjgm,
-        start_date: dayjs(yesterday.startOf('day')).format(
-          'DD/MM/YYYY HH:mm:ss'
+        is_lngm: isLngm,
+        start_date: dayjs(yesterday.startOf("day")).format(
+          "DD/MM/YYYY HH:mm:ss",
         ),
-        end_date: dayjs(yesterday.endOf('day')).format('DD/MM/YYYY HH:mm:ss'),
+        end_date: dayjs(yesterday.endOf("day")).format("DD/MM/YYYY HH:mm:ss"),
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : 'sinarmas-logo.png'
+          companyData ? companyData.image_name : "sinarmas-logo.png",
         ),
-        agate_logo_img: getImageFile('agate-logo.png'),
-        location: factory ? factory.location : '-',
+        agate_logo_img: getImageFile("agate-logo.png"),
+        location: factory ? factory.location : "-",
         factory: factory.name,
         summary: convertDataValue(demografikSemua),
         summary_inti: convertDataValue(demografikInti),
@@ -1955,11 +2023,11 @@ class InspectionDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success get detail inspections',
+            "Success",
+            "Success get detail inspections",
             data,
-            {}
-          )
+            {},
+          ),
         );
     } catch (err) {
       next(err);

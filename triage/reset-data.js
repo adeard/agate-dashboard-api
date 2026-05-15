@@ -1,23 +1,23 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const { hashPassword } = require('../lib/bcrypt');
-const { blastReportToUser } = require('../lib/cron/blast-report');
-const connectToDatabase = require('../lib/db-connect');
-const AfdelinkModel = require('../models/afdelink');
-const FactoryModel = require('../models/factory');
-const InspectionDataModel = require('../models/inspection-data');
-const InspectionHistoryModel = require('../models/inspection-history');
-const SettingsModel = require('../models/settings');
-const UserModel = require('../models/user');
-const VendorV2Model = require('../models/v2/vendor');
-const VendorModel = require('../models/vendor');
-const dayjs = require('dayjs');
-const WABroadcastModel = require('../models/wa-broadcast');
-const CompanyModel = require('../models/company');
-const MachineCheckModel = require('../models/machine-check');
-const MachineLogsFileModel = require('../models/machine-logs-file');
-const MachineLogsDataModel = require('../models/machine-logs-data');
-const { name } = require('dayjs/locale/id');
+const { hashPassword } = require("../lib/bcrypt");
+const { blastReportToUser } = require("../lib/cron/blast-report");
+const connectToDatabase = require("../lib/db-connect");
+const AfdelinkModel = require("../models/afdelink");
+const FactoryModel = require("../models/factory");
+const InspectionDataModel = require("../models/inspection-data");
+const InspectionHistoryModel = require("../models/inspection-history");
+const SettingsModel = require("../models/settings");
+const UserModel = require("../models/user");
+const VendorV2Model = require("../models/v2/vendor");
+const VendorModel = require("../models/vendor");
+const dayjs = require("dayjs");
+const WABroadcastModel = require("../models/wa-broadcast");
+const CompanyModel = require("../models/company");
+const MachineCheckModel = require("../models/machine-check");
+const MachineLogsFileModel = require("../models/machine-logs-file");
+const MachineLogsDataModel = require("../models/machine-logs-data");
+const { name } = require("dayjs/locale/id");
 
 // console.log(generateRandomPassword(6));
 
@@ -33,22 +33,22 @@ connectToDatabase().then(async (res) => {
   // await AfdelinkModel.deleteMany({});
   // await SettingsModel.deleteMany({});
 
-  const factory = await FactoryModel.findOne({
-    name: 'BYLM',
-  }).lean();
+  // const factory = await FactoryModel.findOne({
+  //   name: 'BYLM',
+  // }).lean();
 
-  console.log({ factory });
+  // console.log({ factory });
 
-  await UserModel.create({
-    full_name: 'Admin Agrotema',
-    email: 'agrotema@accelego.id',
-    password: hashPassword('1234'),
-    access_factory: ['699be68839fb2f1e96d62a01'],
-    status: 1,
-    whatsapp_number: '6281385784854',
-    subscribe_notification: 1,
-    company: '699be68739fb2f1e96d629ff',
-  });
+  // await UserModel.create({
+  //   full_name: 'Admin Agrotema',
+  //   email: 'agrotema@accelego.id',
+  //   password: hashPassword('1234'),
+  //   access_factory: ['699be68839fb2f1e96d62a01'],
+  //   status: 1,
+  //   whatsapp_number: '6281385784854',
+  //   subscribe_notification: 1,
+  //   company: '699be68739fb2f1e96d629ff',
+  // });
 
   // const users = await UserModel.find({
   //   whatsapp_number: { $exists: true },
@@ -489,6 +489,20 @@ connectToDatabase().then(async (res) => {
 
   // await InspectionDataModel.findByIdAndDelete('6965e7516dcc537bb8440582');
 
-  console.log('Done');
+  const company = await CompanyModel.findOne({
+    name: "Mustika Agung Sentosa",
+    initial: "MAS",
+    image_name: "",
+    location: "Ketapang, Kalimantan Barat",
+  });
+  const factory = await FactoryModel.findOne({
+    name: "MASM",
+    company: company._id,
+    location: "Ketapang, Kalimantan Barat",
+  });
+
+  console.log({ company, factory });
+
+  console.log("Done");
   process.exit();
 });
