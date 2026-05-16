@@ -304,11 +304,11 @@ const utilsInspection = {
     );
 
     const totalRejected = inspections.reduce((curr, item) => {
-      return Number(item.grading_result["total_rejected"]) + curr;
+      return Number(item.grading_result["total_rejected"] || 0) + curr;
     }, 0);
 
     const totalPassed = inspections.reduce((curr, item) => {
-      return Number(item.grading_result["total_accepted"]) + curr;
+      return Number(item.grading_result["total_accepted"] || 0) + curr;
     }, 0);
     const totalFined = inspections.reduce(
       (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
@@ -335,23 +335,23 @@ const utilsInspection = {
   getTotalAndPercentClassificationNew: (item, isLngm = false) => {
     const totalTandan = item.grading_result["total_tandan"];
     let totalRejectedModified =
-      Object.keys(item.grading_result["accepted_summary"]).reduce(
+      Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
         (n, k) =>
           n +
           Number(
-            item.grading_result["accepted_summary"][k][
+            (item.grading_result["accepted_summary"][k] || {})[
               "BUAH KECIL DIBAWAH 5KG"
             ] || 0,
           ),
         0,
-      ) + Number(item.grading_result["total_rejected"]);
+      ) + Number(item.grading_result["total_rejected"] || 0);
     let totalAcceptedModified =
-      Number(item.grading_result["total_accepted"]) -
-      Object.keys(item.grading_result["accepted_summary"]).reduce(
+      Number(item.grading_result["total_accepted"] || 0) -
+      Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
         (n, k) =>
           n +
           Number(
-            item.grading_result["accepted_summary"][k][
+            (item.grading_result["accepted_summary"][k] || {})[
               "BUAH KECIL DIBAWAH 5KG"
             ] || 0,
           ),
@@ -3913,6 +3913,7 @@ class DashboardV4Controller {
         janjang_kosong: [],
         buah_kecil_3: [],
         buah_kecil_5: [],
+        buah_kecil_2: [],
         matang_ditolak: [],
         lewat_matang_ditolak: [],
         rusak_dimakan_tikus: [],
@@ -3956,6 +3957,7 @@ class DashboardV4Controller {
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
+        buah_kecil_2: {},
         tangkai_panjang: {},
         matang_ditolak: {},
         lewat_matang_ditolak: {},
@@ -3971,6 +3973,7 @@ class DashboardV4Controller {
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
+        buah_kecil_2: {},
         tangkai_panjang: {},
         matang_ditolak: {},
         lewat_matang_ditolak: {},
@@ -4048,6 +4051,8 @@ class DashboardV4Controller {
           totalMultiple,
           percentRusakDimakanTikus,
           totalRusakDimakanTikus,
+          totalBuahKecil2,
+          percentBuahKecil2,
         } = utilsInspection.getTotalAndPercentClassificationNew(item, isLngm);
 
         grandTotalAccepted += totalAcceptedModified;
@@ -4062,6 +4067,7 @@ class DashboardV4Controller {
         avgClassification["janjang_kosong"].push(totalJanjangKosong);
         avgClassification["buah_kecil_3"].push(totalBuahKecil3);
         avgClassification["buah_kecil_5"].push(totalBuahKecil5);
+        if (isLngm) avgClassification["buah_kecil_2"].push(totalBuahKecil2);
         avgClassification["tangkai_panjang"].push(totalTangkaiPanjang);
 
         avgClassification["mentah_diterima"].push(totalMentahDiterima);
@@ -4105,6 +4111,13 @@ class DashboardV4Controller {
           avgClassificationTren["buah_kecil_5"][day] = [];
         }
         avgClassificationTren["buah_kecil_5"][day].push(percentBuahKecil5);
+
+        if (isLngm) {
+          if (!avgClassificationTren["buah_kecil_2"][day]) {
+            avgClassificationTren["buah_kecil_2"][day] = [];
+          }
+          avgClassificationTren["buah_kecil_2"][day].push(percentBuahKecil2);
+        }
 
         if (!avgClassificationTren["tangkai_panjang"][day]) {
           avgClassificationTren["tangkai_panjang"][day] = [];
@@ -4226,6 +4239,21 @@ class DashboardV4Controller {
           percentBuahKecil5;
         avgClassificationVendor["buah_kecil_5"][vendorName]["total"] +=
           totalBuahKecil5;
+
+        if (isLngm) {
+          if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
+            avgClassificationVendor["buah_kecil_2"][vendorName] = {
+              count: 0,
+              percent: 0,
+              total: 0,
+            };
+          }
+          avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
+          avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
+            percentBuahKecil2;
+          avgClassificationVendor["buah_kecil_2"][vendorName]["total"] +=
+            totalBuahKecil2;
+        }
 
         if (!avgClassificationVendor["tangkai_panjang"][vendorName]) {
           avgClassificationVendor["tangkai_panjang"][vendorName] = {
@@ -4472,6 +4500,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
           ],
           [
             percentMentah,
@@ -4479,6 +4508,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
           ],
           true,
         );
@@ -4492,6 +4522,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
           ],
           [
             percentMentah,
@@ -4499,6 +4530,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
           ],
           true,
         );
@@ -4512,6 +4544,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
           ],
           [
             percentMentah,
@@ -4519,6 +4552,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
           ],
           true,
         );
@@ -4533,7 +4567,10 @@ class DashboardV4Controller {
           mentah: scoringMultiplier.mentah * totalMentah,
           janjang_kosong: scoringMultiplier.janjang_kosong * totalJanjangKosong,
           buah_kecil:
-            scoringMultiplier.buah_kecil * (totalBuahKecil3 + totalBuahKecil5),
+            scoringMultiplier.buah_kecil *
+            (totalBuahKecil3 +
+              totalBuahKecil5 +
+              (isLngm ? totalBuahKecil2 : 0)),
           tangkai_panjang:
             scoringMultiplier.tangkai_panjang * totalTangkaiPanjang,
         };
@@ -4575,6 +4612,7 @@ class DashboardV4Controller {
           percent_mentah: percentMentah,
           percent_janjang_kosong: percentJangkos,
           percent_buah_kecil: percentBuahKecil,
+          ...(isLngm ? { percent_buah_kecil_2: percentBuahKecil2 } : {}),
           percent_tangkai_panjang: percentTangkaiPanjang,
           total_tandan: item["grading_result"]["total_tandan"],
           vendor_name: vendorName,
