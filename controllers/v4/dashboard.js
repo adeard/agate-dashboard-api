@@ -1299,6 +1299,7 @@ class DashboardV4Controller {
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
+        buah_kecil_2: {},
         tangkai_panjang: {},
         rusak_dimakan_tikus: {},
       };
@@ -1312,6 +1313,7 @@ class DashboardV4Controller {
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
+        buah_kecil_2: {},
         tangkai_panjang: {},
         rusak_dimakan_tikus: {},
       };
@@ -1363,6 +1365,8 @@ class DashboardV4Controller {
           totalJanjangKosong,
           totalTangkaiPanjang,
           percentBuahKecil,
+          percentBuahKecil2,
+          totalBuahKecil2,
 
           totalMentahDiterima,
           totalJanjangKosongDiterima,
@@ -1379,6 +1383,7 @@ class DashboardV4Controller {
         avgClassification["janjang_kosong"].push(percentJangkos);
         avgClassification["buah_kecil_3"].push(percentBuahKecil3);
         avgClassification["buah_kecil_5"].push(percentBuahKecil5);
+        if (isLngm) avgClassification["buah_kecil_2"].push(percentBuahKecil2);
         avgClassification["tangkai_panjang"].push(percentTangkaiPanjang);
         avgClassification["rusak_dimakan_tikus"].push(percentRusakDimakanTikus);
 
@@ -1419,6 +1424,13 @@ class DashboardV4Controller {
           avgClassificationTren["buah_kecil_5"][day] = [];
         }
         avgClassificationTren["buah_kecil_5"][day].push(percentBuahKecil5);
+
+        if (isLngm) {
+          if (!avgClassificationTren["buah_kecil_2"][day]) {
+            avgClassificationTren["buah_kecil_2"][day] = [];
+          }
+          avgClassificationTren["buah_kecil_2"][day].push(percentBuahKecil2);
+        }
 
         if (!avgClassificationTren["tangkai_panjang"][day]) {
           avgClassificationTren["tangkai_panjang"][day] = [];
@@ -1513,6 +1525,18 @@ class DashboardV4Controller {
         avgClassificationVendor["buah_kecil_5"][vendorName]["count"] += 1;
         avgClassificationVendor["buah_kecil_5"][vendorName]["percent"] +=
           percentBuahKecil5;
+
+        if (isLngm) {
+          if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
+            avgClassificationVendor["buah_kecil_2"][vendorName] = {
+              count: 0,
+              percent: 0,
+            };
+          }
+          avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
+          avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
+            percentBuahKecil2;
+        }
 
         if (!avgClassificationVendor["tangkai_panjang"][vendorName]) {
           avgClassificationVendor["tangkai_panjang"][vendorName] = {
@@ -1716,6 +1740,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
             "Rusak Dimakan Tikus",
           ],
           [
@@ -1724,6 +1749,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
             percentRusakDimakanTikus,
           ],
           true,
@@ -1738,6 +1764,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
             "Rusak Dimakan Tikus",
           ],
           [
@@ -1746,6 +1773,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
             percentRusakDimakanTikus,
           ],
           true,
@@ -1760,6 +1788,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
+            ...(isLngm ? ["Buah <2kg"] : []),
             "Rusak Dimakan Tikus",
           ],
           [
@@ -1768,6 +1797,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
+            ...(isLngm ? [percentBuahKecil2] : []),
             percentRusakDimakanTikus,
           ],
           true,
@@ -1834,6 +1864,7 @@ class DashboardV4Controller {
           percent_janjang_kosong: percentJangkos,
           percent_buah_kecil: percentBuahKecil3,
           percent_buah_kecil_5: percentBuahKecil5,
+          ...(isLngm ? { percent_buah_kecil_2: percentBuahKecil2 } : {}),
           percent_tangkai_panjang: percentTangkaiPanjang,
           percent_rusak_dimakan_tikus: percentRusakDimakanTikus,
           total_tandan: item["grading_result"]["total_tandan"],
