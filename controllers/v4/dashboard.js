@@ -21,23 +21,23 @@ const utilsInspection = {
   getTotalAndPercentClassification: (item, isLngm = false) => {
     const totalTandan = item.grading_result["total_tandan"];
     const totalRejectedModified =
-      Object.keys(item.grading_result["accepted_summary"]).reduce(
+      Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
         (n, k) =>
           n +
           Number(
-            item.grading_result["accepted_summary"][k][
+            (item.grading_result["accepted_summary"][k] || {})[
               "BUAH KECIL DIBAWAH 5KG"
             ] || 0,
           ),
         0,
-      ) + Number(item.grading_result["total_rejected"]);
+      ) + Number(item.grading_result["total_rejected"] || 0);
     const totalAcceptedModified =
-      Number(item.grading_result["total_accepted"]) -
-      Object.keys(item.grading_result["accepted_summary"]).reduce(
+      Number(item.grading_result["total_accepted"] || 0) -
+      Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
         (n, k) =>
           n +
           Number(
-            item.grading_result["accepted_summary"][k][
+            (item.grading_result["accepted_summary"][k] || {})[
               "BUAH KECIL DIBAWAH 5KG"
             ] || 0,
           ),
@@ -55,62 +55,78 @@ const utilsInspection = {
       item["grading_result"]["total_tandan"],
     );
 
-    const totalMatang =
-      item.grading_result["accepted_summary"]["MATANG"]["TOTAL"] -
-      item.grading_result["accepted_summary"]["MATANG"][
-        "BUAH KECIL DIBAWAH 3KG"
-      ] -
-      item.grading_result["accepted_summary"]["MATANG"][
-        "BUAH KECIL DIBAWAH 5KG"
-      ];
-    const totalLewatMatang =
-      item.grading_result["accepted_summary"]["LEWAT MATANG"]["TOTAL"] -
-      item.grading_result["accepted_summary"]["LEWAT MATANG"][
-        "BUAH KECIL DIBAWAH 3KG"
-      ] -
-      item.grading_result["accepted_summary"]["LEWAT MATANG"][
-        "BUAH KECIL DIBAWAH 5KG"
-      ];
+    const totalMatang = item.grading_result["accepted_summary"]?.["MATANG"]
+      ? (item.grading_result["accepted_summary"]["MATANG"]["TOTAL"] || 0) -
+        (item.grading_result["accepted_summary"]["MATANG"][
+          "BUAH KECIL DIBAWAH 3KG"
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["MATANG"][
+          "BUAH KECIL DIBAWAH 5KG"
+        ] || 0)
+      : 0;
+    const totalLewatMatang = item.grading_result["accepted_summary"]?.[
+      "LEWAT MATANG"
+    ]
+      ? (item.grading_result["accepted_summary"]["LEWAT MATANG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["accepted_summary"]["LEWAT MATANG"][
+          "BUAH KECIL DIBAWAH 3KG"
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["LEWAT MATANG"][
+          "BUAH KECIL DIBAWAH 5KG"
+        ] || 0)
+      : 0;
 
     const totalMentahDiterima = item.grading_result["accepted_summary"]?.[
       "MENTAH"
     ]
-      ? item.grading_result["accepted_summary"]["MENTAH"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["MENTAH"][
+      ? (item.grading_result["accepted_summary"]["MENTAH"]["TOTAL"] || 0) -
+        (item.grading_result["accepted_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["accepted_summary"]["MENTAH"][
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
     const totalJanjangKosongDiterima = item.grading_result[
       "accepted_summary"
     ]?.["JANJANG KOSONG"]
-      ? item.grading_result["accepted_summary"]["JANJANG KOSONG"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+      ? (item.grading_result["accepted_summary"]["JANJANG KOSONG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+        ] || 0) -
+        (isLngm
+          ? item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+              "BUAH KECIL DIBAWAH 2KG"
+            ] || 0
+          : 0) -
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
 
-    const totalMentah =
-      item.grading_result["rejected_summary"]["MENTAH"]["TOTAL"] -
-      item.grading_result["rejected_summary"]["MENTAH"][
-        "BUAH KECIL DIBAWAH 3KG"
-      ] -
-      item.grading_result["rejected_summary"]["MENTAH"][
-        "BUAH KECIL DIBAWAH 5KG"
-      ];
-    const totalJanjangKosong =
-      item.grading_result["rejected_summary"]["JANJANG KOSONG"]["TOTAL"] -
-      item.grading_result["rejected_summary"]["JANJANG KOSONG"][
-        "BUAH KECIL DIBAWAH 3KG"
-      ] -
-      item.grading_result["rejected_summary"]["JANJANG KOSONG"][
-        "BUAH KECIL DIBAWAH 5KG"
-      ];
+    const totalMentah = item.grading_result["rejected_summary"]?.["MENTAH"]
+      ? (item.grading_result["rejected_summary"]["MENTAH"]["TOTAL"] || 0) -
+        (item.grading_result["rejected_summary"]["MENTAH"][
+          "BUAH KECIL DIBAWAH 3KG"
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["MENTAH"][
+          "BUAH KECIL DIBAWAH 5KG"
+        ] || 0)
+      : 0;
+    const totalJanjangKosong = item.grading_result["rejected_summary"]?.[
+      "JANJANG KOSONG"
+    ]
+      ? (item.grading_result["rejected_summary"]["JANJANG KOSONG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["rejected_summary"]["JANJANG KOSONG"][
+          "BUAH KECIL DIBAWAH 3KG"
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["JANJANG KOSONG"][
+          "BUAH KECIL DIBAWAH 5KG"
+        ] || 0)
+      : 0;
 
     const { totalRusakDimakanTikus } = Object.keys(
       item.grading_result["rejected_summary"],
@@ -146,7 +162,7 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"][key];
 
-        obj["totalBuahKecil5Diterima"] += data["BUAH KECIL DIBAWAH 5KG"];
+        obj["totalBuahKecil5Diterima"] += data["BUAH KECIL DIBAWAH 5KG"] || 0;
 
         return obj;
       },
@@ -158,7 +174,7 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"][key];
 
-        obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"];
+        obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
         return obj;
       },
@@ -370,73 +386,76 @@ const utilsInspection = {
     );
 
     const totalMatang = item.grading_result["accepted_summary"]?.["MATANG"]
-      ? item.grading_result["accepted_summary"]["MATANG"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["MATANG"][
+      ? (item.grading_result["accepted_summary"]["MATANG"]["TOTAL"] || 0) -
+        (item.grading_result["accepted_summary"]["MATANG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["accepted_summary"]["MATANG"][
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["MATANG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
     const totalLewatMatang = item.grading_result["accepted_summary"]?.[
       "LEWAT MATANG"
     ]
-      ? item.grading_result["accepted_summary"]["LEWAT MATANG"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["LEWAT MATANG"][
+      ? (item.grading_result["accepted_summary"]["LEWAT MATANG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["accepted_summary"]["LEWAT MATANG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["accepted_summary"]["LEWAT MATANG"][
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["LEWAT MATANG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
 
     const totalMentahDiterima = item.grading_result["accepted_summary"]?.[
       "MENTAH"
     ]
-      ? item.grading_result["accepted_summary"]["MENTAH"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["MENTAH"][
+      ? (item.grading_result["accepted_summary"]["MENTAH"]["TOTAL"] || 0) -
+        (item.grading_result["accepted_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["accepted_summary"]["MENTAH"][
+        ] || 0) -
+        (item.grading_result["accepted_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
     const totalJanjangKosongDiterima = item.grading_result[
       "accepted_summary"
     ]?.["JANJANG KOSONG"]
-      ? item.grading_result["accepted_summary"]["JANJANG KOSONG"]["TOTAL"] -
-        item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+      ? (item.grading_result["accepted_summary"]["JANJANG KOSONG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
+        ] || 0) -
         (isLngm
           ? item.grading_result["accepted_summary"]["JANJANG KOSONG"][
               "BUAH KECIL DIBAWAH 2KG"
             ] || 0
           : 0) -
-        item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
 
     const totalMentah = item.grading_result["rejected_summary"]?.["MENTAH"]
-      ? item.grading_result["rejected_summary"]?.["MENTAH"]?.["TOTAL"] -
-        item.grading_result["rejected_summary"]["MENTAH"][
+      ? (item.grading_result["rejected_summary"]["MENTAH"]["TOTAL"] || 0) -
+        (item.grading_result["rejected_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["rejected_summary"]["MENTAH"][
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["MENTAH"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
     const totalJanjangKosong = item.grading_result["rejected_summary"]?.[
       "JANJANG KOSONG"
     ]
-      ? item.grading_result["rejected_summary"]["JANJANG KOSONG"]["TOTAL"] -
-        item.grading_result["rejected_summary"]["JANJANG KOSONG"][
+      ? (item.grading_result["rejected_summary"]["JANJANG KOSONG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["rejected_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["rejected_summary"]["JANJANG KOSONG"][
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
 
     const { totalRusakDimakanTikus } = Object.keys(
@@ -455,24 +474,25 @@ const utilsInspection = {
     const totalMatangDitolak = item.grading_result["rejected_summary"]?.[
       "MATANG"
     ]
-      ? item.grading_result["rejected_summary"]["MATANG"]["TOTAL"] -
-        item.grading_result["rejected_summary"]["MATANG"][
+      ? (item.grading_result["rejected_summary"]["MATANG"]["TOTAL"] || 0) -
+        (item.grading_result["rejected_summary"]["MATANG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["rejected_summary"]["MATANG"][
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["MATANG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
     const totalLewatMatangDitolak = item.grading_result["rejected_summary"]?.[
       "LEWAT MATANG"
     ]
-      ? item.grading_result["rejected_summary"]["LEWAT MATANG"]["TOTAL"] -
-        item.grading_result["rejected_summary"]["LEWAT MATANG"][
+      ? (item.grading_result["rejected_summary"]["LEWAT MATANG"]["TOTAL"] ||
+          0) -
+        (item.grading_result["rejected_summary"]["LEWAT MATANG"][
           "BUAH KECIL DIBAWAH 3KG"
-        ] -
-        item.grading_result["rejected_summary"]["LEWAT MATANG"][
+        ] || 0) -
+        (item.grading_result["rejected_summary"]["LEWAT MATANG"][
           "BUAH KECIL DIBAWAH 5KG"
-        ]
+        ] || 0)
       : 0;
 
     const { totalBuahKecil3, totalBuahKecil5, totalBuahKecil2 } = Object.keys(
@@ -481,9 +501,9 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["rejected_summary"][key];
 
-        obj["totalBuahKecil3"] += data["BUAH KECIL DIBAWAH 3KG"];
-        obj["totalBuahKecil5"] += data["BUAH KECIL DIBAWAH 5KG"];
-        obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"];
+        obj["totalBuahKecil3"] += data["BUAH KECIL DIBAWAH 3KG"] || 0;
+        obj["totalBuahKecil5"] += data["BUAH KECIL DIBAWAH 5KG"] || 0;
+        obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"] || 0;
 
         return obj;
       },
@@ -496,7 +516,7 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"][key];
 
-        obj["totalBuahKecil5Diterima"] += data["BUAH KECIL DIBAWAH 5KG"];
+        obj["totalBuahKecil5Diterima"] += data["BUAH KECIL DIBAWAH 5KG"] || 0;
 
         return obj;
       },
@@ -508,7 +528,7 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"][key];
 
-        obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"];
+        obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
         return obj;
       },
