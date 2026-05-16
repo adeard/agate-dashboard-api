@@ -245,17 +245,17 @@ const utilsInspection = {
 
     const totalRejected = inspections.reduce((curr, item) => {
       return (
-        Object.keys(item.grading_result["rejected_summary"]).reduce(
+        Object.keys(item.grading_result["rejected_summary"] || {}).reduce(
           (n, k) =>
             n +
             Number(
-              item.grading_result["rejected_summary"][k][
+              (item.grading_result["rejected_summary"][k] || {})[
                 "BUAH KECIL DIBAWAH 5KG"
               ] || 0,
             ),
           0,
         ) +
-        Number(item.grading_result["total_rejected"]) +
+        Number(item.grading_result["total_rejected"] || 0) +
         curr
       );
     }, 0);
@@ -1257,6 +1257,7 @@ class DashboardV4Controller {
         janjang_kosong: [],
         buah_kecil_3: [],
         buah_kecil_5: [],
+        buah_kecil_2: [],
         tangkai_panjang: [],
         rusak_dimakan_tikus: [],
       };
@@ -1328,8 +1329,11 @@ class DashboardV4Controller {
         dayjs(date_from).format("YYYY-MM-DD") !==
           dayjs(date_to).format("YYYY-MM-DD");
 
-      const factoryObj = factory ? await FactoryModel.findById(factory).lean() : null;
-      const isLngm = factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+      const factoryObj = factory
+        ? await FactoryModel.findById(factory).lean()
+        : null;
+      const isLngm =
+        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -1814,9 +1818,9 @@ class DashboardV4Controller {
           janjang_kosong: scoringMultiplier.janjang_kosong * totalJanjangKosong,
           buah_kecil:
             scoringMultiplier.buah_kecil *
-              (totalBuahKecil3 +
-                totalBuahKecil5 +
-                (isLngm ? totalBuahKecil2 : 0)),
+            (totalBuahKecil3 +
+              totalBuahKecil5 +
+              (isLngm ? totalBuahKecil2 : 0)),
           tangkai_panjang:
             scoringMultiplier.tangkai_panjang * totalTangkaiPanjang,
         };
@@ -3989,8 +3993,11 @@ class DashboardV4Controller {
         dayjs(date_from).format("YYYY-MM-DD") !==
           dayjs(date_to).format("YYYY-MM-DD");
 
-      const factoryObj = factory ? await FactoryModel.findById(factory).lean() : null;
-      const isLngm = factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+      const factoryObj = factory
+        ? await FactoryModel.findById(factory).lean()
+        : null;
+      const isLngm =
+        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -4041,10 +4048,7 @@ class DashboardV4Controller {
           totalMultiple,
           percentRusakDimakanTikus,
           totalRusakDimakanTikus,
-        } = utilsInspection.getTotalAndPercentClassificationNew(
-          item,
-          isLngm,
-        );
+        } = utilsInspection.getTotalAndPercentClassificationNew(item, isLngm);
 
         grandTotalAccepted += totalAcceptedModified;
         grandTotalRejected += totalRejectedModified;

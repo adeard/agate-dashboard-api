@@ -489,19 +489,21 @@ connectToDatabase().then(async (res) => {
 
   // await InspectionDataModel.findByIdAndDelete('6965e7516dcc537bb8440582');
 
-  const company = await CompanyModel.findOne({
-    name: "Mustika Agung Sentosa",
-    initial: "MAS",
-    image_name: "",
-    location: "Ketapang, Kalimantan Barat",
-  });
-  const factory = await FactoryModel.findOne({
-    name: "MASM",
-    company: company._id,
-    location: "Ketapang, Kalimantan Barat",
-  });
+  // const company = await CompanyModel.findOne({
+  //   name: "Mustika Agung Sentosa",
+  //   initial: "MAS",
+  //   image_name: "",
+  //   location: "Ketapang, Kalimantan Barat",
+  // });
+  // const factory = await FactoryModel.findOne({
+  //   name: "MASM",
+  //   company: company._id,
+  //   location: "Ketapang, Kalimantan Barat",
+  // });
 
-  console.log({ company, factory });
+  const factory = await FactoryModel.findById("66c3114ba342ddbf9eae83c1");
+
+  console.log({ factory });
 
   console.log("Done");
   process.exit();
