@@ -149,7 +149,7 @@ const utilsInspection = {
 
         obj["totalBuahKecil3"] += data["BUAH KECIL DIBAWAH 3KG"];
         obj["totalBuahKecil5"] += data["BUAH KECIL DIBAWAH 5KG"];
-        obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"];
+        obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"] || 0;
 
         return obj;
       },
@@ -2271,7 +2271,7 @@ class DashboardV4Controller {
         "Janjang Kosong",
         "Buah Kecil <3kg",
         "Buah Kecil <5kg",
-        "Buah Kecil <2kg",
+        ...(isLngm ? ["Buah Kecil <2kg"] : []),
         "Tangkai Panjang",
         "Matang Katro",
       ],
@@ -2685,12 +2685,16 @@ class DashboardV4Controller {
           const data = item["grading_result"]["classification_summary"][key];
 
           obj["totalBuahKecil3"] +=
-            key === "JANJANG KOSONG" ? 0 : data["BUAH KECIL DIBAWAH 3KG"];
+            key === "JANJANG KOSONG" ? 0 : data["BUAH KECIL DIBAWAH 3KG"] || 0;
           obj["totalBuahKecil5"] +=
-            key === "JANJANG KOSONG" ? 0 : data["BUAH KECIL DIBAWAH 5KG"];
+            key === "JANJANG KOSONG" ? 0 : data["BUAH KECIL DIBAWAH 5KG"] || 0;
           obj["totalBuahKecil2"] +=
-            key === "JANJANG KOSONG" ? 0 : data["BUAH KECIL DIBAWAH 2KG"];
-          obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"];
+            key === "JANJANG KOSONG"
+              ? 0
+              : isLngm
+                ? data["BUAH KECIL DIBAWAH 2KG"] || 0
+                : 0;
+          obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
           return obj;
         },
@@ -2703,7 +2707,7 @@ class DashboardV4Controller {
         (obj, key) => {
           const data = item["grading_result"]["accepted_summary"][key];
 
-          obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"];
+          obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
           return obj;
         },
@@ -2999,7 +3003,7 @@ class DashboardV4Controller {
         totalJanjangKosong,
         totalBuahKecil3,
         totalBuahKecil5,
-        totalBuahKecil2,
+        ...(isLngm ? [totalBuahKecil2] : []),
         totalTangkaiPanjang,
         // '',
 
