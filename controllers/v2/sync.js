@@ -1,22 +1,22 @@
-const mongoose = require('mongoose');
-const { default: axios } = require('axios');
-const FactoryModel = require('../../models/factory');
-const CompanyModel = require('../../models/company');
-const InspectionDataModel = require('../../models/inspection-data');
-const VendorV2Model = require('../../models/v2/vendor');
-const WABroadcastModel = require('../../models/wa-broadcast');
+const mongoose = require("mongoose");
+const { default: axios } = require("axios");
+const FactoryModel = require("../../models/factory");
+const CompanyModel = require("../../models/company");
+const InspectionDataModel = require("../../models/inspection-data");
+const VendorV2Model = require("../../models/v2/vendor");
+const WABroadcastModel = require("../../models/wa-broadcast");
 const {
   createResponseSuccess,
   countPercentage,
-} = require('../../utils/helpers');
-const { getBasicQuery } = require('../../utils/query-helpers');
-const { vBody } = require('../../validators/joi');
-const dayjs = require('dayjs');
-const MachineCheckModel = require('../../models/machine-check');
-const MachineLogsFileModel = require('../../models/machine-logs-file');
-const MachineLogsDataModel = require('../../models/machine-logs-data');
+} = require("../../utils/helpers");
+const { getBasicQuery } = require("../../utils/query-helpers");
+const { vBody } = require("../../validators/joi");
+const dayjs = require("dayjs");
+const MachineCheckModel = require("../../models/machine-check");
+const MachineLogsFileModel = require("../../models/machine-logs-file");
+const MachineLogsDataModel = require("../../models/machine-logs-data");
 
-const formatter = new Intl.NumberFormat('en-US', {
+const formatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
@@ -25,11 +25,11 @@ const broadcastReport = async (payload) => {
   await Promise.all([
     axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
       ...payload,
-      phone: '6285266900607',
+      phone: "6285266900607",
     }),
     axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
       ...payload,
-      phone: '6285295058857',
+      phone: "6285295058857",
     }),
   ]);
   // await axios.post(`${process.env.WA_URI}/api/v2/broadcast`, {
@@ -47,29 +47,29 @@ class SyncDataController {
     try {
       const body = req.body;
 
-      delete body['is_integrated'];
+      delete body["is_integrated"];
 
-      await vBody('vendor-2', body);
+      await vBody("vendor-2", body);
 
       const factory = await FactoryModel.findOne({
-        name: body['factory'],
+        name: body["factory"],
       }).lean();
 
       if (!factory) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Factory not found',
+          title: "Not Found",
+          message: "Factory not found",
         };
       }
 
-      body['factory'] = factory._id;
+      body["factory"] = factory._id;
 
       await VendorV2Model.findOneAndUpdate(
         {
-          name: body['name'].trim(),
+          name: body["name"].trim(),
           factory: factory._id,
-          id: body['id'],
+          id: body["id"],
         },
         { ...body, factory: factory._id },
         {
@@ -81,9 +81,9 @@ class SyncDataController {
 
       return res
         .status(200)
-        .json(createResponseSuccess(200, 'Success', 'Success sync vendor', {}));
+        .json(createResponseSuccess(200, "Success", "Success sync vendor", {}));
     } catch (err) {
-      console.log({ err }, '<<< ERROR SYNC VENDOR');
+      console.log({ err }, "<<< ERROR SYNC VENDOR");
       next(err);
     }
   }
@@ -96,37 +96,37 @@ class SyncDataController {
       console.log({ body });
 
       const factory = await FactoryModel.findOne({
-        name: body['factory'],
+        name: body["factory"],
       }).lean();
 
       if (!factory) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Factory not found',
+          title: "Not Found",
+          message: "Factory not found",
         };
       }
 
       let vendor = await VendorV2Model.findOne({
-        name: body['vendor_name'],
-        id: body['vendor_id'],
+        name: body["vendor_name"],
+        id: body["vendor_id"],
         factory: factory._id,
       }).lean();
 
       if (!vendor) {
         vendor = await VendorV2Model.findOneAndUpdate(
           {
-            name: body['vendor_name'].trim(),
+            name: body["vendor_name"].trim(),
             factory: factory._id,
-            id: body['vendor_id'],
+            id: body["vendor_id"],
           },
           {
-            id: body['vendor_id'],
-            name: body['vendor_name'],
-            type: body['vendor_type'],
+            id: body["vendor_id"],
+            name: body["vendor_name"],
+            type: body["vendor_type"],
             factory: factory._id,
-            vendor_id: body['vendor_id'],
-            bjr: body['bjr'] || '',
+            vendor_id: body["vendor_id"],
+            bjr: body["bjr"] || "",
           },
           {
             upsert: true,
@@ -161,20 +161,20 @@ class SyncDataController {
       //   );
       // }
 
-      delete body['is_integrated'];
-      body['is_integrated'] = true;
+      delete body["is_integrated"];
+      body["is_integrated"] = true;
 
-      body['company'] = factory.company.toString();
+      body["company"] = factory.company.toString();
 
-      await vBody('inspection-data', body);
+      await vBody("inspection-data", body);
 
-      body['factory'] = factory._id;
-      body['vendor'] = vendor._id;
+      body["factory"] = factory._id;
+      body["vendor"] = vendor._id;
 
-      console.log({ body }, '<<<< BODY SYNC DATA INSPECTION');
+      console.log({ body }, "<<<< BODY SYNC DATA INSPECTION");
 
       const doc = await InspectionDataModel.findOneAndUpdate(
-        { id: body['id'] },
+        { id: body["id"] },
         body,
         {
           upsert: true,
@@ -538,8 +538,8 @@ class SyncDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success create integrate inspection',
+            "Success",
+            "Success create integrate inspection",
             { success: true },
           ),
         );
@@ -557,13 +557,13 @@ class SyncDataController {
 
       await WABroadcastModel.findByIdAndUpdate(body.sendWhatsAppId, {
         $set: {
-          status: body['status'],
+          status: body["status"],
         },
       });
 
       return res
         .status(200)
-        .json(createResponseSuccess(200, 'Success', 'Done', { success: true }));
+        .json(createResponseSuccess(200, "Success", "Done", { success: true }));
     } catch (err) {
       next(err);
     }
@@ -579,7 +579,7 @@ class SyncDataController {
 
       if (!file.url) {
         return res.status(200).json(
-          createResponseSuccess(200, 'Success', 'Success integrate image', {
+          createResponseSuccess(200, "Success", "Success integrate image", {
             url: null,
           }),
         );
@@ -596,8 +596,8 @@ class SyncDataController {
         .json(
           createResponseSuccess(
             200,
-            'Success',
-            'Success create integrate inspection',
+            "Success",
+            "Success create integrate inspection",
             { url: file.url },
           ),
         );
@@ -611,23 +611,23 @@ class SyncDataController {
     try {
       const body = req.body;
 
-      delete body['is_integrated'];
+      delete body["is_integrated"];
 
-      await vBody('machine-check', body);
+      await vBody("machine-check", body);
 
       const factory = await FactoryModel.findOne({
-        name: body['factory'],
+        name: body["factory"],
       }).lean();
 
       if (!factory) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Factory not found',
+          title: "Not Found",
+          message: "Factory not found",
         };
       }
 
-      body['factory'] = factory._id;
+      body["factory"] = factory._id;
 
       if (body.date) {
         body.date = new Date(body.date);
@@ -649,12 +649,12 @@ class SyncDataController {
       );
 
       return res.status(200).json(
-        createResponseSuccess(200, 'Success', 'Success sync machine check', {
+        createResponseSuccess(200, "Success", "Success sync machine check", {
           id: machineCheck._id,
         }),
       );
     } catch (err) {
-      console.error('Error syncing machine check:', {
+      console.error("Error syncing machine check:", {
         error: err.message,
         stack: err.stack,
         body: req.body,
@@ -667,23 +667,24 @@ class SyncDataController {
     try {
       const body = req.body;
 
-      delete body['is_integrated'];
+      delete body["is_integrated"];
+      console.log({ body });
 
-      await vBody('machine-logs-file', body);
+      await vBody("machine-logs-file", body);
 
       const factory = await FactoryModel.findOne({
-        name: body['factory'],
+        name: body["factory"],
       }).lean();
 
       if (!factory) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Factory not found',
+          title: "Not Found",
+          message: "Factory not found",
         };
       }
 
-      body['factory'] = factory._id;
+      body["factory"] = factory._id;
 
       const filter = {
         filename: body.filename,
@@ -705,15 +706,15 @@ class SyncDataController {
       return res.status(200).json(
         createResponseSuccess(
           200,
-          'Success',
-          'Success sync machine logs file',
+          "Success",
+          "Success sync machine logs file",
           {
             id: machineLogsFile._id,
           },
         ),
       );
     } catch (err) {
-      console.error('Error syncing machine logs file:', {
+      console.error("Error syncing machine logs file:", {
         error: err.message,
         stack: err.stack,
         body: req.body,
@@ -726,23 +727,25 @@ class SyncDataController {
     try {
       const body = req.body;
 
-      delete body['is_integrated'];
+      delete body["is_integrated"];
 
-      await vBody('machine-logs-data', body);
+      if (!body.factory) return res.status(200);
+
+      await vBody("machine-logs-data", body);
 
       const factory = await FactoryModel.findOne({
-        name: body['factory'],
+        name: body["factory"],
       }).lean();
 
       if (!factory) {
         throw {
           code: 404,
-          title: 'Not Found',
-          message: 'Factory not found',
+          title: "Not Found",
+          message: "Factory not found",
         };
       }
 
-      body['factory'] = factory._id;
+      body["factory"] = factory._id;
 
       if (body.date) {
         body.date = new Date(body.date);
@@ -759,7 +762,7 @@ class SyncDataController {
         filter,
         {
           ...body,
-          date_string: dayjs(body['date']).format('HH:mm:ss DD/MM/YYYY'),
+          date_string: dayjs(body["date"]).format("HH:mm:ss DD/MM/YYYY"),
         },
         {
           upsert: true,
@@ -772,15 +775,15 @@ class SyncDataController {
       return res.status(200).json(
         createResponseSuccess(
           200,
-          'Success',
-          'Success sync machine logs data',
+          "Success",
+          "Success sync machine logs data",
           {
             id: machineLogsData._id,
           },
         ),
       );
     } catch (err) {
-      console.error('Error syncing machine logs data:', {
+      console.error("Error syncing machine logs data:", {
         error: err.message,
         stack: err.stack,
         body: req.body,
