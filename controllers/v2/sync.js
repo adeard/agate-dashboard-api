@@ -729,8 +729,6 @@ class SyncDataController {
 
       delete body["is_integrated"];
 
-      if (!body.factory) return res.status(200);
-
       await vBody("machine-logs-data", body);
 
       const factory = await FactoryModel.findOne({
