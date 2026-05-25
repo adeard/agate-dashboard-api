@@ -239,11 +239,53 @@ class InspectionDataController {
 
   static async downloadExcel(req, res, next) {
     try {
+      const user = req.user;
+      const {
+        name = "",
+        delivery_number = "",
+        vehicle_number = "",
+        vendor_id = "",
+        date_from = "",
+        date_to = "",
+        limit_minimum = 0,
+      } = req.query;
       const { factoryId } = req.params;
 
-      let q = {};
+      let q = {
+        "grading_result.total_tandan": { $gte: Number(limit_minimum) },
+        company: user.company,
+      };
+
       if (factoryId) {
         q["factory"] = factoryId;
+      }
+      if (name) {
+        const regexPattern = new RegExp(name || "", "i");
+        q["name"] = { $regex: regexPattern };
+      }
+
+      if (delivery_number) {
+        const regexPattern = new RegExp(delivery_number || "", "i");
+        q["delivery_number"] = { $regex: regexPattern };
+      }
+      if (vehicle_number) {
+        const regexPattern = new RegExp(vehicle_number || "", "i");
+        q["vehicle_number"] = { $regex: regexPattern };
+      }
+      if (vendor_id) {
+        q["vendor"] = vendor_id;
+      }
+
+      if (date_from && date_to) {
+        q["date"] = {
+          $gte: dayjs(date_from).hour(6).minute(0).second(0).millisecond(0),
+          $lte: dayjs(date_to)
+            .add(1, "day")
+            .hour(5)
+            .minute(59)
+            .second(59)
+            .millisecond(999),
+        };
       }
 
       const inspections = await InspectionDataModel.find(q)
