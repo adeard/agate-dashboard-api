@@ -218,8 +218,14 @@ class InspectionDataController {
     try {
       const { inspectionId } = req.params;
 
-      const inspections =
-        await InspectionDataModel.findById(inspectionId).lean();
+      const inspections = await InspectionDataModel.findById(inspectionId)
+        .populate("vendor", "bjr")
+        .lean();
+
+      if (inspections) {
+        inspections.bjr = inspections.vendor?.bjr || null;
+        inspections.vendor = inspections.vendor?._id || inspections.vendor;
+      }
 
       return res
         .status(200)
@@ -416,23 +422,23 @@ class InspectionDataController {
       let total_accepted_percent =
         inspections["grading_result"]["total_accepted"] > 0
           ? countPercentage(
-              inspections["grading_result"]["total_accepted"],
-              inspections["grading_result"]["total_tandan"],
-            )
+            inspections["grading_result"]["total_accepted"],
+            inspections["grading_result"]["total_tandan"],
+          )
           : 0;
       let total_rejected_percent =
         inspections["grading_result"]["total_rejected"] > 0
           ? countPercentage(
-              inspections["grading_result"]["total_rejected"],
-              inspections["grading_result"]["total_tandan"],
-            )
+            inspections["grading_result"]["total_rejected"],
+            inspections["grading_result"]["total_tandan"],
+          )
           : 0;
       let total_fined_percent =
         inspections["grading_result"]["total_fined"] > 0
           ? countPercentage(
-              inspections["grading_result"]["total_fined"],
-              inspections["grading_result"]["total_accepted"],
-            )
+            inspections["grading_result"]["total_fined"],
+            inspections["grading_result"]["total_accepted"],
+          )
           : 0;
       let total_percent =
         Number(Number(total_rejected_percent).toFixed(1)) +
@@ -441,9 +447,9 @@ class InspectionDataController {
       let total_multiple_percent =
         inspections["grading_result"]["total_multiple"] > 0
           ? countPercentage(
-              inspections["grading_result"]["total_multiple"],
-              inspections["grading_result"]["total_tandan"],
-            )
+            inspections["grading_result"]["total_multiple"],
+            inspections["grading_result"]["total_tandan"],
+          )
           : 0;
 
       let classificationResult = generateClassificationResultArray(
@@ -452,13 +458,13 @@ class InspectionDataController {
 
       let acceptedResult = acceptedData.length
         ? generateClassificationResultArray(acceptedData).map((e) =>
-            changeValueToLocalestring(e),
-          )
+          changeValueToLocalestring(e),
+        )
         : null;
       let rejectedResult = rejectedData.length
         ? generateClassificationResultArray(rejectedData).map((e) =>
-            changeValueToLocalestring(e),
-          )
+          changeValueToLocalestring(e),
+        )
         : null;
 
       // let totalResult = acceptedResult
@@ -516,13 +522,13 @@ class InspectionDataController {
         accepted_result: acceptedResult,
         rejected_result: rejectedData.length
           ? generateClassificationResultArray(rejectedData).map((e) =>
-              changeValueToLocalestring(e),
-            )
+            changeValueToLocalestring(e),
+          )
           : null,
         fined_result: finedData.length
           ? generateClassificationResultArray(finedData).map((e) =>
-              changeValueToLocalestring(e),
-            )
+            changeValueToLocalestring(e),
+          )
           : null,
 
         report: {
@@ -530,8 +536,8 @@ class InspectionDataController {
             inspections["grading_result"]["total_tandan"].toLocaleString(),
           tandan_kosong: rejectedSummary?.["JANJANG KOSONG"]
             ? Number(
-                rejectedSummary["JANJANG KOSONG"]["TOTAL"],
-              ).toLocaleString()
+              rejectedSummary["JANJANG KOSONG"]["TOTAL"],
+            ).toLocaleString()
             : 0,
           bjr_3: totalResultRejected?.["BUAH KECIL DIBAWAH 3KG"]
             ? totalResultRejected["BUAH KECIL DIBAWAH 3KG"]
@@ -1169,7 +1175,7 @@ class InspectionDataController {
       );
       demografikExternal["total_percent"] = countPercentage(
         demografikExternal["total_accepted"] +
-          demografikExternal["total_rejected"],
+        demografikExternal["total_rejected"],
         demografikExternal["total_tandan"],
       );
       demografikExternal["classification_summary"] =
@@ -1286,8 +1292,8 @@ class InspectionDataController {
         end_date: date_to
           ? dayjs(date_to).format("DD/MM/YYYY HH:mm")
           : dayjs(inspections[inspections.length - 1]["date"]).format(
-              "DD/MM/YYYY HH:mm:ss",
-            ),
+            "DD/MM/YYYY HH:mm:ss",
+          ),
         sinarmas_logo_img: getImageFile(
           companyData ? companyData.image_name : "sinarmas-logo.png",
         ),
@@ -1917,7 +1923,7 @@ class InspectionDataController {
       );
       demografikExternal["total_percent"] = countPercentage(
         demografikExternal["total_accepted"] +
-          demografikExternal["total_rejected"],
+        demografikExternal["total_rejected"],
         demografikExternal["total_tandan"],
       );
       demografikExternal["classification_summary"] =
