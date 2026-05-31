@@ -353,8 +353,9 @@ class InspectionDataController {
     try {
       const { inspectionId } = req.params;
 
-      const inspections =
-        await InspectionDataModel.findById(inspectionId).lean();
+      const inspections = await InspectionDataModel.findById(inspectionId)
+        .populate("vendor")
+        .lean();
 
       if (!inspections) {
         throw {
@@ -365,6 +366,14 @@ class InspectionDataController {
       }
 
       const factory = await FactoryModel.findById(inspections.factory).lean();
+
+      const isUtjmKjgm =
+        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
+      const isLngm =
+        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
+
+      const vendorBjr = Number(inspections.vendor?.bjr || 0);
+      const vendorType = Number(inspections.vendor?.type || 0);
 
       let acceptedSummary = inspections.grading_result.accepted_summary;
       let rejectedSummary = inspections.grading_result.rejected_summary;
@@ -386,12 +395,31 @@ class InspectionDataController {
       });
 
       let finedData = Object.keys(finedSummary).map((k) => {
+        let dendaValue = Number(finedSummary[k]["DENDA"] || 0);
+        let dendaFormula = dendaValue;
+
+        if (isUtjmKjgm && vendorBjr && vendorType === 3) {
+          if (k === "TANGKAI PANJANG") {
+            dendaFormula = `1% x ${vendorBjr}`;
+            dendaValue = 0.01 * vendorBjr;
+          } else if (k === "MENTAH") {
+            dendaFormula = `30% x ${vendorBjr}`;
+            dendaValue = 0.30 * vendorBjr;
+          }
+        }
+
+        const totalValue = Number(finedSummary[k]["TOTAL"] || 0);
+        const totalDenda = totalValue * dendaValue;
+
         return {
           label: k.includes("BUAH KECIL")
             ? dictBuahKecil[k]
             : capitalizeString(k),
           ...finedSummary[k],
-          "TOTAL DENDA": finedSummary[k]["TOTAL"] * finedSummary[k]["DENDA"],
+          "DENDA": dendaFormula,
+          "TOTAL DENDA": isUtjmKjgm && vendorBjr && vendorType === 3 && (k === "TANGKAI PANJANG" || k === "MENTAH")
+            ? Number(totalDenda.toFixed(2))
+            : totalDenda,
         };
       });
       let classificationData = Object.keys(classificationSummary).map((k) => {
@@ -400,11 +428,6 @@ class InspectionDataController {
           ...classificationSummary[k],
         };
       });
-
-      const isUtjmKjgm =
-        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
-      const isLngm =
-        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
 
       if (isUtjmKjgm) {
         const mergeCols = (arr) => {
@@ -422,23 +445,23 @@ class InspectionDataController {
       let total_accepted_percent =
         inspections["grading_result"]["total_accepted"] > 0
           ? countPercentage(
-            inspections["grading_result"]["total_accepted"],
-            inspections["grading_result"]["total_tandan"],
-          )
+              inspections["grading_result"]["total_accepted"],
+              inspections["grading_result"]["total_tandan"],
+            )
           : 0;
       let total_rejected_percent =
         inspections["grading_result"]["total_rejected"] > 0
           ? countPercentage(
-            inspections["grading_result"]["total_rejected"],
-            inspections["grading_result"]["total_tandan"],
-          )
+              inspections["grading_result"]["total_rejected"],
+              inspections["grading_result"]["total_tandan"],
+            )
           : 0;
       let total_fined_percent =
         inspections["grading_result"]["total_fined"] > 0
           ? countPercentage(
-            inspections["grading_result"]["total_fined"],
-            inspections["grading_result"]["total_accepted"],
-          )
+              inspections["grading_result"]["total_fined"],
+              inspections["grading_result"]["total_accepted"],
+            )
           : 0;
       let total_percent =
         Number(Number(total_rejected_percent).toFixed(1)) +
@@ -447,9 +470,9 @@ class InspectionDataController {
       let total_multiple_percent =
         inspections["grading_result"]["total_multiple"] > 0
           ? countPercentage(
-            inspections["grading_result"]["total_multiple"],
-            inspections["grading_result"]["total_tandan"],
-          )
+              inspections["grading_result"]["total_multiple"],
+              inspections["grading_result"]["total_tandan"],
+            )
           : 0;
 
       let classificationResult = generateClassificationResultArray(
@@ -458,13 +481,13 @@ class InspectionDataController {
 
       let acceptedResult = acceptedData.length
         ? generateClassificationResultArray(acceptedData).map((e) =>
-          changeValueToLocalestring(e),
-        )
+            changeValueToLocalestring(e),
+          )
         : null;
       let rejectedResult = rejectedData.length
         ? generateClassificationResultArray(rejectedData).map((e) =>
-          changeValueToLocalestring(e),
-        )
+            changeValueToLocalestring(e),
+          )
         : null;
 
       // let totalResult = acceptedResult
@@ -522,13 +545,13 @@ class InspectionDataController {
         accepted_result: acceptedResult,
         rejected_result: rejectedData.length
           ? generateClassificationResultArray(rejectedData).map((e) =>
-            changeValueToLocalestring(e),
-          )
+              changeValueToLocalestring(e),
+            )
           : null,
         fined_result: finedData.length
           ? generateClassificationResultArray(finedData).map((e) =>
-            changeValueToLocalestring(e),
-          )
+              changeValueToLocalestring(e),
+            )
           : null,
 
         report: {
@@ -536,8 +559,8 @@ class InspectionDataController {
             inspections["grading_result"]["total_tandan"].toLocaleString(),
           tandan_kosong: rejectedSummary?.["JANJANG KOSONG"]
             ? Number(
-              rejectedSummary["JANJANG KOSONG"]["TOTAL"],
-            ).toLocaleString()
+                rejectedSummary["JANJANG KOSONG"]["TOTAL"],
+              ).toLocaleString()
             : 0,
           bjr_3: totalResultRejected?.["BUAH KECIL DIBAWAH 3KG"]
             ? totalResultRejected["BUAH KECIL DIBAWAH 3KG"]
@@ -552,10 +575,16 @@ class InspectionDataController {
           //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
           // ).toLocaleString(),
           tangkai_panjang: finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0,
-          tangkai_panjang_denda: (
-            Number(finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0) *
-            Number(finedSummary["TANGKAI PANJANG"]?.["DENDA"] || 0)
-          ).toLocaleString(),
+          tangkai_panjang_denda: (() => {
+            let dendaValue = Number(finedSummary["TANGKAI PANJANG"]?.["DENDA"] || 0);
+            if (isUtjmKjgm && vendorBjr && vendorType === 3) {
+              dendaValue = 0.01 * vendorBjr;
+            }
+            return (
+              Number(finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0) *
+              dendaValue
+            ).toLocaleString();
+          })(),
         },
       };
 
@@ -1175,7 +1204,7 @@ class InspectionDataController {
       );
       demografikExternal["total_percent"] = countPercentage(
         demografikExternal["total_accepted"] +
-        demografikExternal["total_rejected"],
+          demografikExternal["total_rejected"],
         demografikExternal["total_tandan"],
       );
       demografikExternal["classification_summary"] =
@@ -1292,8 +1321,8 @@ class InspectionDataController {
         end_date: date_to
           ? dayjs(date_to).format("DD/MM/YYYY HH:mm")
           : dayjs(inspections[inspections.length - 1]["date"]).format(
-            "DD/MM/YYYY HH:mm:ss",
-          ),
+              "DD/MM/YYYY HH:mm:ss",
+            ),
         sinarmas_logo_img: getImageFile(
           companyData ? companyData.image_name : "sinarmas-logo.png",
         ),
@@ -1923,7 +1952,7 @@ class InspectionDataController {
       );
       demografikExternal["total_percent"] = countPercentage(
         demografikExternal["total_accepted"] +
-        demografikExternal["total_rejected"],
+          demografikExternal["total_rejected"],
         demografikExternal["total_tandan"],
       );
       demografikExternal["classification_summary"] =
