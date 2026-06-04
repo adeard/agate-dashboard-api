@@ -501,9 +501,9 @@ connectToDatabase().then(async (res) => {
   //   location: "Ketapang, Kalimantan Barat",
   // });
 
-  const factory = await FactoryModel.findById("66c3114ba342ddbf9eae83c1");
+  const companies = await CompanyModel.find({}).lean();
 
-  console.log({ factory });
+  console.log({ companies });
 
   console.log("Done");
   process.exit();
