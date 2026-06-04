@@ -95,6 +95,10 @@ class SyncDataController {
 
       console.log({ body });
 
+      if (body["is_integrated_wb"] === null) {
+        body["is_integrated_wb"] = false;
+      }
+
       const factory = await FactoryModel.findOne({
         name: body["factory"],
       }).lean();
