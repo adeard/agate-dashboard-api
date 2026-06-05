@@ -1,4 +1,4 @@
-const Joi = require('joi');
+const Joi = require("joi");
 
 const schemas = {
   user: Joi.object({
@@ -6,17 +6,17 @@ const schemas = {
     full_name: Joi.string().required(),
     status: Joi.number().default(1).required(),
     access_factory: Joi.array().items(Joi.string()).required(),
-    whatsapp_number: Joi.string().optional().allow('').allow(null),
+    whatsapp_number: Joi.string().optional().allow("").allow(null),
     subscribe_notification: Joi.number().valid(1, 2).optional().allow(null),
     company: Joi.string(),
   }),
-  'change-password': Joi.object({
+  "change-password": Joi.object({
     old_password: Joi.string().required(),
     new_password: Joi.string().required(),
   }),
-  'setup-password': Joi.object({
+  "setup-password": Joi.object({
     new_password: Joi.string().required(),
-    confirm_new_password: Joi.ref('new_password'),
+    confirm_new_password: Joi.ref("new_password"),
   }),
   company: Joi.object({
     name: Joi.string().required(),
@@ -68,16 +68,16 @@ const schemas = {
     }).required(),
     standard: Joi.object({
       unripe_accepted: Joi.alternatives()
-        .try(Joi.number(), Joi.string().valid('all'))
+        .try(Joi.number(), Joi.string().valid("all"))
         .optional(),
       over_ripe_accepted: Joi.alternatives()
-        .try(Joi.number(), Joi.string().valid('all'))
+        .try(Joi.number(), Joi.string().valid("all"))
         .optional(),
       ripe_accepted: Joi.alternatives()
-        .try(Joi.number(), Joi.string().valid('all'))
+        .try(Joi.number(), Joi.string().valid("all"))
         .optional(),
       semi_ripe_accepted: Joi.alternatives()
-        .try(Joi.number(), Joi.string().valid('all'))
+        .try(Joi.number(), Joi.string().valid("all"))
         .optional(),
     }).required(),
     grading_results: Joi.object({
@@ -94,28 +94,33 @@ const schemas = {
     notes: Joi.string().optional(),
   }),
 
-  'inspection-data': Joi.object({
+  "inspection-data": Joi.object({
     vendor_id: Joi.string().allow(null), // Optional field,
     vendor_name: Joi.string().allow(null),
     main_classification_accepted: Joi.array()
       .items(
         Joi.string().valid(
-          'MENTAH',
-          'KURANG MATANG',
-          'LEWAT MATANG',
-          'MATANG',
-          'JANJANG KOSONG'
-        )
+          "MENTAH",
+          "KURANG MATANG",
+          "LEWAT MATANG",
+          "MATANG",
+          "JANJANG KOSONG",
+        ),
       )
       .required(),
     sub_classification_accepted: Joi.array()
       .items(
         Joi.string().valid(
-          'TANGKAI PANJANG',
-          'RUSAK DIMAKAN TIKUS',
-          'BUAH KECIL DIBAWAH 3KG',
-          'BUAH KECIL DIBAWAH 5KG'
-        )
+          "TANGKAI PANJANG",
+          "TANGKAI PANJANG EKSTRIM",
+          "TANGKAI PANJANG MAX",
+          "RUSAK DIMAKAN TIKUS",
+          "RUSAK DIMAKAN TIKUS EKSTRIM",
+          "RUSAK DIMAKAN TIKUS MAX",
+          "BUAH KECIL DIBAWAH 2KG",
+          "BUAH KECIL DIBAWAH 3KG",
+          "BUAH KECIL DIBAWAH 5KG",
+        ),
       )
       .required(),
     classification_rejected: Joi.array().items(Joi.string()).required(),
@@ -134,7 +139,7 @@ const schemas = {
     is_started: Joi.boolean().allow(null), // Optional field
     is_finished: Joi.boolean().allow(null), // Optional field
     is_confirmed: Joi.boolean().allow(null), // Optional field
-    vendor_type: Joi.string().valid('1', '2', '3').required(), // Enum with numeric values
+    vendor_type: Joi.string().valid("1", "2", "3").required(), // Enum with numeric values
     inspection_code: Joi.string().allow(null), // Optional field
     date: Joi.date().allow(null), // Optional field
     finish_date: Joi.date().allow(null), // Optional field,
@@ -155,7 +160,7 @@ const schemas = {
     demo_mode: Joi.boolean().default(false), // Optional field
   }),
 
-  'vendor-2': Joi.object({
+  "vendor-2": Joi.object({
     id: Joi.string().required(),
     name: Joi.string().required(),
     type: Joi.number().required(),
@@ -163,7 +168,7 @@ const schemas = {
     bjr: Joi.number().allow(null).optional(),
   }),
 
-  'machine-check': Joi.object({
+  "machine-check": Joi.object({
     machine_check_id: Joi.string().required(),
     questions: Joi.object().required(),
     type: Joi.string().required(),
@@ -174,7 +179,7 @@ const schemas = {
     group: Joi.string().allow(null).optional(),
   }),
 
-  'machine-logs-file': Joi.object({
+  "machine-logs-file": Joi.object({
     date: Joi.string().required(),
     filename: Joi.string().required(),
     filepath: Joi.string().required(),
@@ -182,7 +187,7 @@ const schemas = {
     machine: Joi.string().required(),
   }),
 
-  'machine-logs-data': Joi.object({
+  "machine-logs-data": Joi.object({
     date: Joi.string().required(),
     status: Joi.string().required(),
     subject: Joi.string().required(),
