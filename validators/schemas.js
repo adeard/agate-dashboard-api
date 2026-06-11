@@ -91,7 +91,7 @@ const schemas = {
       not_detected: Joi.number(),
       detected_more_than_one: Joi.number(),
     }).required(),
-    notes: Joi.string().optional(),
+    notes: Joi.string().allow("").optional(),
   }),
 
   "inspection-data": Joi.object({
@@ -149,7 +149,7 @@ const schemas = {
     factory: Joi.string(),
     engine_type: Joi.string().allow(null),
     machine: Joi.number().allow(null).optional(),
-    notes: Joi.string().allow(null).optional(),
+    notes: Joi.string().allow(null, "").optional(),
     images: Joi.string().allow(null).optional(),
     company: Joi.string(),
     manual_parameter: Joi.any().optional(), // Optional field
@@ -173,7 +173,7 @@ const schemas = {
     questions: Joi.object().required(),
     type: Joi.string().required(),
     date: Joi.string().required(),
-    notes: Joi.string().optional(),
+    notes: Joi.string().allow("").optional(),
     factory: Joi.string().required(),
     machine: Joi.string().required(),
     group: Joi.string().allow(null).optional(),
@@ -191,7 +191,7 @@ const schemas = {
     date: Joi.string().required(),
     status: Joi.string().required(),
     subject: Joi.string().required(),
-    notes: Joi.string().optional(),
+    notes: Joi.string().allow("").optional(),
     code: Joi.string().required(),
     message: Joi.string().required(),
     filename: Joi.string().required(),
