@@ -127,9 +127,12 @@ const schemas = {
     unripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     half_ripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     over_ripe_fined_in_kg: Joi.number().allow(null), // Optional field
-    long_stash_e_fined_in_kg: Joi.number().allow(null), // Optional field
     pest_fined_in_kg: Joi.number().allow(null), // Optional field
+    pest_fined_e_in_kg: Joi.number().allow(null).optional(), // Optional field
+    pest_fined_m_in_kg: Joi.number().allow(null).optional(), // Optional field
     long_stash_fined_in_kg: Joi.number().integer().allow(null), // Optional field
+    long_stash_m_fined_in_kg: Joi.number().integer().allow(null).optional(),
+    long_stash_e_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     small_fruit_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     small_fruit_5_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     delivery_number: Joi.string().allow(null), // Optional field
