@@ -95,6 +95,10 @@ class SyncDataController {
 
       console.log({ body });
 
+      if (body["notes"] === "") {
+        body["notes"] = "-";
+      }
+
       if (body["is_integrated_wb"] === null) {
         body["is_integrated_wb"] = false;
       }

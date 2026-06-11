@@ -501,9 +501,20 @@ connectToDatabase().then(async (res) => {
   //   location: "Ketapang, Kalimantan Barat",
   // });
 
-  const companies = await CompanyModel.find({}).lean();
+  const user = await UserModel.create({
+    full_name: "Admin Mustika",
+    email: "mustika@accelego.id",
+    password: hashPassword("1234"),
+    access_factory: ["6a058067eead79aa42c659bd"],
+    status: 1,
+    whatsapp_number: "6281385784854",
+    subscribe_notification: 1,
+    company: "6a058067eead79aa42c659bb",
+  });
 
-  console.log({ companies });
+  const factories = await FactoryModel.find({ name: "MASM" }).lean();
+
+  console.log({ factories, user });
 
   console.log("Done");
   process.exit();
