@@ -59,7 +59,22 @@ const SCHEMA = new Schema(
       required: false,
       default: null,
     },
+    pest_e_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    pest_m_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
     long_stash_fined_in_kg: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    long_stash_m_fined_in_kg: {
       type: Number,
       required: false,
       default: null,
@@ -179,6 +194,16 @@ const SCHEMA = new Schema(
     demo_mode: {
       type: Boolean,
       default: false,
+    },
+    level: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    grading_parameter: {
+      type: Array,
+      required: false,
+      default: [],
     },
   },
   { timestamps: true }

@@ -161,6 +161,8 @@ const schemas = {
     is_integrated_wb: Joi.boolean().allow(null).default(false), // Optional field
     is_integrated: Joi.boolean().allow(null).default(true), // Optional field
     demo_mode: Joi.boolean().allow(null).default(false), // Optional field
+    level: Joi.number().integer().allow(null).optional(),
+    grading_parameter: Joi.array().items(Joi.any()).allow(null).optional(),
   }),
 
   "vendor-2": Joi.object({
