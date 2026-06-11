@@ -155,9 +155,9 @@ const schemas = {
     manual_parameter: Joi.any().optional(), // Optional field
     total_multiple: Joi.number().optional(), // Optional field,
     ticket_number: Joi.any().optional(), // Optional field
-    is_integrated_wb: Joi.boolean().default(false), // Optional field
-    is_integrated: Joi.boolean().default(true), // Optional field
-    demo_mode: Joi.boolean().default(false), // Optional field
+    is_integrated_wb: Joi.boolean().allow(null).default(false), // Optional field
+    is_integrated: Joi.boolean().allow(null).default(true), // Optional field
+    demo_mode: Joi.boolean().allow(null).default(false), // Optional field
   }),
 
   "vendor-2": Joi.object({
