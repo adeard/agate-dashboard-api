@@ -128,8 +128,8 @@ const schemas = {
     half_ripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     over_ripe_fined_in_kg: Joi.number().allow(null), // Optional field
     pest_fined_in_kg: Joi.number().allow(null), // Optional field
-    pest_fined_e_in_kg: Joi.number().allow(null).optional(), // Optional field
-    pest_fined_m_in_kg: Joi.number().allow(null).optional(), // Optional field
+    pest_e_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    pest_m_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     long_stash_fined_in_kg: Joi.number().integer().allow(null), // Optional field
     long_stash_m_fined_in_kg: Joi.number().integer().allow(null).optional(),
     long_stash_e_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
