@@ -1,0 +1,683 @@
+[
+  {
+    "summary": {
+      "vendor": {
+        "name": "PNMX96101",
+        "id": "67679360b894f49d7ddb7931",
+        "type": 2
+      },
+      "delivery_number": "PNMX/5038",
+      "vehicle_number": "BH 8842 PU",
+      "ticket_number": "A001",
+      "date": "2026-05-13T17:06:57.735Z",
+      "finish_date": "2026-05-13T17:30:00.000Z",
+      "accepted_classification": [
+        "MATANG",
+        "LEWAT MATANG",
+        "TANGKAI PANJANG",
+        "BUAH KECIL DIBAWAH 5KG"
+      ]
+    },
+    "grading_result": {
+      "total_tandan": 150,
+      "total_accepted": 125,
+      "total_rejected": 25,
+      "total_fined": 20,
+      "total_multiple": 7,
+      "classification_summary": {
+        "MENTAH": {
+          "TOTAL": 15,
+          "NORMAL": 5,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "TANGKAI PANJANG": 3,
+          "BUAH KECIL DIBAWAH 3KG": 5,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 115,
+          "NORMAL": 80,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "TANGKAI PANJANG": 10,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 15,
+          "BUAH BESAR": 5
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 16,
+          "NORMAL": 10,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 2,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 4,
+          "NORMAL": 4,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "accepted_summary": {
+        "MATANG": {
+          "TOTAL": 110,
+          "NORMAL": 80,
+          "TANGKAI PANJANG": 10,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 15,
+          "BUAH BESAR": 5
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 15,
+          "NORMAL": 10,
+          "TANGKAI PANJANG": 2,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        }
+      },
+      "rejected_summary": {
+        "MENTAH": {
+          "TOTAL": 15,
+          "NORMAL": 5,
+          "TANGKAI PANJANG": 3,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "BUAH KECIL DIBAWAH 3KG": 5,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 4,
+          "NORMAL": 4,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 5,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 1,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "fined_summary": {
+        "TANGKAI PANJANG": {
+          "TOTAL": 15,
+          "DENDA": 2
+        },
+        "BUAH KECIL DIBAWAH 3KG": {
+          "TOTAL": 5,
+          "DENDA": 2
+        }
+      },
+      "manual_parameter": {
+        "ABNORMAL": 6,
+        "BERONDOLAN": 15,
+        "BUAH BUSUK": 1
+      }
+    }
+  },
+  {
+    "summary": {
+      "vendor": {
+        "name": "PNMX96102",
+        "id": "67679360b894f49d7ddb7932",
+        "type": 2
+      },
+      "delivery_number": "PNMX/5039",
+      "vehicle_number": "BH 1234 AB",
+      "ticket_number": "A002",
+      "date": "2026-05-14T08:15:30.123Z",
+      "finish_date": "2026-05-14T08:45:00.000Z",
+      "accepted_classification": [
+        "MATANG",
+        "LEWAT MATANG",
+        "TANGKAI PANJANG",
+        "BUAH KECIL DIBAWAH 5KG"
+      ]
+    },
+    "grading_result": {
+      "total_tandan": 200,
+      "total_accepted": 169,
+      "total_rejected": 31,
+      "total_fined": 25,
+      "total_multiple": 5,
+      "classification_summary": {
+        "MENTAH": {
+          "TOTAL": 20,
+          "NORMAL": 10,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "TANGKAI PANJANG": 4,
+          "BUAH KECIL DIBAWAH 3KG": 4,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 155,
+          "NORMAL": 110,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "TANGKAI PANJANG": 15,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 20,
+          "BUAH BESAR": 5
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 20,
+          "NORMAL": 12,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 2,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 5,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 5,
+          "NORMAL": 5,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "accepted_summary": {
+        "MATANG": {
+          "TOTAL": 150,
+          "NORMAL": 110,
+          "TANGKAI PANJANG": 15,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 20,
+          "BUAH BESAR": 5
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 19,
+          "NORMAL": 12,
+          "TANGKAI PANJANG": 2,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 5,
+          "BUAH BESAR": 0
+        }
+      },
+      "rejected_summary": {
+        "MENTAH": {
+          "TOTAL": 20,
+          "NORMAL": 10,
+          "TANGKAI PANJANG": 4,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "BUAH KECIL DIBAWAH 3KG": 4,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 5,
+          "NORMAL": 5,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 5,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 1,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "fined_summary": {
+        "TANGKAI PANJANG": {
+          "TOTAL": 21,
+          "DENDA": 2
+        },
+        "BUAH KECIL DIBAWAH 3KG": {
+          "TOTAL": 4,
+          "DENDA": 2
+        }
+      },
+      "manual_parameter": {
+        "ABNORMAL": 8,
+        "BERONDOLAN": 20,
+        "BUAH BUSUK": 3
+      }
+    }
+  },
+  {
+    "summary": {
+      "vendor": {
+        "name": "PNMX96103",
+        "id": "67679360b894f49d7ddb7933",
+        "type": 2
+      },
+      "delivery_number": "PNMX/5040",
+      "vehicle_number": "BH 5678 CD",
+      "ticket_number": "A003",
+      "date": "2026-05-14T10:30:15.987Z",
+      "finish_date": "2026-05-14T11:00:00.000Z",
+      "accepted_classification": [
+        "MATANG",
+        "LEWAT MATANG",
+        "TANGKAI PANJANG",
+        "BUAH KECIL DIBAWAH 5KG"
+      ]
+    },
+    "grading_result": {
+      "total_tandan": 120,
+      "total_accepted": 109,
+      "total_rejected": 11,
+      "total_fined": 12,
+      "total_multiple": 2,
+      "classification_summary": {
+        "MENTAH": {
+          "TOTAL": 8,
+          "NORMAL": 4,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 1,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 102,
+          "NORMAL": 80,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "TANGKAI PANJANG": 8,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 10,
+          "BUAH BESAR": 2
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 9,
+          "NORMAL": 6,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 2,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 1,
+          "NORMAL": 1,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "accepted_summary": {
+        "MATANG": {
+          "TOTAL": 100,
+          "NORMAL": 80,
+          "TANGKAI PANJANG": 8,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 10,
+          "BUAH BESAR": 2
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 9,
+          "NORMAL": 6,
+          "TANGKAI PANJANG": 1,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 2,
+          "BUAH BESAR": 0
+        }
+      },
+      "rejected_summary": {
+        "MENTAH": {
+          "TOTAL": 8,
+          "NORMAL": 4,
+          "TANGKAI PANJANG": 1,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 1,
+          "NORMAL": 1,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 2,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "fined_summary": {
+        "TANGKAI PANJANG": {
+          "TOTAL": 10,
+          "DENDA": 2
+        },
+        "BUAH KECIL DIBAWAH 3KG": {
+          "TOTAL": 2,
+          "DENDA": 2
+        }
+      },
+      "manual_parameter": {
+        "ABNORMAL": 4,
+        "BERONDOLAN": 10,
+        "BUAH BUSUK": 0
+      }
+    }
+  },
+  {
+    "summary": {
+      "vendor": {
+        "name": "PNMX96104",
+        "id": "67679360b894f49d7ddb7934",
+        "type": 2
+      },
+      "delivery_number": "PNMX/5041",
+      "vehicle_number": "BH 9012 EF",
+      "ticket_number": "A004",
+      "date": "2026-05-15T14:20:00.000Z",
+      "finish_date": "2026-05-15T15:00:00.000Z",
+      "accepted_classification": [
+        "MATANG",
+        "LEWAT MATANG",
+        "TANGKAI PANJANG",
+        "BUAH KECIL DIBAWAH 5KG"
+      ]
+    },
+    "grading_result": {
+      "total_tandan": 160,
+      "total_accepted": 140,
+      "total_rejected": 20,
+      "total_fined": 17,
+      "total_multiple": 6,
+      "classification_summary": {
+        "MENTAH": {
+          "TOTAL": 12,
+          "NORMAL": 6,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "TANGKAI PANJANG": 2,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 130,
+          "NORMAL": 90,
+          "RUSAK DIMAKAN TIKUS": 4,
+          "TANGKAI PANJANG": 12,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 18,
+          "BUAH BESAR": 6
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 15,
+          "NORMAL": 10,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 3,
+          "NORMAL": 3,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "accepted_summary": {
+        "MATANG": {
+          "TOTAL": 126,
+          "NORMAL": 90,
+          "TANGKAI PANJANG": 12,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 18,
+          "BUAH BESAR": 6
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 14,
+          "NORMAL": 10,
+          "TANGKAI PANJANG": 1,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        }
+      },
+      "rejected_summary": {
+        "MENTAH": {
+          "TOTAL": 12,
+          "NORMAL": 6,
+          "TANGKAI PANJANG": 2,
+          "RUSAK DIMAKAN TIKUS": 2,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 3,
+          "NORMAL": 3,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 4,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 4,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 1,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "fined_summary": {
+        "TANGKAI PANJANG": {
+          "TOTAL": 15,
+          "DENDA": 2
+        },
+        "BUAH KECIL DIBAWAH 3KG": {
+          "TOTAL": 2,
+          "DENDA": 2
+        }
+      },
+      "manual_parameter": {
+        "ABNORMAL": 5,
+        "BERONDOLAN": 12,
+        "BUAH BUSUK": 2
+      }
+    }
+  },
+  {
+    "summary": {
+      "vendor": {
+        "name": "PNMX96105",
+        "id": "67679360b894f49d7ddb7935",
+        "type": 2
+      },
+      "delivery_number": "PNMX/5042",
+      "vehicle_number": "BH 3456 GH",
+      "ticket_number": "A005",
+      "date": "2026-05-16T11:45:00.000Z",
+      "finish_date": "2026-05-16T12:30:00.000Z",
+      "accepted_classification": [
+        "MATANG",
+        "LEWAT MATANG",
+        "TANGKAI PANJANG",
+        "BUAH KECIL DIBAWAH 5KG"
+      ]
+    },
+    "grading_result": {
+      "total_tandan": 180,
+      "total_accepted": 162,
+      "total_rejected": 18,
+      "total_fined": 21,
+      "total_multiple": 7,
+      "classification_summary": {
+        "MENTAH": {
+          "TOTAL": 10,
+          "NORMAL": 5,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 2,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 150,
+          "NORMAL": 100,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "TANGKAI PANJANG": 15,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 20,
+          "BUAH BESAR": 10
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 18,
+          "NORMAL": 12,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "TANGKAI PANJANG": 2,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 2,
+          "NORMAL": 2,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "TANGKAI PANJANG": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "accepted_summary": {
+        "MATANG": {
+          "TOTAL": 145,
+          "NORMAL": 100,
+          "TANGKAI PANJANG": 15,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 20,
+          "BUAH BESAR": 10
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 17,
+          "NORMAL": 12,
+          "TANGKAI PANJANG": 2,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 3,
+          "BUAH BESAR": 0
+        }
+      },
+      "rejected_summary": {
+        "MENTAH": {
+          "TOTAL": 10,
+          "NORMAL": 5,
+          "TANGKAI PANJANG": 2,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 2,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "JANJANG KOSONG": {
+          "TOTAL": 2,
+          "NORMAL": 2,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 0,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "MATANG": {
+          "TOTAL": 5,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 5,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        },
+        "LEWAT MATANG": {
+          "TOTAL": 1,
+          "NORMAL": 0,
+          "TANGKAI PANJANG": 0,
+          "RUSAK DIMAKAN TIKUS": 1,
+          "BUAH KECIL DIBAWAH 3KG": 0,
+          "BUAH KECIL DIBAWAH 5KG": 0,
+          "BUAH BESAR": 0
+        }
+      },
+      "fined_summary": {
+        "TANGKAI PANJANG": {
+          "TOTAL": 19,
+          "DENDA": 2
+        },
+        "BUAH KECIL DIBAWAH 3KG": {
+          "TOTAL": 2,
+          "DENDA": 2
+        }
+      },
+      "manual_parameter": {
+        "ABNORMAL": 7,
+        "BERONDOLAN": 18,
+        "BUAH BUSUK": 2
+      }
+    }
+  }
+]
