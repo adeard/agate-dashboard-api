@@ -3,7 +3,8 @@ const { authorization } = require('../../middlewares/authorization');
 
 module.exports = (express) =>
   new express.Router()
-    .get('/download-report', DashboardV2Controller.generateExcel)
     .use(authorization)
+    .get('/download-report', DashboardV2Controller.generateExcel)
+    .get('/download-performance', DashboardV2Controller.downloadOperationalPerformance)
     .post('/', DashboardV2Controller.getDataDashboardNew);
 // .post('/monitoring', DashboardV2Controller.getDataDashboardMonitoring);

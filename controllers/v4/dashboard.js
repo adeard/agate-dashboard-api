@@ -4963,6 +4963,156 @@ class DashboardV4Controller {
       next(err);
     }
   }
+  static async downloadOperationalPerformance(req, res, next) {
+    try {
+      const user = req.user;
+      const { date_from, date_to, factory } = req.query;
+
+      if (!date_from || !date_to) {
+        return res.status(400).json({
+          code: 400,
+          success: false,
+          message: "date_from and date_to must be filled.",
+        });
+      }
+
+      const UserModel = require("../../models/user");
+      const userData = await UserModel.findById(user._id).lean();
+
+      // We want to query from date_from at 06:00 to date_to at 03:59 the next day.
+      const startDate = dayjs(date_from).startOf("day").add(6, "hour"); // 06:00 AM on date_from
+      const endDate = dayjs(date_to).startOf("day").add(1, "day").add(3, "hour").add(59, "minute").add(59, "second").add(999, "millisecond"); // 03:59:59.999 AM the next day after date_to
+
+      let query = {
+        company: user.company,
+        date: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate(),
+        },
+      };
+
+      if (factory) {
+        const hasAccess = userData?.access_factory?.some(
+          (f) => f.toString() === factory,
+        );
+        if (hasAccess) {
+          query.factory = factory;
+        } else {
+          query.factory = null; // force empty result if unauthorized
+        }
+      } else {
+        if (userData?.access_factory?.length > 0) {
+          query.factory = { $in: userData.access_factory };
+        }
+      }
+
+      const inspections = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
+
+      // Group by "Day" (06:00 to 03:59 next day)
+      // If we subtract 6 hours from `date`, all times from 06:00 to 03:59 map to the same calendar day string.
+      const groupedData = {};
+
+      const daysId = {
+        Sunday: "Minggu",
+        Monday: "Senin",
+        Tuesday: "Selasa",
+        Wednesday: "Rabu",
+        Thursday: "Kamis",
+        Friday: "Jumat",
+        Saturday: "Sabtu"
+      };
+
+      inspections.forEach((item) => {
+        const dateObj = item.date;
+        if (!dateObj) return;
+
+        // Subtract 6 hours so 06:00-23:59 and 00:00-03:59 fall on the same day string
+        const shiftedDate = dayjs(dateObj).subtract(6, "hour");
+        const dayKey = shiftedDate.format("YYYY-MM-DD");
+
+        if (!groupedData[dayKey]) {
+          const dayNameEn = shiftedDate.format("dddd");
+          groupedData[dayKey] = {
+            hari: daysId[dayNameEn] || dayNameEn,
+            tanggal: shiftedDate.format("DD/MM/YYYY"),
+            trucks: 0,
+            minDate: dayjs(dateObj),
+            maxDate: dayjs(dateObj)
+          };
+        }
+
+        groupedData[dayKey].trucks += 1;
+        
+        const currentItemDate = dayjs(dateObj);
+        if (currentItemDate.isBefore(groupedData[dayKey].minDate)) {
+          groupedData[dayKey].minDate = currentItemDate;
+        }
+        if (currentItemDate.isAfter(groupedData[dayKey].maxDate)) {
+          groupedData[dayKey].maxDate = currentItemDate;
+        }
+      });
+
+      // Prepare Excel rows
+      const excelRows = [
+        ["Hari", "Tanggal", "Jumlah truk", "Mulai Grading", "Selesai Grading", "Durasi Menit"]
+      ];
+
+      // Sort keys chronologically
+      const sortedDays = Object.keys(groupedData).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+
+      sortedDays.forEach((dayKey) => {
+        const group = groupedData[dayKey];
+        const minD = group.minDate;
+        const maxD = group.maxDate;
+
+        const durasiMenit = maxD.diff(minD, "minute");
+
+        excelRows.push([
+          group.hari,
+          group.tanggal,
+          group.trucks,
+          minD.format("HH:mm"),
+          maxD.format("HH:mm"),
+          durasiMenit
+        ]);
+      });
+
+      const workbook = XLSX.utils.book_new();
+      const wsRaw = XLSX.utils.aoa_to_sheet(excelRows);
+      
+      // Auto-size columns slightly
+      wsRaw['!cols'] = [
+        { wch: 15 }, // Hari
+        { wch: 15 }, // Tanggal
+        { wch: 15 }, // Jumlah Truk
+        { wch: 15 }, // Mulai
+        { wch: 15 }, // Selesai
+        { wch: 15 }, // Durasi
+      ];
+
+      XLSX.utils.book_append_sheet(workbook, wsRaw, "Performance Durasi");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "buffer",
+      });
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=Performance-Durasi-Operasional-${new Date().toISOString()}.xlsx`,
+      );
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      );
+
+      return res.send(excelBuffer);
+
+    } catch (err) {
+      console.log({ err });
+      next(err);
+    }
+  }
 }
 
 module.exports = DashboardV4Controller;
