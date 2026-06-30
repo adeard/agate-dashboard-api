@@ -2246,7 +2246,7 @@ class DashboardV4Controller {
       return;
     }
 
-    const limit = await getCompanyLimitTandan({ company: user.company });
+    const limit = await getCompanyLimitTandan({ company: company });
 
     data = data.filter(
       (e) =>
