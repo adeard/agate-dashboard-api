@@ -1,7 +1,11 @@
 const { validateToken } = require('../lib/jwt');
 
 const authorization = (req, res, next) => {
-  const authorization = req.headers['authorization'];
+  let authorization = req.headers['authorization'];
+  
+  if (!authorization && req.query.token) {
+    authorization = `Bearer ${req.query.token}`;
+  }
 
   if (!authorization) {
     return res.status(403).json({
