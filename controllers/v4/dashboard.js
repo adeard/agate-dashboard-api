@@ -5054,7 +5054,7 @@ class DashboardV4Controller {
 
       // Prepare Excel rows
       const excelRows = [
-        ["Hari", "Tanggal", "Jumlah truk", "Mulai Grading", "Selesai Grading", "Durasi Menit"]
+        ["Hari", "Tanggal", "Jumlah truk", "Mulai Grading", "Selesai Grading", "Durasi Grading"]
       ];
 
       // Sort keys chronologically
@@ -5066,6 +5066,9 @@ class DashboardV4Controller {
         const maxD = group.maxDate;
 
         const durasiMenit = maxD.diff(minD, "minute");
+        const hours = Math.floor(durasiMenit / 60);
+        const minutes = durasiMenit % 60;
+        const durasiFormat = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
         excelRows.push([
           group.hari,
@@ -5073,7 +5076,7 @@ class DashboardV4Controller {
           group.trucks,
           minD.format("HH:mm"),
           maxD.format("HH:mm"),
-          durasiMenit
+          durasiFormat
         ]);
       });
 
