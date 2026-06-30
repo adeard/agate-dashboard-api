@@ -1185,9 +1185,10 @@ class DashboardV4Controller {
         date_to = null,
         date_from = null,
         vendor_type = null,
+        vendor = null,
       } = req.query;
 
-      let ids = req.query.ids;
+      let ids = req.query.vendor || req.query.ids;
       ids = Array.isArray(ids)
         ? ids
         : typeof ids === "string"
@@ -1235,8 +1236,19 @@ class DashboardV4Controller {
         q["factory"] = factory;
       }
 
+      const factoryObj = factory
+        ? await FactoryModel.findById(factory).lean()
+        : null;
+      const isLngm =
+        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+
       if (vendor_type) {
-        q["vendor_type"] = vendor_type;
+        const vTypeLower = vendor_type.toLowerCase();
+        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka')) {
+          q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
+        } else if (vTypeLower !== 'all') {
+          q["vendor_type"] = vendor_type;
+        }
       }
 
       // if (year) {
@@ -1349,11 +1361,7 @@ class DashboardV4Controller {
         dayjs(date_from).format("YYYY-MM-DD") !==
           dayjs(date_to).format("YYYY-MM-DD");
 
-      const factoryObj = factory
-        ? await FactoryModel.findById(factory).lean()
-        : null;
-      const isLngm =
-        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+      // factoryObj and isLngm moved above
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;
@@ -2192,8 +2200,9 @@ class DashboardV4Controller {
       3: "Plasma",
     };
 
-    // const user = req.user
-    const { targetDate, targetEnd, company, factory } = req.query;
+    const user = req.user;
+    const { targetDate, targetEnd, factory } = req.query;
+
     if (!targetDate || !targetEnd) {
       return res.status(400).json({
         code: 500,
@@ -2201,6 +2210,10 @@ class DashboardV4Controller {
         message: "Target End dan Target Date must be filled.",
       });
     }
+
+    const UserModel = require("../../models/user");
+    const userData = await UserModel.findById(user._id).lean();
+
     // Parse the target date using dayjs
     const startDate = dayjs(targetDate).startOf("day").add(7, "hour"); // 6 AM on the target date
     const endDate = dayjs(targetEnd)
@@ -2208,17 +2221,31 @@ class DashboardV4Controller {
       .startOf("day")
       .add(3, "hour"); // 3 AM the next day
 
-    // Fetch data from MongoDB for the specific date range
-    let data = await InspectionDataModel.find({
-      company: company,
-      factory: factory,
+    let query = {
+      company: user.company,
       date: {
         $gte: startDate.toDate(),
         $lt: endDate.toDate(),
       },
-    })
-      .sort({ date: 1 })
-      .lean();
+    };
+
+    if (factory) {
+      const hasAccess = userData?.access_factory?.some(
+        (f) => f.toString() === factory,
+      );
+      if (hasAccess) {
+        query.factory = factory;
+      } else {
+        query.factory = null;
+      }
+    } else {
+      if (userData?.access_factory?.length > 0) {
+        query.factory = { $in: userData.access_factory };
+      }
+    }
+
+    // Fetch data from MongoDB for the specific date range
+    let data = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
 
     const factoryObj = factory
       ? await FactoryModel.findById(factory).lean()
@@ -2231,7 +2258,7 @@ class DashboardV4Controller {
       return;
     }
 
-    const limit = await getCompanyLimitTandan({ company });
+    const limit = await getCompanyLimitTandan({ company: user.company });
 
     data = data.filter(
       (e) =>
@@ -3892,8 +3919,17 @@ class DashboardV4Controller {
         q["factory"] = factory;
       }
 
+      const factoryObj = factory
+        ? await FactoryModel.findById(factory).lean()
+        : null;
+      const isLngm =
+        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+
       if (vendor_type) {
-        if (vendor_type !== "all") {
+        const vTypeLower = vendor_type.toLowerCase();
+        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka')) {
+          q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
+        } else if (vTypeLower !== 'all') {
           q["vendor_type"] = vendor_type;
         }
       }
@@ -4020,11 +4056,7 @@ class DashboardV4Controller {
         dayjs(date_from).format("YYYY-MM-DD") !==
           dayjs(date_to).format("YYYY-MM-DD");
 
-      const factoryObj = factory
-        ? await FactoryModel.findById(factory).lean()
-        : null;
-      const isLngm =
-        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+      // factoryObj and isLngm moved above
 
       inspections = inspections.map((item) => {
         const vendorName = item.vendor_name;

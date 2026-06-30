@@ -7,9 +7,9 @@ const CompanyModel = require("../models/company");
 connectToDatabase().then(async (res) => {
   console.log(res);
 
-  const companies = (
-    await CompanyModel.find({ name: "Sinarmas" }).lean()
-  ).filter((e) => e.initial !== "DMO");
+  const companies = (await CompanyModel.find().lean()).filter(
+    (e) => e.initial !== "DMO",
+  );
 
   console.lo;
 
