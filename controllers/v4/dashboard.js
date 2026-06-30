@@ -2200,7 +2200,7 @@ class DashboardV4Controller {
       3: "Plasma",
     };
 
-    const { targetDate, targetEnd, factory, company } = req.query;
+    const { targetDate, targetEnd, factory, company, vendor_type } = req.query;
 
     if (!targetDate || !targetEnd) {
       return res.status(400).json({
@@ -2232,14 +2232,23 @@ class DashboardV4Controller {
       query.factory = factory;
     }
 
-    // Fetch data from MongoDB for the specific date range
-    let data = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
-
     const factoryObj = factory
       ? await FactoryModel.findById(factory).lean()
       : null;
     const isLngm =
       factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+
+    if (vendor_type) {
+      const vTypeLower = vendor_type.toLowerCase();
+      if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
+        query.vendor_name = { $regex: new RegExp(vendor_type, 'i') };
+      } else if (vTypeLower !== 'all') {
+        query.vendor_type = vendor_type;
+      }
+    }
+
+    // Fetch data from MongoDB for the specific date range
+    let data = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
 
     if (data.length === 0) {
       console.log("No data found for the specified date range.");
