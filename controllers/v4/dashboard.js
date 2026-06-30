@@ -1244,7 +1244,7 @@ class DashboardV4Controller {
 
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka')) {
+        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
           q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
         } else if (vTypeLower !== 'all') {
           q["vendor_type"] = vendor_type;
@@ -3927,7 +3927,7 @@ class DashboardV4Controller {
 
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka')) {
+        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
           q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
         } else if (vTypeLower !== 'all') {
           q["vendor_type"] = vendor_type;
