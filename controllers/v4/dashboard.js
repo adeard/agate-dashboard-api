@@ -2200,8 +2200,7 @@ class DashboardV4Controller {
       3: "Plasma",
     };
 
-    const user = req.user;
-    const { targetDate, targetEnd, factory } = req.query;
+    const { targetDate, targetEnd, factory, company } = req.query;
 
     if (!targetDate || !targetEnd) {
       return res.status(400).json({
@@ -2211,9 +2210,6 @@ class DashboardV4Controller {
       });
     }
 
-    const UserModel = require("../../models/user");
-    const userData = await UserModel.findById(user._id).lean();
-
     // Parse the target date using dayjs
     const startDate = dayjs(targetDate).startOf("day").add(7, "hour"); // 6 AM on the target date
     const endDate = dayjs(targetEnd)
@@ -2222,26 +2218,18 @@ class DashboardV4Controller {
       .add(3, "hour"); // 3 AM the next day
 
     let query = {
-      company: user.company,
       date: {
         $gte: startDate.toDate(),
         $lt: endDate.toDate(),
       },
     };
 
+    if (company) {
+      query.company = company;
+    }
+
     if (factory) {
-      const hasAccess = userData?.access_factory?.some(
-        (f) => f.toString() === factory,
-      );
-      if (hasAccess) {
-        query.factory = factory;
-      } else {
-        query.factory = null;
-      }
-    } else {
-      if (userData?.access_factory?.length > 0) {
-        query.factory = { $in: userData.access_factory };
-      }
+      query.factory = factory;
     }
 
     // Fetch data from MongoDB for the specific date range
@@ -4965,8 +4953,7 @@ class DashboardV4Controller {
   }
   static async downloadOperationalPerformance(req, res, next) {
     try {
-      const user = req.user;
-      const { date_from, date_to, factory } = req.query;
+      const { date_from, date_to, factory, company } = req.query;
 
       if (!date_from || !date_to) {
         return res.status(400).json({
@@ -4976,34 +4963,23 @@ class DashboardV4Controller {
         });
       }
 
-      const UserModel = require("../../models/user");
-      const userData = await UserModel.findById(user._id).lean();
-
       // We want to query from date_from at 06:00 to date_to at 03:59 the next day.
       const startDate = dayjs(date_from).startOf("day").add(6, "hour"); // 06:00 AM on date_from
       const endDate = dayjs(date_to).startOf("day").add(1, "day").add(3, "hour").add(59, "minute").add(59, "second").add(999, "millisecond"); // 03:59:59.999 AM the next day after date_to
 
       let query = {
-        company: user.company,
         date: {
           $gte: startDate.toDate(),
           $lte: endDate.toDate(),
         },
       };
 
+      if (company) {
+        query.company = company;
+      }
+
       if (factory) {
-        const hasAccess = userData?.access_factory?.some(
-          (f) => f.toString() === factory,
-        );
-        if (hasAccess) {
-          query.factory = factory;
-        } else {
-          query.factory = null; // force empty result if unauthorized
-        }
-      } else {
-        if (userData?.access_factory?.length > 0) {
-          query.factory = { $in: userData.access_factory };
-        }
+        query.factory = factory;
       }
 
       const inspections = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
