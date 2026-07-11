@@ -3906,9 +3906,7 @@ class DashboardV4Controller {
         }
       }
 
-      let q = { company: user.company };
-
-      console.log({ user });
+      let q = { company: user.company, factory: { $in: user.factory } };
 
       if (uniqIds.length) {
         q["vendor"] = { $in: uniqIds };
