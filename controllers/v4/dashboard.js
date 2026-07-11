@@ -3908,6 +3908,8 @@ class DashboardV4Controller {
 
       let q = { company: user.company };
 
+      console.log({ user });
+
       if (uniqIds.length) {
         q["vendor"] = { $in: uniqIds };
       }
