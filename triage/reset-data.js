@@ -527,13 +527,13 @@ connectToDatabase().then(async (res) => {
   function convertToCSV(arr) {
     if (arr.length === 0) return "";
     const headerSet = new Set();
-    arr.forEach(item => {
-      Object.keys(item).forEach(key => headerSet.add(key));
+    arr.forEach((item) => {
+      Object.keys(item).forEach((key) => headerSet.add(key));
     });
     const headers = Array.from(headerSet);
     const csvRows = [headers.join(",")];
     for (const row of arr) {
-      const values = headers.map(header => {
+      const values = headers.map((header) => {
         let val = row[header];
         if (val === undefined || val === null) {
           val = "";
@@ -542,7 +542,12 @@ connectToDatabase().then(async (res) => {
         }
         const valStr = String(val);
         const escaped = valStr.replace(/"/g, '""');
-        if (escaped.includes(",") || escaped.includes('"') || escaped.includes("\n") || escaped.includes("\r")) {
+        if (
+          escaped.includes(",") ||
+          escaped.includes('"') ||
+          escaped.includes("\n") ||
+          escaped.includes("\r")
+        ) {
           return `"${escaped}"`;
         }
         return escaped;
@@ -560,4 +565,3 @@ connectToDatabase().then(async (res) => {
   console.log("Done");
   process.exit();
 });
-
