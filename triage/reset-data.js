@@ -441,28 +441,28 @@ connectToDatabase().then(async (res) => {
   // await MachineLogsFileModel.deleteMany({});
 
   // const comp = await CompanyModel.create({
-  //   name: 'Agrotema',
-  //   initial: 'AGTM',
-  //   image_name: '',
-  //   location: 'Bayunng Lencir, Jambi',
+  //   name: "KPN",
+  //   initial: "KPN",
+  //   image_name: "",
+  //   location: "KPN",
   // });
   // const factory = await FactoryModel.create({
-  //   name: 'BYLM',
+  //   name: "BSU",
   //   company: comp._id,
-  //   location: 'Bayunng Lencir, Jambi',
+  //   location: "BSU, KPN",
   // });
 
   // console.log({ comp, factory });
 
-  // await CompanyModel.findByIdAndUpdate('6959fd4484e3955ce63dac93', {
+  // await CompanyModel.findByIdAndUpdate("6a449b3897ad166780382f09", {
   //   $set: {
-  //     location: 'Mempawah, Kalimantan Barat',
-  //     image_name: 'hpi-logo.png',
+  //     location: "Batang Hari, Jambi",
+  //     // image_name: 'hpi-logo.png',
   //   },
   // });
-  // await FactoryModel.findByIdAndUpdate('6959fd4584e3955ce63dac95', {
+  // await FactoryModel.findByIdAndUpdate("6a449b3997ad166780382f0b", {
   //   $set: {
-  //     location: 'Mempawah, Kalimantan Barat',
+  //     location: "Batang Hari, Jambi",
   //   },
   // });
   // const company = await FactoryModel.find({}).lean();
@@ -501,21 +501,63 @@ connectToDatabase().then(async (res) => {
   //   location: "Ketapang, Kalimantan Barat",
   // });
 
-  const user = await UserModel.create({
-    full_name: "Admin Mustika",
-    email: "mustika@accelego.id",
-    password: hashPassword("1234"),
-    access_factory: ["6a058067eead79aa42c659bd"],
-    status: 1,
-    whatsapp_number: "6281385784854",
-    subscribe_notification: 1,
-    company: "6a058067eead79aa42c659bb",
-  });
+  // const user = await UserModel.create({
+  //   full_name: "Admin Mustika",
+  //   email: "mustika@accelego.id",
+  //   password: hashPassword("1234"),
+  //   access_factory: ["6a058067eead79aa42c659bd"],
+  //   status: 1,
+  //   whatsapp_number: "6281385784854",
+  //   subscribe_notification: 1,
+  //   company: "6a058067eead79aa42c659bb",
+  // });
 
-  const factories = await FactoryModel.find({ name: "MASM" }).lean();
+  // const factories = await FactoryModel.find({ name: "MASM" }).lean();
 
-  console.log({ factories, user });
+  // console.log({ factories, user });
+
+  const swkfactory = await FactoryModel.findOne({ name: "SWK" }).lean();
+  const vendors = await VendorV2Model.find({ factory: swkfactory._id }).lean();
+
+  console.log({ swkfactory, vendors });
+
+  const fs = require("fs");
+  const path = require("path");
+
+  function convertToCSV(arr) {
+    if (arr.length === 0) return "";
+    const headerSet = new Set();
+    arr.forEach(item => {
+      Object.keys(item).forEach(key => headerSet.add(key));
+    });
+    const headers = Array.from(headerSet);
+    const csvRows = [headers.join(",")];
+    for (const row of arr) {
+      const values = headers.map(header => {
+        let val = row[header];
+        if (val === undefined || val === null) {
+          val = "";
+        } else if (typeof val === "object") {
+          val = val.toString();
+        }
+        const valStr = String(val);
+        const escaped = valStr.replace(/"/g, '""');
+        if (escaped.includes(",") || escaped.includes('"') || escaped.includes("\n") || escaped.includes("\r")) {
+          return `"${escaped}"`;
+        }
+        return escaped;
+      });
+      csvRows.push(values.join(","));
+    }
+    return csvRows.join("\n");
+  }
+
+  const csvContent = convertToCSV(vendors);
+  const csvPath = path.join(__dirname, "vendors_swk.csv");
+  fs.writeFileSync(csvPath, csvContent, "utf8");
+  console.log(`CSV exported successfully to ${csvPath}`);
 
   console.log("Done");
   process.exit();
 });
+

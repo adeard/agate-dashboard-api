@@ -11,8 +11,6 @@ connectToDatabase().then(async (res) => {
     (e) => e.initial !== "DMO",
   );
 
-  console.lo;
-
   await companies.reduce(async (acc, comp) => {
     await acc;
     console.log("BLAST REPORT TO USER IS RUNNING");

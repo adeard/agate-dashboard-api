@@ -1214,6 +1214,8 @@ class DashboardV4Controller {
         }
       }
 
+      console.log({ user });
+
       let q = { company: user.company };
 
       if (uniqIds.length) {
@@ -1244,9 +1246,14 @@ class DashboardV4Controller {
 
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
-          q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
-        } else if (vTypeLower !== 'all') {
+        if (
+          isLngm &&
+          (vTypeLower === "gapoktan" ||
+            vTypeLower === "stka" ||
+            vTypeLower === "luar")
+        ) {
+          q["vendor_name"] = { $regex: new RegExp(vendor_type, "i") };
+        } else if (vTypeLower !== "all") {
           q["vendor_type"] = vendor_type;
         }
       }
@@ -2240,9 +2247,14 @@ class DashboardV4Controller {
 
     if (vendor_type) {
       const vTypeLower = vendor_type.toLowerCase();
-      if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
-        query.vendor_name = { $regex: new RegExp(vendor_type, 'i') };
-      } else if (vTypeLower !== 'all') {
+      if (
+        isLngm &&
+        (vTypeLower === "gapoktan" ||
+          vTypeLower === "stka" ||
+          vTypeLower === "luar")
+      ) {
+        query.vendor_name = { $regex: new RegExp(vendor_type, "i") };
+      } else if (vTypeLower !== "all") {
         query.vendor_type = vendor_type;
       }
     }
@@ -3924,9 +3936,14 @@ class DashboardV4Controller {
 
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (isLngm && (vTypeLower === 'gapoktan' || vTypeLower === 'stka' || vTypeLower === 'luar')) {
-          q["vendor_name"] = { $regex: new RegExp(vendor_type, 'i') };
-        } else if (vTypeLower !== 'all') {
+        if (
+          isLngm &&
+          (vTypeLower === "gapoktan" ||
+            vTypeLower === "stka" ||
+            vTypeLower === "luar")
+        ) {
+          q["vendor_name"] = { $regex: new RegExp(vendor_type, "i") };
+        } else if (vTypeLower !== "all") {
           q["vendor_type"] = vendor_type;
         }
       }
@@ -4974,7 +4991,13 @@ class DashboardV4Controller {
 
       // We want to query from date_from at 06:00 to date_to at 03:59 the next day.
       const startDate = dayjs(date_from).startOf("day").add(6, "hour"); // 06:00 AM on date_from
-      const endDate = dayjs(date_to).startOf("day").add(1, "day").add(3, "hour").add(59, "minute").add(59, "second").add(999, "millisecond"); // 03:59:59.999 AM the next day after date_to
+      const endDate = dayjs(date_to)
+        .startOf("day")
+        .add(1, "day")
+        .add(3, "hour")
+        .add(59, "minute")
+        .add(59, "second")
+        .add(999, "millisecond"); // 03:59:59.999 AM the next day after date_to
 
       let query = {
         date: {
@@ -4991,7 +5014,9 @@ class DashboardV4Controller {
         query.factory = factory;
       }
 
-      const inspections = await InspectionDataModel.find(query).sort({ date: 1 }).lean();
+      const inspections = await InspectionDataModel.find(query)
+        .sort({ date: 1 })
+        .lean();
 
       // Group by "Day" (06:00 to 03:59 next day)
       // If we subtract 6 hours from `date`, all times from 06:00 to 03:59 map to the same calendar day string.
@@ -5004,7 +5029,7 @@ class DashboardV4Controller {
         Wednesday: "Rabu",
         Thursday: "Kamis",
         Friday: "Jumat",
-        Saturday: "Sabtu"
+        Saturday: "Sabtu",
       };
 
       inspections.forEach((item) => {
@@ -5022,12 +5047,12 @@ class DashboardV4Controller {
             tanggal: shiftedDate.format("DD/MM/YYYY"),
             trucks: 0,
             minDate: dayjs(dateObj),
-            maxDate: dayjs(dateObj)
+            maxDate: dayjs(dateObj),
           };
         }
 
         groupedData[dayKey].trucks += 1;
-        
+
         const currentItemDate = dayjs(dateObj);
         if (currentItemDate.isBefore(groupedData[dayKey].minDate)) {
           groupedData[dayKey].minDate = currentItemDate;
@@ -5039,11 +5064,20 @@ class DashboardV4Controller {
 
       // Prepare Excel rows
       const excelRows = [
-        ["Hari", "Tanggal", "Jumlah truk", "Mulai Grading", "Selesai Grading", "Durasi Grading"]
+        [
+          "Hari",
+          "Tanggal",
+          "Jumlah truk",
+          "Mulai Grading",
+          "Selesai Grading",
+          "Durasi Grading",
+        ],
       ];
 
       // Sort keys chronologically
-      const sortedDays = Object.keys(groupedData).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+      const sortedDays = Object.keys(groupedData).sort(
+        (a, b) => dayjs(a).valueOf() - dayjs(b).valueOf(),
+      );
 
       sortedDays.forEach((dayKey) => {
         const group = groupedData[dayKey];
@@ -5053,7 +5087,7 @@ class DashboardV4Controller {
         const durasiMenit = maxD.diff(minD, "minute");
         const hours = Math.floor(durasiMenit / 60);
         const minutes = durasiMenit % 60;
-        const durasiFormat = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        const durasiFormat = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 
         excelRows.push([
           group.hari,
@@ -5061,15 +5095,15 @@ class DashboardV4Controller {
           group.trucks,
           minD.format("HH:mm"),
           maxD.format("HH:mm"),
-          durasiFormat
+          durasiFormat,
         ]);
       });
 
       const workbook = XLSX.utils.book_new();
       const wsRaw = XLSX.utils.aoa_to_sheet(excelRows);
-      
+
       // Auto-size columns slightly
-      wsRaw['!cols'] = [
+      wsRaw["!cols"] = [
         { wch: 15 }, // Hari
         { wch: 15 }, // Tanggal
         { wch: 15 }, // Jumlah Truk
@@ -5095,7 +5129,6 @@ class DashboardV4Controller {
       );
 
       return res.send(excelBuffer);
-
     } catch (err) {
       console.log({ err });
       next(err);
