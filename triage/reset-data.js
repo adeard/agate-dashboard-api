@@ -440,20 +440,6 @@ connectToDatabase().then(async (res) => {
 
   // await MachineLogsFileModel.deleteMany({});
 
-  // const comp = await CompanyModel.create({
-  //   name: "KPN",
-  //   initial: "KPN",
-  //   image_name: "",
-  //   location: "KPN",
-  // });
-  // const factory = await FactoryModel.create({
-  //   name: "BSU",
-  //   company: comp._id,
-  //   location: "BSU, KPN",
-  // });
-
-  // console.log({ comp, factory });
-
   // await CompanyModel.findByIdAndUpdate("6a449b3897ad166780382f09", {
   //   $set: {
   //     location: "Batang Hari, Jambi",
@@ -512,55 +498,75 @@ connectToDatabase().then(async (res) => {
   //   company: "6a058067eead79aa42c659bb",
   // });
 
-  // const factories = await FactoryModel.find({ name: "MASM" }).lean();
+  // const factories = await FactoryModel.findOne({ name: "SWK" }).lean();
 
-  // console.log({ factories, user });
+  // console.log({ factories });
 
-  const swkfactory = await FactoryModel.findOne({ name: "SWK" }).lean();
-  const vendors = await VendorV2Model.find({ factory: swkfactory._id }).lean();
+  // const correctIds = [
+  //   '691725270995e3ee3ea8d3e4',
+  //   '691725300995e3ee3ea8d3e5',
+  //   '69f7166062511b62d289969b',
+  //   '69f7f0d81547d67be1c13c48',
+  //   '69f7f2441547d67be1c13cf2',
+  //   '69f7fadd1547d67be1c14068',
+  //   '69f800721547d67be1c1426d',
+  //   '69fab264b3e0d113b6221ef2',
+  //   '6a3ba7e955d8bf00b62d554b'
+  // ];
 
-  console.log({ swkfactory, vendors });
+  // const swkfactory = await FactoryModel.findOne({ name: "SWK" }).lean();
+  // const swkVendors = await VendorV2Model.find({ factory: swkfactory._id }).lean();
 
-  const fs = require("fs");
-  const path = require("path");
+  // const report = [];
+  // for (const v of swkVendors) {
+  //   const isCorrect = correctIds.includes(v.id);
+  //   const count = await InspectionDataModel.countDocuments({ vendor: v._id });
+  //   report.push({
+  //     _id: v._id,
+  //     id: v.id,
+  //     name: v.name,
+  //     isCorrect,
+  //     inspectionCount: count
+  //   });
+  // }
 
-  function convertToCSV(arr) {
-    if (arr.length === 0) return "";
-    const headerSet = new Set();
-    arr.forEach((item) => {
-      Object.keys(item).forEach((key) => headerSet.add(key));
-    });
-    const headers = Array.from(headerSet);
-    const csvRows = [headers.join(",")];
-    for (const row of arr) {
-      const values = headers.map((header) => {
-        let val = row[header];
-        if (val === undefined || val === null) {
-          val = "";
-        } else if (typeof val === "object") {
-          val = val.toString();
-        }
-        const valStr = String(val);
-        const escaped = valStr.replace(/"/g, '""');
-        if (
-          escaped.includes(",") ||
-          escaped.includes('"') ||
-          escaped.includes("\n") ||
-          escaped.includes("\r")
-        ) {
-          return `"${escaped}"`;
-        }
-        return escaped;
-      });
-      csvRows.push(values.join(","));
-    }
-    return csvRows.join("\n");
-  }
+  // console.log("SWK Vendors Report:");
+  // console.log(JSON.stringify(report, null, 2));
 
-  const csvContent = convertToCSV(vendors);
-  const csvPath = path.join(__dirname, "vendors_swk.csv");
-  fs.writeFileSync(csvPath, csvContent, "utf8");
-  console.log(`CSV exported successfully to ${csvPath}`);
+  // const comp = await CompanyModel.create({
+  //   name: "SIMP",
+  //   initial: "SIMP",
+  //   image_name: "",
+  //   location: "Kayangan, Riau",
+  // });
+  // const factory = await FactoryModel.create({
+  //   name: "KYNM",
+  //   company: comp._id,
+  //   location: "Kayangan, Riau",
+  // });
+
+  // const user = await UserModel.create({
+  //   full_name: "Admin SIMP",
+  //   email: "simp@accelego.id",
+  //   password: hashPassword("1234"),
+  //   access_factory: [factory._id],
+  //   status: 1,
+  //   whatsapp_number: "628123456789",
+  //   subscribe_notification: 0,
+  //   company: comp._id,
+  // });
+  // console.log({ comp, factory, user });
+  // ‪+62 821‑1496‑2388‬
+
+  await UserModel.findOneAndUpdate(
+    { email: "simp@accelego.id" },
+    {
+      $set: {
+        whatsapp_number: "6282114962388",
+        password: hashPassword("simp123"),
+      },
+    },
+  );
 
   console.log("Done");
   process.exit();
