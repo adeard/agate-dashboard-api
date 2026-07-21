@@ -188,7 +188,7 @@ const schemas = {
     date: Joi.string().required(),
     filename: Joi.string().required(),
     filepath: Joi.string().required(),
-    factory: Joi.string().required(),
+    factory: Joi.string().optional(),
     machine: Joi.string().required(),
   }),
 
@@ -200,7 +200,7 @@ const schemas = {
     code: Joi.string().required(),
     message: Joi.string().required(),
     filename: Joi.string().required(),
-    factory: Joi.string().required(),
+    factory: Joi.string().optional(),
     machine: Joi.string().required(),
   }),
 };

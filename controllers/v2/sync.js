@@ -692,11 +692,6 @@ class SyncDataController {
         ),
       );
     } catch (err) {
-      console.error("Error syncing machine logs file:", {
-        error: err.message,
-        stack: err.stack,
-        body: req.body,
-      });
       next(err);
     }
   }
@@ -721,11 +716,6 @@ class SyncDataController {
         ),
       );
     } catch (err) {
-      console.error("Error syncing machine logs data:", {
-        error: err.message,
-        stack: err.stack,
-        body: req.body,
-      });
       next(err);
     }
   }
