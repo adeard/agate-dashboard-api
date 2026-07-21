@@ -25,9 +25,6 @@ const XLSX = require('xlsx');
     .then(async (response) => {
       console.log(response);
 
-      await agenda.start();
-      console.log('Agenda worker started');
-
       // All your controllers should live here
       app.get('/', function rootHandler(req, res) {
         res.end('Selamat Datang.');
