@@ -16,6 +16,8 @@ const MachineCheckModel = require("../../models/machine-check");
 const MachineLogsFileModel = require("../../models/machine-logs-file");
 const MachineLogsDataModel = require("../../models/machine-logs-data");
 
+const agenda = require("../../lib/agenda");
+
 const formatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
@@ -678,19 +680,20 @@ class SyncDataController {
       delete body["is_integrated"];
       console.log({ body });
 
-      await vBody("machine-logs-file", body);
+      // await vBody("machine-logs-file", body);
 
-      const agenda = require("../../lib/agenda");
       await agenda.now("sync-machine-logs-file", { body });
 
-      return res.status(200).json(
-        createResponseSuccess(
-          200,
-          "Success",
-          "Success queue machine logs file",
-          { status: "queued" },
-        ),
-      );
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            "Success",
+            "Success queue machine logs file",
+            { status: "queued" },
+          ),
+        );
     } catch (err) {
       next(err);
     }
@@ -702,19 +705,20 @@ class SyncDataController {
 
       delete body["is_integrated"];
 
-      await vBody("machine-logs-data", body);
+      // await vBody("machine-logs-data", body);
 
-      const agenda = require("../../lib/agenda");
       await agenda.now("sync-machine-logs-data", { body });
 
-      return res.status(200).json(
-        createResponseSuccess(
-          200,
-          "Success",
-          "Success queue machine logs data",
-          { status: "queued" },
-        ),
-      );
+      return res
+        .status(200)
+        .json(
+          createResponseSuccess(
+            200,
+            "Success",
+            "Success queue machine logs data",
+            { status: "queued" },
+          ),
+        );
     } catch (err) {
       next(err);
     }
