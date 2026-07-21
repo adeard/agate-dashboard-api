@@ -11,6 +11,7 @@ const server = require('http').createServer(app);
 
 const routes = require('./routes');
 const connectToDatabase = require('./lib/db-connect');
+const agenda = require('./lib/agenda');
 const {
   runBlasReportCron,
   runUpdateDataDemo,
@@ -21,8 +22,11 @@ const XLSX = require('xlsx');
 
 (() => {
   connectToDatabase()
-    .then((response) => {
+    .then(async (response) => {
       console.log(response);
+
+      await agenda.start();
+      console.log('Agenda worker started');
 
       // All your controllers should live here
       app.get('/', function rootHandler(req, res) {

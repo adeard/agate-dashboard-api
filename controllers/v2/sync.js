@@ -680,45 +680,15 @@ class SyncDataController {
 
       await vBody("machine-logs-file", body);
 
-      const factory = await FactoryModel.findOne({
-        name: body["factory"],
-      }).lean();
-
-      if (!factory) {
-        throw {
-          code: 404,
-          title: "Not Found",
-          message: "Factory not found",
-        };
-      }
-
-      body["factory"] = factory._id;
-
-      const filter = {
-        filename: body.filename,
-        machine: body.machine,
-        factory: body.factory,
-      };
-
-      const machineLogsFile = await MachineLogsFileModel.findOneAndUpdate(
-        filter,
-        body,
-        {
-          upsert: true,
-          new: true,
-          setDefaultsOnInsert: true,
-          runValidators: true,
-        },
-      );
+      const agenda = require("../../lib/agenda");
+      await agenda.now("sync-machine-logs-file", { body });
 
       return res.status(200).json(
         createResponseSuccess(
           200,
           "Success",
-          "Success sync machine logs file",
-          {
-            id: machineLogsFile._id,
-          },
+          "Success queue machine logs file",
+          { status: "queued" },
         ),
       );
     } catch (err) {
@@ -739,53 +709,15 @@ class SyncDataController {
 
       await vBody("machine-logs-data", body);
 
-      const factory = await FactoryModel.findOne({
-        name: body["factory"],
-      }).lean();
-
-      if (!factory) {
-        throw {
-          code: 404,
-          title: "Not Found",
-          message: "Factory not found",
-        };
-      }
-
-      body["factory"] = factory._id;
-
-      if (body.date) {
-        body.date = new Date(body.date);
-      }
-
-      const filter = {
-        date: body.date,
-        code: body.code,
-        machine: body.machine,
-        factory: body.factory,
-      };
-
-      const machineLogsData = await MachineLogsDataModel.findOneAndUpdate(
-        filter,
-        {
-          ...body,
-          date_string: dayjs(body["date"]).format("HH:mm:ss DD/MM/YYYY"),
-        },
-        {
-          upsert: true,
-          new: true,
-          setDefaultsOnInsert: true,
-          runValidators: true,
-        },
-      );
+      const agenda = require("../../lib/agenda");
+      await agenda.now("sync-machine-logs-data", { body });
 
       return res.status(200).json(
         createResponseSuccess(
           200,
           "Success",
-          "Success sync machine logs data",
-          {
-            id: machineLogsData._id,
-          },
+          "Success queue machine logs data",
+          { status: "queued" },
         ),
       );
     } catch (err) {
