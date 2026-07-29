@@ -2309,7 +2309,7 @@ class DashboardV4Controller {
         "Buah Kecil <5kg",
         ...(isLngm ? ["Buah Kecil <2kg"] : []),
         "Tangkai Panjang",
-        "Matang Katro",
+        // "Matang Katro",
       ],
     ];
 
@@ -3043,7 +3043,7 @@ class DashboardV4Controller {
         totalTangkaiPanjang,
         // '',
 
-        item.grading_result.total_matang_katro,
+        // item.grading_result.total_matang_katro,
       ]);
     });
 
