@@ -16,6 +16,7 @@ const InspectionDataModel = require("../../models/inspection-data");
 const { scoringMultiplier } = require("../../utils/enum");
 const { getCompanyLimitTandan } = require("../../utils/inspection");
 const FactoryModel = require("../../models/factory");
+const CompanyModel = require("../../models/company");
 
 const utilsInspection = {
   getTotalAndPercentClassification: (item, isLngm = false) => {
@@ -181,11 +182,45 @@ const utilsInspection = {
       { totalTangkaiPanjang: 0 },
     );
 
+    const { totalTangkaiPanjangDitolak } = Object.keys(
+      item.grading_result["rejected_summary"] || {},
+    ).reduce(
+      (obj, key) => {
+        const data = item["grading_result"]["rejected_summary"]?.[key] || {};
+
+        obj["totalTangkaiPanjangDitolak"] += data["TANGKAI PANJANG"] || 0;
+
+        return obj;
+      },
+      { totalTangkaiPanjangDitolak: 0 },
+    );
+
+    const { totalRusakDimakanTikusDidenda } = Object.keys(
+      item.grading_result["accepted_summary"] || {},
+    ).reduce(
+      (obj, key) => {
+        const data = item["grading_result"]["accepted_summary"]?.[key] || {};
+
+        obj["totalRusakDimakanTikusDidenda"] += data["RUSAK DIMAKAN TIKUS"] || 0;
+
+        return obj;
+      },
+      { totalRusakDimakanTikusDidenda: 0 },
+    );
+
+    const totalTangkaiPanjangDidenda = totalTangkaiPanjang;
+    const totalRusakDimakanTikusDitolak = totalRusakDimakanTikus;
+
     const percentMatang = countPercentage(totalMatang, totalTandan);
     const percentLewatMatang = countPercentage(totalLewatMatang, totalTandan);
     const percentTangkaiPanjang = countPercentage(
       totalTangkaiPanjang,
       totalAcceptedModified,
+    );
+    const percentTangkaiPanjangDidenda = percentTangkaiPanjang;
+    const percentTangkaiPanjangDitolak = countPercentage(
+      totalTangkaiPanjangDitolak,
+      totalTandan,
     );
     const percentMentah = countPercentage(totalMentah, totalTandan);
     const percentJangkos = countPercentage(totalJanjangKosong, totalTandan);
@@ -200,6 +235,11 @@ const utilsInspection = {
       totalRusakDimakanTikus,
       totalTandan,
     );
+    const percentRusakDimakanTikusDidenda = countPercentage(
+      totalRusakDimakanTikusDidenda,
+      totalTandan,
+    );
+    const percentRusakDimakanTikusDitolak = percentRusakDimakanTikus;
 
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
@@ -251,6 +291,15 @@ const utilsInspection = {
       percentBuahKecil5Diterima,
       totalRusakDimakanTikus,
       percentRusakDimakanTikus,
+
+      totalTangkaiPanjangDidenda,
+      totalTangkaiPanjangDitolak,
+      percentTangkaiPanjangDidenda,
+      percentTangkaiPanjangDitolak,
+      totalRusakDimakanTikusDidenda,
+      totalRusakDimakanTikusDitolak,
+      percentRusakDimakanTikusDidenda,
+      percentRusakDimakanTikusDitolak,
     };
   },
   getAllMonitoringData: (inspections) => {
@@ -535,11 +584,45 @@ const utilsInspection = {
       { totalTangkaiPanjang: 0 },
     );
 
+    const { totalTangkaiPanjangDitolak } = Object.keys(
+      item.grading_result["rejected_summary"] || {},
+    ).reduce(
+      (obj, key) => {
+        const data = item["grading_result"]["rejected_summary"]?.[key] || {};
+
+        obj["totalTangkaiPanjangDitolak"] += data["TANGKAI PANJANG"] || 0;
+
+        return obj;
+      },
+      { totalTangkaiPanjangDitolak: 0 },
+    );
+
+    const { totalRusakDimakanTikusDidenda } = Object.keys(
+      item.grading_result["accepted_summary"] || {},
+    ).reduce(
+      (obj, key) => {
+        const data = item["grading_result"]["accepted_summary"]?.[key] || {};
+
+        obj["totalRusakDimakanTikusDidenda"] += data["RUSAK DIMAKAN TIKUS"] || 0;
+
+        return obj;
+      },
+      { totalRusakDimakanTikusDidenda: 0 },
+    );
+
+    const totalTangkaiPanjangDidenda = totalTangkaiPanjang;
+    const totalRusakDimakanTikusDitolak = totalRusakDimakanTikus;
+
     const percentMatang = countPercentage(totalMatang, totalTandan);
     const percentLewatMatang = countPercentage(totalLewatMatang, totalTandan);
     const percentTangkaiPanjang = countPercentage(
       totalTangkaiPanjang,
       totalAcceptedModified,
+    );
+    const percentTangkaiPanjangDidenda = percentTangkaiPanjang;
+    const percentTangkaiPanjangDitolak = countPercentage(
+      totalTangkaiPanjangDitolak,
+      totalTandan,
     );
     const percentMentah = countPercentage(totalMentah, totalTandan);
     const percentJangkos = countPercentage(totalJanjangKosong, totalTandan);
@@ -555,6 +638,12 @@ const utilsInspection = {
       totalRusakDimakanTikus,
       totalTandan,
     );
+    const percentRusakDimakanTikusDidenda = countPercentage(
+      totalRusakDimakanTikusDidenda,
+      totalTandan,
+    );
+    const percentRusakDimakanTikusDitolak = percentRusakDimakanTikus;
+
     const percentMentahDiterima = countPercentage(
       totalMentahDiterima,
       totalTandan,
@@ -640,6 +729,15 @@ const utilsInspection = {
       percentLewatMatangDitolak,
       totalRusakDimakanTikus,
       percentRusakDimakanTikus,
+
+      totalTangkaiPanjangDidenda,
+      totalTangkaiPanjangDitolak,
+      percentTangkaiPanjangDidenda,
+      percentTangkaiPanjangDitolak,
+      totalRusakDimakanTikusDidenda,
+      totalRusakDimakanTikusDitolak,
+      percentRusakDimakanTikusDidenda,
+      percentRusakDimakanTikusDitolak,
     };
   },
 };
@@ -3931,8 +4029,18 @@ class DashboardV4Controller {
       const factoryObj = factory
         ? await FactoryModel.findById(factory).lean()
         : null;
+      const companyObj = user?.company
+        ? await CompanyModel.findById(user.company).lean()
+        : null;
       const isLngm =
         factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
+      const isKynm =
+        (factoryObj && ["KYNM"].some((loc) => factoryObj.name.includes(loc))) ||
+        (companyObj &&
+          ["SIMP"].some(
+            (c) =>
+              companyObj.initial?.includes(c) || companyObj.name?.includes(c),
+          ));
 
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
@@ -3991,6 +4099,10 @@ class DashboardV4Controller {
         matang_ditolak: [],
         lewat_matang_ditolak: [],
         rusak_dimakan_tikus: [],
+        tangkai_panjang_didenda: [],
+        tangkai_panjang_ditolak: [],
+        rusak_dimakan_tikus_didenda: [],
+        rusak_dimakan_tikus_ditolak: [],
       };
       const avgAcceptedVendor = {};
       const summaryPerformance = {
@@ -4036,6 +4148,10 @@ class DashboardV4Controller {
         matang_ditolak: {},
         lewat_matang_ditolak: {},
         rusak_dimakan_tikus: {},
+        tangkai_panjang_didenda: {},
+        tangkai_panjang_ditolak: {},
+        rusak_dimakan_tikus_didenda: {},
+        rusak_dimakan_tikus_ditolak: {},
       };
       let avgClassificationVendor = {
         matang: {},
@@ -4052,6 +4168,10 @@ class DashboardV4Controller {
         matang_ditolak: {},
         lewat_matang_ditolak: {},
         rusak_dimakan_tikus: {},
+        tangkai_panjang_didenda: {},
+        tangkai_panjang_ditolak: {},
+        rusak_dimakan_tikus_didenda: {},
+        rusak_dimakan_tikus_ditolak: {},
       };
 
       let avgAcceptedVendorHistory = {};
@@ -4123,6 +4243,14 @@ class DashboardV4Controller {
           totalRusakDimakanTikus,
           totalBuahKecil2,
           percentBuahKecil2,
+          totalTangkaiPanjangDidenda,
+          totalTangkaiPanjangDitolak,
+          percentTangkaiPanjangDidenda,
+          percentTangkaiPanjangDitolak,
+          totalRusakDimakanTikusDidenda,
+          totalRusakDimakanTikusDitolak,
+          percentRusakDimakanTikusDidenda,
+          percentRusakDimakanTikusDitolak,
         } = utilsInspection.getTotalAndPercentClassificationNew(item, isLngm);
 
         grandTotalAccepted += totalAcceptedModified;
@@ -4151,6 +4279,19 @@ class DashboardV4Controller {
         avgClassification["matang_ditolak"].push(totalMatangDitolak);
         avgClassification["lewat_matang_ditolak"].push(totalLewatMatangDitolak);
         avgClassification["rusak_dimakan_tikus"].push(totalRusakDimakanTikus);
+
+        avgClassification["tangkai_panjang_didenda"].push(
+          totalTangkaiPanjangDidenda,
+        );
+        avgClassification["tangkai_panjang_ditolak"].push(
+          totalTangkaiPanjangDitolak,
+        );
+        avgClassification["rusak_dimakan_tikus_didenda"].push(
+          totalRusakDimakanTikusDidenda,
+        );
+        avgClassification["rusak_dimakan_tikus_ditolak"].push(
+          totalRusakDimakanTikusDitolak,
+        );
 
         if (!avgClassificationTren["matang"][day]) {
           avgClassificationTren["matang"][day] = [];
@@ -4232,6 +4373,34 @@ class DashboardV4Controller {
         }
         avgClassificationTren["rusak_dimakan_tikus"][day].push(
           percentRusakDimakanTikus,
+        );
+
+        if (!avgClassificationTren["tangkai_panjang_didenda"][day]) {
+          avgClassificationTren["tangkai_panjang_didenda"][day] = [];
+        }
+        avgClassificationTren["tangkai_panjang_didenda"][day].push(
+          percentTangkaiPanjangDidenda,
+        );
+
+        if (!avgClassificationTren["tangkai_panjang_ditolak"][day]) {
+          avgClassificationTren["tangkai_panjang_ditolak"][day] = [];
+        }
+        avgClassificationTren["tangkai_panjang_ditolak"][day].push(
+          percentTangkaiPanjangDitolak,
+        );
+
+        if (!avgClassificationTren["rusak_dimakan_tikus_didenda"][day]) {
+          avgClassificationTren["rusak_dimakan_tikus_didenda"][day] = [];
+        }
+        avgClassificationTren["rusak_dimakan_tikus_didenda"][day].push(
+          percentRusakDimakanTikusDidenda,
+        );
+
+        if (!avgClassificationTren["rusak_dimakan_tikus_ditolak"][day]) {
+          avgClassificationTren["rusak_dimakan_tikus_ditolak"][day] = [];
+        }
+        avgClassificationTren["rusak_dimakan_tikus_ditolak"][day].push(
+          percentRusakDimakanTikusDitolak,
         );
 
         if (!avgClassificationVendor["matang"][vendorName]) {
@@ -4744,6 +4913,18 @@ class DashboardV4Controller {
 
       const averageGrading = Object.entries(avgClassification).reduce(
         (obj, [key, value]) => {
+          if (
+            !isKynm &&
+            [
+              "tangkai_panjang_didenda",
+              "tangkai_panjang_ditolak",
+              "rusak_dimakan_tikus_didenda",
+              "rusak_dimakan_tikus_ditolak",
+            ].includes(key)
+          ) {
+            return obj;
+          }
+
           obj[key] = value?.length
             ? countPercentage(
                 value.reduce((tot, num) => tot + Number(num || 0), 0),
@@ -4870,6 +5051,17 @@ class DashboardV4Controller {
       const avgClassificationVendorData = Object.entries(
         avgClassificationVendor,
       ).reduce((o, [key, value]) => {
+        if (
+          !isKynm &&
+          [
+            "tangkai_panjang_didenda",
+            "tangkai_panjang_ditolak",
+            "rusak_dimakan_tikus_didenda",
+            "rusak_dimakan_tikus_ditolak",
+          ].includes(key)
+        ) {
+          return o;
+        }
         o[key] = addRankingsWithTieHandling(
           Object.entries(value)
             .map(([k, v]) => {
@@ -4916,6 +5108,17 @@ class DashboardV4Controller {
       const avgClassificationTrenData = Object.entries(
         avgClassificationTren,
       ).reduce((obj, [c, data]) => {
+        if (
+          !isKynm &&
+          [
+            "tangkai_panjang_didenda",
+            "tangkai_panjang_ditolak",
+            "rusak_dimakan_tikus_didenda",
+            "rusak_dimakan_tikus_ditolak",
+          ].includes(c)
+        ) {
+          return obj;
+        }
         obj[c] = Object.entries(data).map(([d, value]) => {
           const sum = value.reduce((n, c) => n + (c || 0), 0);
           return {
