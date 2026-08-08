@@ -117,25 +117,31 @@ class SyncDataController {
         };
       }
 
-      let vendor = await VendorV2Model.findOne({
-        name: body["vendor_name"],
-        id: body["vendor_id"],
+      let vendorQuery = {
         factory: factory._id,
-      }).lean();
+      };
+      if (body["vendor_name"]) {
+        vendorQuery.name = body["vendor_name"].trim();
+      }
+      if (body["vendor_id"]) {
+        vendorQuery.id = body["vendor_id"];
+      }
 
-      if (!vendor) {
+      let vendor = null;
+      if (body["vendor_name"] || body["vendor_id"]) {
+        vendor = await VendorV2Model.findOne(vendorQuery).lean();
+      }
+
+      if (!vendor && (body["vendor_name"] || body["vendor_id"])) {
+        const vendorType = body["vendor_type"] ? Number(body["vendor_type"]) : 3;
         vendor = await VendorV2Model.findOneAndUpdate(
+          vendorQuery,
           {
-            name: body["vendor_name"].trim(),
+            id: body["vendor_id"] || body["id"] || "",
+            name: (body["vendor_name"] || "").trim(),
+            type: isNaN(vendorType) ? 3 : vendorType,
             factory: factory._id,
-            id: body["vendor_id"],
-          },
-          {
-            id: body["vendor_id"],
-            name: body["vendor_name"],
-            type: body["vendor_type"],
-            factory: factory._id,
-            vendor_id: body["vendor_id"],
+            vendor_id: body["vendor_id"] || "",
             bjr: body["bjr"] || "",
           },
           {
@@ -145,41 +151,62 @@ class SyncDataController {
             returnDocument: true,
           },
         );
-        // vendor = await VendorV2Model.create({
-        //   id: body['vendor_id'],
-        //   name: body['vendor_name'],
-        //   type: body['vendor_type'],
-        //   factory: factory._id,
-        //   vendor_id: body['vendor_id'],
-        // });
       }
-
-      // const founded = await InspectionDataModel.findOne({
-      //   id: body['id'],
-      // }).lean();
-
-      // if (founded) {
-      //   return res.status(200).json(
-      //     createResponseSuccess(
-      //       200,
-      //       'Success',
-      //       'Inspection already integrated',
-      //       {
-      //         data: true,
-      //       }
-      //     )
-      //   );
-      // }
 
       delete body["is_integrated"];
       body["is_integrated"] = true;
 
       body["company"] = factory.company.toString();
 
+      if (
+        !body["main_classification_accepted"] ||
+        !Array.isArray(body["main_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["accepted"]) {
+          body["main_classification_accepted"] = Object.keys(
+            body["grading_result"]["accepted"],
+          );
+        } else {
+          body["main_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["sub_classification_accepted"] ||
+        !Array.isArray(body["sub_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["fined"]) {
+          body["sub_classification_accepted"] = Object.keys(
+            body["grading_result"]["fined"],
+          );
+        } else {
+          body["sub_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["classification_rejected"] ||
+        !Array.isArray(body["classification_rejected"])
+      ) {
+        if (body["grading_result"]?.["rejected"]) {
+          body["classification_rejected"] = Object.keys(
+            body["grading_result"]["rejected"],
+          );
+        } else {
+          body["classification_rejected"] = [];
+        }
+      }
+
+      if (!body["vendor_type"]) {
+        body["vendor_type"] = "3";
+      }
+
       await vBody("inspection-data", body);
 
       body["factory"] = factory._id;
-      body["vendor"] = vendor._id;
+      if (vendor) {
+        body["vendor"] = vendor._id;
+      }
 
       console.log({ body }, "<<<< BODY SYNC DATA INSPECTION");
 

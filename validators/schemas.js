@@ -95,8 +95,8 @@ const schemas = {
   }),
 
   "inspection-data": Joi.object({
-    vendor_id: Joi.string().allow(null), // Optional field,
-    vendor_name: Joi.string().allow(null),
+    vendor_id: Joi.string().allow(null, "").optional(), // Optional field,
+    vendor_name: Joi.string().allow(null, "").optional(),
     main_classification_accepted: Joi.array()
       .items(
         Joi.string().valid(
@@ -107,7 +107,8 @@ const schemas = {
           "JANJANG KOSONG",
         ),
       )
-      .required(),
+      .optional()
+      .default([]),
     sub_classification_accepted: Joi.array()
       .items(
         Joi.string().valid(
@@ -122,48 +123,56 @@ const schemas = {
           "BUAH KECIL DIBAWAH 5KG",
         ),
       )
-      .required(),
-    classification_rejected: Joi.array().items(Joi.string()).required(),
-    unripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
-    half_ripe_fined_in_kg: Joi.number().integer().allow(null), // Optional field
-    over_ripe_fined_in_kg: Joi.number().allow(null), // Optional field
-    pest_fined_in_kg: Joi.number().allow(null), // Optional field
+      .optional()
+      .default([]),
+    classification_rejected: Joi.array().items(Joi.string()).optional().default([]),
+    unripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    half_ripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    over_ripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    pest_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     pest_e_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     pest_m_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
-    long_stash_fined_in_kg: Joi.number().integer().allow(null), // Optional field
-    long_stash_m_fined_in_kg: Joi.number().integer().allow(null).optional(),
+    long_stash_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    long_stash_m_fined_in_kg: Joi.number().allow(null).optional(),
     long_stash_e_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
-    small_fruit_fined_in_kg: Joi.number().integer().allow(null), // Optional field
-    small_fruit_5_fined_in_kg: Joi.number().integer().allow(null), // Optional field
-    delivery_number: Joi.string().allow(null), // Optional field
-    vehicle_number: Joi.string().allow(null), // Optional field
-    verification_code: Joi.number().integer().allow(null), // Optional field
-    is_active: Joi.boolean().allow(null), // Optional field
-    is_started: Joi.boolean().allow(null), // Optional field
-    is_finished: Joi.boolean().allow(null), // Optional field
-    is_confirmed: Joi.boolean().allow(null), // Optional field
-    vendor_type: Joi.string().valid("1", "2", "3").required(), // Enum with numeric values
-    inspection_code: Joi.string().allow(null), // Optional field
-    date: Joi.date().allow(null), // Optional field
-    finish_date: Joi.date().allow(null), // Optional field,
+    small_fruit_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    small_fruit_5_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
+    delivery_number: Joi.string().allow(null, "").optional(), // Optional field
+    vehicle_number: Joi.string().allow(null, "").optional(), // Optional field
+    driver_name: Joi.string().allow(null, "").optional(),
+    vendor_code: Joi.string().allow(null, "").optional(),
+    verification_code: Joi.number().allow(null).optional(), // Optional field
+    is_active: Joi.boolean().allow(null).optional(), // Optional field
+    is_started: Joi.boolean().allow(null).optional(), // Optional field
+    is_finished: Joi.boolean().allow(null).optional(), // Optional field
+    is_confirmed: Joi.boolean().allow(null).optional(), // Optional field
+    vendor_type: Joi.alternatives()
+      .try(Joi.string(), Joi.number())
+      .optional()
+      .default("3"), // Enum with numeric/string values
+    inspection_code: Joi.string().allow(null, "").optional(), // Optional field
+    date: Joi.date().allow(null).optional(), // Optional field
+    finish_date: Joi.date().allow(null).optional(), // Optional field,
     id: Joi.string().required(),
-    grading_result: Joi.object().allow(null),
-    year: Joi.number().required(),
-    factory: Joi.string(),
-    engine_type: Joi.string().allow(null),
-    machine: Joi.number().allow(null).optional(),
+    grading_result: Joi.object().allow(null).optional(),
+    year: Joi.number().optional(),
+    factory: Joi.string().optional(),
+    engine_type: Joi.string().allow(null, "").optional(),
+    machine: Joi.any().allow(null).optional(),
     notes: Joi.string().allow(null, "").optional(),
-    images: Joi.string().allow(null).optional(),
-    company: Joi.string(),
+    images: Joi.string().allow(null, "").optional(),
+    company: Joi.string().optional(),
     manual_parameter: Joi.any().optional(), // Optional field
     total_multiple: Joi.number().optional(), // Optional field,
     ticket_number: Joi.any().optional(), // Optional field
     is_integrated_wb: Joi.boolean().allow(null).default(false), // Optional field
     is_integrated: Joi.boolean().allow(null).default(true), // Optional field
     demo_mode: Joi.boolean().allow(null).default(false), // Optional field
-    level: Joi.number().integer().allow(null).optional(),
+    level: Joi.number().allow(null).optional(),
     grading_parameter: Joi.array().items(Joi.any()).allow(null).optional(),
-  }),
+    wbin: Joi.number().allow(null).optional(),
+    created_by: Joi.string().allow(null, "").optional(),
+  }).unknown(true),
 
   "vendor-2": Joi.object({
     id: Joi.string().required(),

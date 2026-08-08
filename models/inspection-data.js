@@ -23,16 +23,19 @@ const SCHEMA = new Schema(
     main_classification_accepted: {
       type: [String],
       enum: MainClassificationEnum,
-      required: true,
+      required: false,
+      default: [],
     },
     sub_classification_accepted: {
       type: [String],
       enum: SubClassificationEnum,
-      required: true,
+      required: false,
+      default: [],
     },
     classification_rejected: {
       type: [String],
-      required: true,
+      required: false,
+      default: [],
     },
     unripe_fined_in_kg: {
       type: Number,
@@ -99,6 +102,26 @@ const SCHEMA = new Schema(
       required: false,
       default: null,
     },
+    driver_name: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    vendor_code: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    wbin: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    created_by: {
+      type: String,
+      required: false,
+      default: null,
+    },
     verification_code: {
       type: Number,
       required: false,
@@ -127,7 +150,8 @@ const SCHEMA = new Schema(
     vendor_type: {
       type: String,
       enum: ['1', '2', '3'],
-      required: true,
+      required: false,
+      default: '3',
     },
     inspection_code: {
       type: String,
@@ -146,7 +170,8 @@ const SCHEMA = new Schema(
     },
     grading_result: {
       type: Object,
-      required: true,
+      required: false,
+      default: null,
     },
     year: {
       type: Number,
@@ -160,8 +185,8 @@ const SCHEMA = new Schema(
     vendor: {
       type: Schema.Types.ObjectId,
       ref: 'GradingHQ_VENDOR_V2',
-      // type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     engine_type: {
       type: String,

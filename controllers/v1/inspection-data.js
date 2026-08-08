@@ -186,6 +186,49 @@ class InspectionDataController {
 
       delete body["is_integrated"];
 
+      if (
+        !body["main_classification_accepted"] ||
+        !Array.isArray(body["main_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["accepted"]) {
+          body["main_classification_accepted"] = Object.keys(
+            body["grading_result"]["accepted"],
+          );
+        } else {
+          body["main_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["sub_classification_accepted"] ||
+        !Array.isArray(body["sub_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["fined"]) {
+          body["sub_classification_accepted"] = Object.keys(
+            body["grading_result"]["fined"],
+          );
+        } else {
+          body["sub_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["classification_rejected"] ||
+        !Array.isArray(body["classification_rejected"])
+      ) {
+        if (body["grading_result"]?.["rejected"]) {
+          body["classification_rejected"] = Object.keys(
+            body["grading_result"]["rejected"],
+          );
+        } else {
+          body["classification_rejected"] = [];
+        }
+      }
+
+      if (!body["vendor_type"]) {
+        body["vendor_type"] = "3";
+      }
+
       await vBody("inspection-data", body);
 
       await InspectionDataModel.findOneAndUpdate(
