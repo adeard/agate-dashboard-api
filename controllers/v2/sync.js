@@ -201,6 +201,24 @@ class SyncDataController {
         body["vendor_type"] = "3";
       }
 
+      if (!body["manual_input"] && body["grading_result"]?.["manual_input"]) {
+        body["manual_input"] = body["grading_result"]["manual_input"];
+      }
+
+      if (
+        !body["manual_input_rules"] &&
+        body["grading_result"]?.["manual_input_rules"]
+      ) {
+        body["manual_input_rules"] = body["grading_result"]["manual_input_rules"];
+      }
+
+      if (
+        (body["tarra"] === null || body["tarra"] === undefined) &&
+        body["grading_result"]?.["manual_input"]?.["tare"]
+      ) {
+        body["tarra"] = body["grading_result"]["manual_input"]["tare"];
+      }
+
       await vBody("inspection-data", body);
 
       body["factory"] = factory._id;

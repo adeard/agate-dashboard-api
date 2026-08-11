@@ -493,9 +493,9 @@ connectToDatabase().then(async (res) => {
   //   company: "6a058067eead79aa42c659bb",
   // });
 
-  // const factories = await FactoryModel.findOne({ name: "SWK" }).lean();
+  const factories = await FactoryModel.findOne({ name: "BSU" }).lean();
 
-  // console.log({ factories });
+  console.log({ factories });
 
   // const correctIds = [
   //   '691725270995e3ee3ea8d3e4',
@@ -563,9 +563,11 @@ connectToDatabase().then(async (res) => {
   //   },
   // );
 
-  const results = await InspectionDataModel.findOne({}).lean();
+  const results = await InspectionDataModel.find({
+    company: "6a449b3897ad166780382f09",
+  }).lean();
 
-  console.log({ results: results.length });
+  console.log({ results: results });
 
   console.log("Done");
   process.exit();

@@ -15,7 +15,6 @@ const SCHEMA = new Schema(
     type: {
       type: Number,
       required: true,
-      enum: [1, 2, 3], // 1 = inti, 2 = eksternal, 3 = plasma
     },
     factory: {
       type: Schema.Types.ObjectId,

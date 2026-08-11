@@ -149,7 +149,6 @@ const SCHEMA = new Schema(
     },
     vendor_type: {
       type: String,
-      enum: ['1', '2', '3'],
       required: false,
       default: '3',
     },
