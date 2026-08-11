@@ -121,6 +121,7 @@ const schemas = {
           "BUAH KECIL DIBAWAH 2KG",
           "BUAH KECIL DIBAWAH 3KG",
           "BUAH KECIL DIBAWAH 5KG",
+          "BUAH BESAR",
         ),
       )
       .optional()
@@ -172,6 +173,9 @@ const schemas = {
     grading_parameter: Joi.array().items(Joi.any()).allow(null).optional(),
     wbin: Joi.number().allow(null).optional(),
     created_by: Joi.string().allow(null, "").optional(),
+    tarra: Joi.number().allow(null).optional(),
+    manual_input: Joi.object().allow(null).optional(),
+    manual_input_rules: Joi.object().allow(null).optional(),
   }).unknown(true),
 
   "vendor-2": Joi.object({

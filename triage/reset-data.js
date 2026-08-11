@@ -475,12 +475,12 @@ connectToDatabase().then(async (res) => {
 
   // await InspectionDataModel.findByIdAndDelete('6965e7516dcc537bb8440582');
 
-  const company = await CompanyModel.findById("699be68739fb2f1e96d629ff");
-  const factory = await FactoryModel.find({
-    company: company._id,
-  }).lean();
+  // const company = await CompanyModel.findById("699be68739fb2f1e96d629ff");
+  // const factory = await FactoryModel.find({
+  //   company: company._id,
+  // }).lean();
 
-  console.log({ company, factory });
+  // console.log({ company, factory });
 
   // const user = await UserModel.create({
   //   full_name: "Admin Mustika",
@@ -562,6 +562,10 @@ connectToDatabase().then(async (res) => {
   //     },
   //   },
   // );
+
+  const results = await InspectionDataModel.findOne({}).lean();
+
+  console.log({ results: results.length });
 
   console.log("Done");
   process.exit();

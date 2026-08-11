@@ -230,6 +230,21 @@ const SCHEMA = new Schema(
       required: false,
       default: [],
     },
+    tarra: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    manual_input: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    manual_input_rules: {
+      type: Object,
+      required: false,
+      default: null,
+    },
   },
   { timestamps: true }
 );
