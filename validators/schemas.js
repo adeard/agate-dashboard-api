@@ -122,11 +122,16 @@ const schemas = {
           "BUAH KECIL DIBAWAH 3KG",
           "BUAH KECIL DIBAWAH 5KG",
           "BUAH BESAR",
+          "PATERNOKARPI",
+          "PARTENOKARPI",
         ),
       )
       .optional()
       .default([]),
-    classification_rejected: Joi.array().items(Joi.string()).optional().default([]),
+    classification_rejected: Joi.array()
+      .items(Joi.string())
+      .optional()
+      .default([]),
     unripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     half_ripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
     over_ripe_fined_in_kg: Joi.number().allow(null).optional(), // Optional field
