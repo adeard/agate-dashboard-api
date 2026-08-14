@@ -375,10 +375,38 @@ const utilsInspection = {
     const totalPassed = inspections.reduce((curr, item) => {
       return Number(item.grading_result["total_accepted"] || 0) + curr;
     }, 0);
-    const totalFined = inspections.reduce(
-      (curr, acc) => Number(acc.grading_result.total_fined || 0) + curr,
-      0,
-    );
+    const totalFined = inspections.reduce((curr, acc) => {
+      let tf = Number(acc.grading_result?.total_fined || 0);
+      if (!tf && acc.grading_result?.fined_summary) {
+        tf = Object.keys(acc.grading_result.fined_summary).reduce(
+          (n, k) =>
+            n + Number(acc.grading_result.fined_summary[k]?.["TOTAL"] || 0),
+          0,
+        );
+      }
+      if (!tf) {
+        const rootFinedFields = [
+          acc.unripe_fined_in_kg,
+          acc.half_ripe_fined_in_kg,
+          acc.over_ripe_fined_in_kg,
+          acc.long_stash_e_fined_in_kg,
+          acc.pest_fined_in_kg,
+          acc.pest_e_fined_in_kg,
+          acc.pest_m_fined_in_kg,
+          acc.long_stash_fined_in_kg,
+          acc.long_stash_m_fined_in_kg,
+          acc.small_fruit_fined_in_kg,
+          acc.small_fruit_5_fined_in_kg,
+        ];
+        if (rootFinedFields.some((v) => Number(v) > 0)) {
+          tf = rootFinedFields.reduce(
+            (sum, v) => sum + (Number(v) > 0 ? Number(v) : 0),
+            0,
+          );
+        }
+      }
+      return tf + curr;
+    }, 0);
     const totalInspection = inspections.length;
 
     const percentRejected = (totalRejected / totalTandan) * 100;
@@ -422,7 +450,35 @@ const utilsInspection = {
           ),
         0,
       );
-    const totalFined = item.grading_result["total_fined"];
+    let totalFined = Number(item.grading_result["total_fined"] || 0);
+    if (!totalFined && item.grading_result["fined_summary"]) {
+      totalFined = Object.keys(item.grading_result["fined_summary"]).reduce(
+        (n, k) =>
+          n + Number(item.grading_result["fined_summary"][k]?.["TOTAL"] || 0),
+        0,
+      );
+    }
+    if (!totalFined) {
+      const rootFinedFields = [
+        item.unripe_fined_in_kg,
+        item.half_ripe_fined_in_kg,
+        item.over_ripe_fined_in_kg,
+        item.long_stash_e_fined_in_kg,
+        item.pest_fined_in_kg,
+        item.pest_e_fined_in_kg,
+        item.pest_m_fined_in_kg,
+        item.long_stash_fined_in_kg,
+        item.long_stash_m_fined_in_kg,
+        item.small_fruit_fined_in_kg,
+        item.small_fruit_5_fined_in_kg,
+      ];
+      if (rootFinedFields.some((v) => Number(v) > 0)) {
+        totalFined = rootFinedFields.reduce(
+          (sum, v) => sum + (Number(v) > 0 ? Number(v) : 0),
+          0,
+        );
+      }
+    }
 
     const percentAcceptedModified = countPercentage(
       totalAcceptedModified,
@@ -597,20 +653,41 @@ const utilsInspection = {
       { totalTangkaiPanjangDitolak: 0 },
     );
 
-    const { totalRusakDimakanTikusDidenda } = Object.keys(
+    const rawTotalRusakDimakanTikusDidenda = Object.keys(
       item.grading_result["accepted_summary"] || {},
     ).reduce(
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"]?.[key] || {};
-
-        obj["totalRusakDimakanTikusDidenda"] += data["RUSAK DIMAKAN TIKUS"] || 0;
-
-        return obj;
+        return obj + (data["RUSAK DIMAKAN TIKUS"] || 0);
       },
-      { totalRusakDimakanTikusDidenda: 0 },
+      0,
     );
 
-    const totalTangkaiPanjangDidenda = totalTangkaiPanjang;
+    const hasFinedSummaryTP =
+      item.grading_result["fined_summary"]?.["TANGKAI PANJANG"] !== undefined;
+    const hasFinedSummaryPest =
+      item.grading_result["fined_summary"]?.["RUSAK DIMAKAN TIKUS"] !== undefined;
+
+    const hasFinedKgTP = Boolean(
+      (item.long_stash_fined_in_kg && Number(item.long_stash_fined_in_kg) > 0) ||
+      (item.long_stash_e_fined_in_kg && Number(item.long_stash_e_fined_in_kg) > 0) ||
+      (item.long_stash_m_fined_in_kg && Number(item.long_stash_m_fined_in_kg) > 0),
+    );
+
+    const hasFinedKgPest = Boolean(
+      (item.pest_fined_in_kg && Number(item.pest_fined_in_kg) > 0) ||
+      (item.pest_e_fined_in_kg && Number(item.pest_e_fined_in_kg) > 0) ||
+      (item.pest_m_fined_in_kg && Number(item.pest_m_fined_in_kg) > 0),
+    );
+
+    const totalTangkaiPanjangDidenda = hasFinedSummaryTP
+      ? Number(item.grading_result["fined_summary"]["TANGKAI PANJANG"]["TOTAL"] || 0)
+      : (hasFinedKgTP || totalFined > 0 ? totalTangkaiPanjang : 0);
+
+    const totalRusakDimakanTikusDidenda = hasFinedSummaryPest
+      ? Number(item.grading_result["fined_summary"]["RUSAK DIMAKAN TIKUS"]["TOTAL"] || 0)
+      : (hasFinedKgPest || totalFined > 0 ? rawTotalRusakDimakanTikusDidenda : 0);
+
     const totalRusakDimakanTikusDitolak = totalRusakDimakanTikus;
 
     const percentMatang = countPercentage(totalMatang, totalTandan);
