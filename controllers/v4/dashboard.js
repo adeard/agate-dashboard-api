@@ -201,7 +201,8 @@ const utilsInspection = {
       (obj, key) => {
         const data = item["grading_result"]["accepted_summary"]?.[key] || {};
 
-        obj["totalRusakDimakanTikusDidenda"] += data["RUSAK DIMAKAN TIKUS"] || 0;
+        obj["totalRusakDimakanTikusDidenda"] +=
+          data["RUSAK DIMAKAN TIKUS"] || 0;
 
         return obj;
       },
@@ -600,44 +601,61 @@ const utilsInspection = {
         ] || 0)
       : 0;
 
-    const { totalBuahKecil3, totalBuahKecil5, totalBuahKecil2 } = Object.keys(
-      item.grading_result["rejected_summary"],
-    ).reduce(
+    const {
+      totalBuahKecil3,
+      totalBuahKecil5,
+      totalBuahKecil2,
+      totalPartenokarpiDitolak,
+    } = Object.keys(item.grading_result["rejected_summary"] || {}).reduce(
       (obj, key) => {
-        const data = item["grading_result"]["rejected_summary"][key];
+        const data = item["grading_result"]["rejected_summary"]?.[key] || {};
 
         obj["totalBuahKecil3"] += data["BUAH KECIL DIBAWAH 3KG"] || 0;
         obj["totalBuahKecil5"] += data["BUAH KECIL DIBAWAH 5KG"] || 0;
         obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"] || 0;
+        obj["totalPartenokarpiDitolak"] +=
+          (data["PARTENOKARPI"] || 0) + (data["PATERNOKARPI"] || 0);
 
         return obj;
       },
-      { totalBuahKecil3: 0, totalBuahKecil5: 0, totalBuahKecil2: 0 },
+      {
+        totalBuahKecil3: 0,
+        totalBuahKecil5: 0,
+        totalBuahKecil2: 0,
+        totalPartenokarpiDitolak: 0,
+      },
     );
 
-    const { totalBuahKecil5Diterima } = Object.keys(
-      item.grading_result["accepted_summary"],
-    ).reduce(
+    const {
+      totalBuahKecil5Diterima,
+      totalBuahKecil3Diterima,
+      totalBuahKecil2Diterima,
+      totalRusakDimakanTikusDiterima,
+      totalPartenokarpiDiterima,
+      totalTangkaiPanjang,
+    } = Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
       (obj, key) => {
-        const data = item["grading_result"]["accepted_summary"][key];
+        const data = item["grading_result"]["accepted_summary"]?.[key] || {};
 
         obj["totalBuahKecil5Diterima"] += data["BUAH KECIL DIBAWAH 5KG"] || 0;
-
-        return obj;
-      },
-      { totalBuahKecil5Diterima: 0 },
-    );
-    const { totalTangkaiPanjang } = Object.keys(
-      item.grading_result["accepted_summary"],
-    ).reduce(
-      (obj, key) => {
-        const data = item["grading_result"]["accepted_summary"][key];
-
+        obj["totalBuahKecil3Diterima"] += data["BUAH KECIL DIBAWAH 3KG"] || 0;
+        obj["totalBuahKecil2Diterima"] += data["BUAH KECIL DIBAWAH 2KG"] || 0;
+        obj["totalRusakDimakanTikusDiterima"] +=
+          data["RUSAK DIMAKAN TIKUS"] || 0;
+        obj["totalPartenokarpiDiterima"] +=
+          (data["PARTENOKARPI"] || 0) + (data["PATERNOKARPI"] || 0);
         obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
         return obj;
       },
-      { totalTangkaiPanjang: 0 },
+      {
+        totalBuahKecil5Diterima: 0,
+        totalBuahKecil3Diterima: 0,
+        totalBuahKecil2Diterima: 0,
+        totalRusakDimakanTikusDiterima: 0,
+        totalPartenokarpiDiterima: 0,
+        totalTangkaiPanjang: 0,
+      },
     );
 
     const { totalTangkaiPanjangDitolak } = Object.keys(
@@ -655,23 +673,24 @@ const utilsInspection = {
 
     const rawTotalRusakDimakanTikusDidenda = Object.keys(
       item.grading_result["accepted_summary"] || {},
-    ).reduce(
-      (obj, key) => {
-        const data = item["grading_result"]["accepted_summary"]?.[key] || {};
-        return obj + (data["RUSAK DIMAKAN TIKUS"] || 0);
-      },
-      0,
-    );
+    ).reduce((obj, key) => {
+      const data = item["grading_result"]["accepted_summary"]?.[key] || {};
+      return obj + (data["RUSAK DIMAKAN TIKUS"] || 0);
+    }, 0);
 
     const hasFinedSummaryTP =
       item.grading_result["fined_summary"]?.["TANGKAI PANJANG"] !== undefined;
     const hasFinedSummaryPest =
-      item.grading_result["fined_summary"]?.["RUSAK DIMAKAN TIKUS"] !== undefined;
+      item.grading_result["fined_summary"]?.["RUSAK DIMAKAN TIKUS"] !==
+      undefined;
 
     const hasFinedKgTP = Boolean(
-      (item.long_stash_fined_in_kg && Number(item.long_stash_fined_in_kg) > 0) ||
-      (item.long_stash_e_fined_in_kg && Number(item.long_stash_e_fined_in_kg) > 0) ||
-      (item.long_stash_m_fined_in_kg && Number(item.long_stash_m_fined_in_kg) > 0),
+      (item.long_stash_fined_in_kg &&
+        Number(item.long_stash_fined_in_kg) > 0) ||
+      (item.long_stash_e_fined_in_kg &&
+        Number(item.long_stash_e_fined_in_kg) > 0) ||
+      (item.long_stash_m_fined_in_kg &&
+        Number(item.long_stash_m_fined_in_kg) > 0),
     );
 
     const hasFinedKgPest = Boolean(
@@ -681,12 +700,22 @@ const utilsInspection = {
     );
 
     const totalTangkaiPanjangDidenda = hasFinedSummaryTP
-      ? Number(item.grading_result["fined_summary"]["TANGKAI PANJANG"]["TOTAL"] || 0)
-      : (hasFinedKgTP || totalFined > 0 ? totalTangkaiPanjang : 0);
+      ? Number(
+          item.grading_result["fined_summary"]["TANGKAI PANJANG"]["TOTAL"] || 0,
+        )
+      : hasFinedKgTP || totalFined > 0
+        ? totalTangkaiPanjang
+        : 0;
 
     const totalRusakDimakanTikusDidenda = hasFinedSummaryPest
-      ? Number(item.grading_result["fined_summary"]["RUSAK DIMAKAN TIKUS"]["TOTAL"] || 0)
-      : (hasFinedKgPest || totalFined > 0 ? rawTotalRusakDimakanTikusDidenda : 0);
+      ? Number(
+          item.grading_result["fined_summary"]["RUSAK DIMAKAN TIKUS"][
+            "TOTAL"
+          ] || 0,
+        )
+      : hasFinedKgPest || totalFined > 0
+        ? rawTotalRusakDimakanTikusDidenda
+        : 0;
 
     const totalRusakDimakanTikusDitolak = totalRusakDimakanTikus;
 
@@ -741,6 +770,26 @@ const utilsInspection = {
       totalLewatMatangDitolak,
       totalTandan,
     );
+    const percentBuahKecil3Diterima = countPercentage(
+      totalBuahKecil3Diterima,
+      totalTandan,
+    );
+    const percentBuahKecil2Diterima = countPercentage(
+      totalBuahKecil2Diterima,
+      totalTandan,
+    );
+    const percentRusakDimakanTikusDiterima = countPercentage(
+      totalRusakDimakanTikusDiterima,
+      totalTandan,
+    );
+    const percentPartenokarpiDiterima = countPercentage(
+      totalPartenokarpiDiterima,
+      totalTandan,
+    );
+    const percentPartenokarpiDitolak = countPercentage(
+      totalPartenokarpiDitolak,
+      totalTandan,
+    );
 
     // console.log({
     //   percentMLM: percentMatang + percentLewatMatang,
@@ -752,6 +801,9 @@ const utilsInspection = {
       totalLewatMatang +
       totalJanjangKosongDiterima +
       totalBuahKecil5Diterima +
+      totalBuahKecil3Diterima +
+      (isLngm ? totalBuahKecil2Diterima : 0) +
+      totalPartenokarpiDiterima +
       totalMentahDiterima;
 
     totalRejectedModified =
@@ -762,7 +814,9 @@ const utilsInspection = {
       (isLngm ? totalBuahKecil2 : 0) +
       totalMatangDitolak +
       totalLewatMatangDitolak +
-      totalRusakDimakanTikus;
+      totalRusakDimakanTikus +
+      totalTangkaiPanjangDitolak +
+      totalPartenokarpiDitolak;
 
     const totalMultiple = item.grading_result?.["total_multiple"] || 0;
 
@@ -797,9 +851,21 @@ const utilsInspection = {
       totalMentahDiterima,
       totalJanjangKosongDiterima,
       totalBuahKecil5Diterima,
+      totalBuahKecil3Diterima,
+      totalBuahKecil2Diterima,
+      totalRusakDimakanTikusDiterima,
+      totalPartenokarpiDiterima,
+      totalPartenokarpiDitolak,
+
       percentMentahDiterima,
       percentJanjangKosongDiterima,
       percentBuahKecil5Diterima,
+      percentBuahKecil3Diterima,
+      percentBuahKecil2Diterima,
+      percentRusakDimakanTikusDiterima,
+      percentPartenokarpiDiterima,
+      percentPartenokarpiDitolak,
+
       totalMatangDitolak,
       totalLewatMatangDitolak,
       percentMatangDitolak,
@@ -4162,24 +4228,46 @@ class DashboardV4Controller {
       } = utilsInspection.getAllMonitoringDataNew(inspections);
 
       const avgClassification = {
-        matang: [],
-        lewat_matang: [],
+        // DITERIMA MAIN
+        matang_diterima: [],
+        lewat_matang_diterima: [],
         mentah_diterima: [],
         janjang_kosong_diterima: [],
+
+        // DITERIMA SUB
         buah_kecil_5_diterima: [],
-        tangkai_panjang: [],
+        buah_kecil_3_diterima: [],
+        buah_kecil_2_diterima: [],
+        tangkai_panjang_diterima: [],
+        rusak_dimakan_tikus_diterima: [],
+        partenokarpi_diterima: [],
+
+        // DITOLAK MAIN
+        mentah_ditolak: [],
+        janjang_kosong_ditolak: [],
+        lewat_matang_ditolak: [],
+        matang_ditolak: [],
+
+        // DITOLAK SUB
+        buah_kecil_5_ditolak: [],
+        buah_kecil_3_ditolak: [],
+        buah_kecil_2_ditolak: [],
+        tangkai_panjang_ditolak: [],
+        rusak_dimakan_tikus_ditolak: [],
+        partenokarpi_ditolak: [],
+
+        // LEGACY ALIASES
+        matang: [],
+        lewat_matang: [],
         mentah: [],
         janjang_kosong: [],
-        buah_kecil_3: [],
         buah_kecil_5: [],
+        buah_kecil_3: [],
         buah_kecil_2: [],
-        matang_ditolak: [],
-        lewat_matang_ditolak: [],
+        tangkai_panjang: [],
         rusak_dimakan_tikus: [],
         tangkai_panjang_didenda: [],
-        tangkai_panjang_ditolak: [],
         rusak_dimakan_tikus_didenda: [],
-        rusak_dimakan_tikus_ditolak: [],
       };
       const avgAcceptedVendor = {};
       const summaryPerformance = {
@@ -4211,44 +4299,76 @@ class DashboardV4Controller {
       const averageVendor = {};
 
       let avgClassificationTren = {
-        matang: {},
-        lewat_matang: {},
+        matang_diterima: {},
+        lewat_matang_diterima: {},
         mentah_diterima: {},
         janjang_kosong_diterima: {},
         buah_kecil_5_diterima: {},
+        buah_kecil_3_diterima: {},
+        buah_kecil_2_diterima: {},
+        tangkai_panjang_diterima: {},
+        rusak_dimakan_tikus_diterima: {},
+        partenokarpi_diterima: {},
+
+        mentah_ditolak: {},
+        janjang_kosong_ditolak: {},
+        lewat_matang_ditolak: {},
+        matang_ditolak: {},
+        buah_kecil_5_ditolak: {},
+        buah_kecil_3_ditolak: {},
+        buah_kecil_2_ditolak: {},
+        tangkai_panjang_ditolak: {},
+        rusak_dimakan_tikus_ditolak: {},
+        partenokarpi_ditolak: {},
+
+        // LEGACY
+        matang: {},
+        lewat_matang: {},
         mentah: {},
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
         buah_kecil_2: {},
         tangkai_panjang: {},
-        matang_ditolak: {},
-        lewat_matang_ditolak: {},
         rusak_dimakan_tikus: {},
         tangkai_panjang_didenda: {},
-        tangkai_panjang_ditolak: {},
         rusak_dimakan_tikus_didenda: {},
-        rusak_dimakan_tikus_ditolak: {},
       };
       let avgClassificationVendor = {
-        matang: {},
-        lewat_matang: {},
+        matang_diterima: {},
+        lewat_matang_diterima: {},
         mentah_diterima: {},
         janjang_kosong_diterima: {},
         buah_kecil_5_diterima: {},
+        buah_kecil_3_diterima: {},
+        buah_kecil_2_diterima: {},
+        tangkai_panjang_diterima: {},
+        rusak_dimakan_tikus_diterima: {},
+        partenokarpi_diterima: {},
+
+        mentah_ditolak: {},
+        janjang_kosong_ditolak: {},
+        lewat_matang_ditolak: {},
+        matang_ditolak: {},
+        buah_kecil_5_ditolak: {},
+        buah_kecil_3_ditolak: {},
+        buah_kecil_2_ditolak: {},
+        tangkai_panjang_ditolak: {},
+        rusak_dimakan_tikus_ditolak: {},
+        partenokarpi_ditolak: {},
+
+        // LEGACY
+        matang: {},
+        lewat_matang: {},
         mentah: {},
         janjang_kosong: {},
         buah_kecil_3: {},
         buah_kecil_5: {},
         buah_kecil_2: {},
         tangkai_panjang: {},
-        matang_ditolak: {},
-        lewat_matang_ditolak: {},
         rusak_dimakan_tikus: {},
         tangkai_panjang_didenda: {},
-        tangkai_panjang_ditolak: {},
         rusak_dimakan_tikus_didenda: {},
-        rusak_dimakan_tikus_ditolak: {},
       };
 
       let avgAcceptedVendorHistory = {};
@@ -4307,9 +4427,21 @@ class DashboardV4Controller {
           totalMentahDiterima,
           totalJanjangKosongDiterima,
           totalBuahKecil5Diterima,
+          totalBuahKecil3Diterima,
+          totalBuahKecil2Diterima,
+          totalRusakDimakanTikusDiterima,
+          totalPartenokarpiDiterima,
+          totalPartenokarpiDitolak,
+
           percentMentahDiterima,
           percentJanjangKosongDiterima,
           percentBuahKecil5Diterima,
+          percentBuahKecil3Diterima,
+          percentBuahKecil2Diterima,
+          percentRusakDimakanTikusDiterima,
+          percentPartenokarpiDiterima,
+          percentPartenokarpiDitolak,
+
           totalMatangDitolak,
           totalLewatMatangDitolak,
           percentMatangDitolak,
@@ -4336,148 +4468,179 @@ class DashboardV4Controller {
         grandTotalTandan += totalTandanItem;
         grandTotalMultiple += totalMultiple;
 
-        avgClassification["matang"].push(totalMatang);
-        avgClassification["lewat_matang"].push(totalLewatMatang);
-        avgClassification["mentah"].push(totalMentah);
-        avgClassification["janjang_kosong"].push(totalJanjangKosong);
-        avgClassification["buah_kecil_3"].push(totalBuahKecil3);
-        avgClassification["buah_kecil_5"].push(totalBuahKecil5);
-        if (isLngm) avgClassification["buah_kecil_2"].push(totalBuahKecil2);
-        avgClassification["tangkai_panjang"].push(totalTangkaiPanjang);
+        const recordClassification = (key, count, percent) => {
+          if (!avgClassification[key]) avgClassification[key] = [];
+          avgClassification[key].push(count);
 
-        avgClassification["mentah_diterima"].push(totalMentahDiterima);
-        avgClassification["janjang_kosong_diterima"].push(
-          totalJanjangKosongDiterima,
-        );
-        avgClassification["buah_kecil_5_diterima"].push(
-          totalBuahKecil5Diterima,
-        );
+          if (!avgClassificationTren[key]) avgClassificationTren[key] = {};
+          if (!avgClassificationTren[key][day])
+            avgClassificationTren[key][day] = [];
+          avgClassificationTren[key][day].push(percent);
 
-        avgClassification["matang_ditolak"].push(totalMatangDitolak);
-        avgClassification["lewat_matang_ditolak"].push(totalLewatMatangDitolak);
-        avgClassification["rusak_dimakan_tikus"].push(totalRusakDimakanTikus);
-
-        avgClassification["tangkai_panjang_didenda"].push(
-          totalTangkaiPanjangDidenda,
-        );
-        avgClassification["tangkai_panjang_ditolak"].push(
-          totalTangkaiPanjangDitolak,
-        );
-        avgClassification["rusak_dimakan_tikus_didenda"].push(
-          totalRusakDimakanTikusDidenda,
-        );
-        avgClassification["rusak_dimakan_tikus_ditolak"].push(
-          totalRusakDimakanTikusDitolak,
-        );
-
-        if (!avgClassificationTren["matang"][day]) {
-          avgClassificationTren["matang"][day] = [];
-        }
-        avgClassificationTren["matang"][day].push(percentMatang);
-
-        if (!avgClassificationTren["lewat_matang"][day]) {
-          avgClassificationTren["lewat_matang"][day] = [];
-        }
-        avgClassificationTren["lewat_matang"][day].push(percentLewatMatang);
-
-        if (!avgClassificationTren["mentah"][day]) {
-          avgClassificationTren["mentah"][day] = [];
-        }
-        avgClassificationTren["mentah"][day].push(percentMentah);
-
-        if (!avgClassificationTren["janjang_kosong"][day]) {
-          avgClassificationTren["janjang_kosong"][day] = [];
-        }
-        avgClassificationTren["janjang_kosong"][day].push(percentJangkos);
-
-        if (!avgClassificationTren["buah_kecil_3"][day]) {
-          avgClassificationTren["buah_kecil_3"][day] = [];
-        }
-        avgClassificationTren["buah_kecil_3"][day].push(percentBuahKecil3);
-
-        if (!avgClassificationTren["buah_kecil_5"][day]) {
-          avgClassificationTren["buah_kecil_5"][day] = [];
-        }
-        avgClassificationTren["buah_kecil_5"][day].push(percentBuahKecil5);
-
-        if (isLngm) {
-          if (!avgClassificationTren["buah_kecil_2"][day]) {
-            avgClassificationTren["buah_kecil_2"][day] = [];
+          if (!avgClassificationVendor[key])
+            avgClassificationVendor[key] = {};
+          if (!avgClassificationVendor[key][vendorName]) {
+            avgClassificationVendor[key][vendorName] = {
+              count: 0,
+              percent: 0,
+              total: 0,
+            };
           }
-          avgClassificationTren["buah_kecil_2"][day].push(percentBuahKecil2);
-        }
+          avgClassificationVendor[key][vendorName].count += 1;
+          avgClassificationVendor[key][vendorName].percent += percent;
+          avgClassificationVendor[key][vendorName].total += count;
+        };
 
-        if (!avgClassificationTren["tangkai_panjang"][day]) {
-          avgClassificationTren["tangkai_panjang"][day] = [];
-        }
-        avgClassificationTren["tangkai_panjang"][day].push(
-          percentTangkaiPanjang,
+        // DITERIMA MAIN
+        recordClassification("matang_diterima", totalMatang, percentMatang);
+        recordClassification(
+          "lewat_matang_diterima",
+          totalLewatMatang,
+          percentLewatMatang,
         );
-
-        // new
-        if (!avgClassificationTren["mentah_diterima"][day]) {
-          avgClassificationTren["mentah_diterima"][day] = [];
-        }
-        avgClassificationTren["mentah_diterima"][day].push(
+        recordClassification(
+          "mentah_diterima",
+          totalMentahDiterima,
           percentMentahDiterima,
         );
-        if (!avgClassificationTren["janjang_kosong_diterima"][day]) {
-          avgClassificationTren["janjang_kosong_diterima"][day] = [];
-        }
-        avgClassificationTren["janjang_kosong_diterima"][day].push(
+        recordClassification(
+          "janjang_kosong_diterima",
+          totalJanjangKosongDiterima,
           percentJanjangKosongDiterima,
         );
-        if (!avgClassificationTren["buah_kecil_5_diterima"][day]) {
-          avgClassificationTren["buah_kecil_5_diterima"][day] = [];
-        }
-        avgClassificationTren["buah_kecil_5_diterima"][day].push(
+
+        // DITERIMA SUB
+        recordClassification(
+          "buah_kecil_5_diterima",
+          totalBuahKecil5Diterima,
           percentBuahKecil5Diterima,
         );
-        if (!avgClassificationTren["matang_ditolak"][day]) {
-          avgClassificationTren["matang_ditolak"][day] = [];
-        }
-        avgClassificationTren["matang_ditolak"][day].push(percentMatangDitolak);
+        recordClassification(
+          "buah_kecil_3_diterima",
+          totalBuahKecil3Diterima,
+          percentBuahKecil3Diterima,
+        );
+        if (isLngm)
+          recordClassification(
+            "buah_kecil_2_diterima",
+            totalBuahKecil2Diterima,
+            percentBuahKecil2Diterima,
+          );
+        recordClassification(
+          "tangkai_panjang_diterima",
+          totalTangkaiPanjang,
+          percentTangkaiPanjang,
+        );
+        recordClassification(
+          "rusak_dimakan_tikus_diterima",
+          totalRusakDimakanTikusDiterima,
+          percentRusakDimakanTikusDiterima,
+        );
+        recordClassification(
+          "partenokarpi_diterima",
+          totalPartenokarpiDiterima,
+          percentPartenokarpiDiterima,
+        );
 
-        if (!avgClassificationTren["lewat_matang_ditolak"][day]) {
-          avgClassificationTren["lewat_matang_ditolak"][day] = [];
-        }
-        avgClassificationTren["lewat_matang_ditolak"][day].push(
+        // DITOLAK MAIN
+        recordClassification("mentah_ditolak", totalMentah, percentMentah);
+        recordClassification(
+          "janjang_kosong_ditolak",
+          totalJanjangKosong,
+          percentJangkos,
+        );
+        recordClassification(
+          "lewat_matang_ditolak",
+          totalLewatMatangDitolak,
           percentLewatMatangDitolak,
         );
-
-        if (!avgClassificationTren["rusak_dimakan_tikus"][day]) {
-          avgClassificationTren["rusak_dimakan_tikus"][day] = [];
-        }
-        avgClassificationTren["rusak_dimakan_tikus"][day].push(
-          percentRusakDimakanTikus,
+        recordClassification(
+          "matang_ditolak",
+          totalMatangDitolak,
+          percentMatangDitolak,
         );
 
-        if (!avgClassificationTren["tangkai_panjang_didenda"][day]) {
-          avgClassificationTren["tangkai_panjang_didenda"][day] = [];
-        }
-        avgClassificationTren["tangkai_panjang_didenda"][day].push(
-          percentTangkaiPanjangDidenda,
+        // DITOLAK SUB
+        recordClassification(
+          "buah_kecil_5_ditolak",
+          totalBuahKecil5,
+          percentBuahKecil5,
         );
-
-        if (!avgClassificationTren["tangkai_panjang_ditolak"][day]) {
-          avgClassificationTren["tangkai_panjang_ditolak"][day] = [];
-        }
-        avgClassificationTren["tangkai_panjang_ditolak"][day].push(
+        recordClassification(
+          "buah_kecil_3_ditolak",
+          totalBuahKecil3,
+          percentBuahKecil3,
+        );
+        if (isLngm)
+          recordClassification(
+            "buah_kecil_2_ditolak",
+            totalBuahKecil2,
+            percentBuahKecil2,
+          );
+        recordClassification(
+          "tangkai_panjang_ditolak",
+          totalTangkaiPanjangDitolak,
           percentTangkaiPanjangDitolak,
         );
-
-        if (!avgClassificationTren["rusak_dimakan_tikus_didenda"][day]) {
-          avgClassificationTren["rusak_dimakan_tikus_didenda"][day] = [];
-        }
-        avgClassificationTren["rusak_dimakan_tikus_didenda"][day].push(
-          percentRusakDimakanTikusDidenda,
+        recordClassification(
+          "rusak_dimakan_tikus_ditolak",
+          totalRusakDimakanTikus,
+          percentRusakDimakanTikus,
+        );
+        recordClassification(
+          "partenokarpi_ditolak",
+          totalPartenokarpiDitolak,
+          percentPartenokarpiDitolak,
         );
 
-        if (!avgClassificationTren["rusak_dimakan_tikus_ditolak"][day]) {
-          avgClassificationTren["rusak_dimakan_tikus_ditolak"][day] = [];
-        }
-        avgClassificationTren["rusak_dimakan_tikus_ditolak"][day].push(
-          percentRusakDimakanTikusDitolak,
+        // LEGACY ALIASES
+        recordClassification("matang", totalMatang, percentMatang);
+        recordClassification(
+          "lewat_matang",
+          totalLewatMatang,
+          percentLewatMatang,
+        );
+        recordClassification("mentah", totalMentah, percentMentah);
+        recordClassification(
+          "janjang_kosong",
+          totalJanjangKosong,
+          percentJangkos,
+        );
+        recordClassification(
+          "buah_kecil_5",
+          totalBuahKecil5,
+          percentBuahKecil5,
+        );
+        recordClassification(
+          "buah_kecil_3",
+          totalBuahKecil3,
+          percentBuahKecil3,
+        );
+        if (isLngm)
+          recordClassification(
+            "buah_kecil_2",
+            totalBuahKecil2,
+            percentBuahKecil2,
+          );
+        recordClassification(
+          "tangkai_panjang",
+          totalTangkaiPanjang,
+          percentTangkaiPanjang,
+        );
+        recordClassification(
+          "rusak_dimakan_tikus",
+          totalRusakDimakanTikus,
+          percentRusakDimakanTikus,
+        );
+        recordClassification(
+          "tangkai_panjang_didenda",
+          totalTangkaiPanjangDidenda,
+          percentTangkaiPanjangDidenda,
+        );
+        recordClassification(
+          "rusak_dimakan_tikus_didenda",
+          totalRusakDimakanTikusDidenda,
+          percentRusakDimakanTikusDidenda,
         );
 
         if (!avgClassificationVendor["matang"][vendorName]) {
@@ -4994,9 +5157,7 @@ class DashboardV4Controller {
             !isKynm &&
             [
               "tangkai_panjang_didenda",
-              "tangkai_panjang_ditolak",
               "rusak_dimakan_tikus_didenda",
-              "rusak_dimakan_tikus_ditolak",
             ].includes(key)
           ) {
             return obj;
@@ -5132,9 +5293,7 @@ class DashboardV4Controller {
           !isKynm &&
           [
             "tangkai_panjang_didenda",
-            "tangkai_panjang_ditolak",
             "rusak_dimakan_tikus_didenda",
-            "rusak_dimakan_tikus_ditolak",
           ].includes(key)
         ) {
           return o;
@@ -5189,9 +5348,7 @@ class DashboardV4Controller {
           !isKynm &&
           [
             "tangkai_panjang_didenda",
-            "tangkai_panjang_ditolak",
             "rusak_dimakan_tikus_didenda",
-            "rusak_dimakan_tikus_ditolak",
           ].includes(c)
         ) {
           return obj;
@@ -5257,6 +5414,7 @@ class DashboardV4Controller {
       next(err);
     }
   }
+
   static async downloadOperationalPerformance(req, res, next) {
     try {
       const { date_from, date_to, factory, company } = req.query;
