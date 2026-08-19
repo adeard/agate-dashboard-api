@@ -4462,6 +4462,7 @@ class DashboardV4Controller {
           true,
           "DD/MM/YY",
         );
+        const week = getWeekNumber(dateForGrouping);
         const {
           totalMatangRaw,
           totalLewatMatangRaw,
