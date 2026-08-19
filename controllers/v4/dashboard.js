@@ -491,6 +491,26 @@ const utilsInspection = {
       item["grading_result"]["total_tandan"],
     );
 
+    const totalMatangRaw =
+      item.grading_result["accepted_summary"]?.["MATANG"]?.["TOTAL"] || 0;
+    const totalLewatMatangRaw =
+      item.grading_result["accepted_summary"]?.["LEWAT MATANG"]?.["TOTAL"] || 0;
+    const totalMentahDiterimaRaw =
+      item.grading_result["accepted_summary"]?.["MENTAH"]?.["TOTAL"] || 0;
+    const totalJanjangKosongDiterimaRaw =
+      item.grading_result["accepted_summary"]?.["JANJANG KOSONG"]?.["TOTAL"] ||
+      0;
+
+    const totalMentahRaw =
+      item.grading_result["rejected_summary"]?.["MENTAH"]?.["TOTAL"] || 0;
+    const totalJanjangKosongRaw =
+      item.grading_result["rejected_summary"]?.["JANJANG KOSONG"]?.["TOTAL"] ||
+      0;
+    const totalLewatMatangDitolakRaw =
+      item.grading_result["rejected_summary"]?.["LEWAT MATANG"]?.["TOTAL"] || 0;
+    const totalMatangDitolakRaw =
+      item.grading_result["rejected_summary"]?.["MATANG"]?.["TOTAL"] || 0;
+
     const totalMatang = item.grading_result["accepted_summary"]?.["MATANG"]
       ? (item.grading_result["accepted_summary"]["MATANG"]["TOTAL"] || 0) -
         (item.grading_result["accepted_summary"]["MATANG"][
@@ -606,6 +626,7 @@ const utilsInspection = {
       totalBuahKecil5,
       totalBuahKecil2,
       totalPartenokarpiDitolak,
+      totalBuahBesarDitolak,
     } = Object.keys(item.grading_result["rejected_summary"] || {}).reduce(
       (obj, key) => {
         const data = item["grading_result"]["rejected_summary"]?.[key] || {};
@@ -615,6 +636,7 @@ const utilsInspection = {
         obj["totalBuahKecil2"] += data["BUAH KECIL DIBAWAH 2KG"] || 0;
         obj["totalPartenokarpiDitolak"] +=
           (data["PARTENOKARPI"] || 0) + (data["PATERNOKARPI"] || 0);
+        obj["totalBuahBesarDitolak"] += data["BUAH BESAR"] || 0;
 
         return obj;
       },
@@ -623,6 +645,7 @@ const utilsInspection = {
         totalBuahKecil5: 0,
         totalBuahKecil2: 0,
         totalPartenokarpiDitolak: 0,
+        totalBuahBesarDitolak: 0,
       },
     );
 
@@ -632,6 +655,7 @@ const utilsInspection = {
       totalBuahKecil2Diterima,
       totalRusakDimakanTikusDiterima,
       totalPartenokarpiDiterima,
+      totalBuahBesarDiterima,
       totalTangkaiPanjang,
     } = Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
       (obj, key) => {
@@ -644,6 +668,7 @@ const utilsInspection = {
           data["RUSAK DIMAKAN TIKUS"] || 0;
         obj["totalPartenokarpiDiterima"] +=
           (data["PARTENOKARPI"] || 0) + (data["PATERNOKARPI"] || 0);
+        obj["totalBuahBesarDiterima"] += data["BUAH BESAR"] || 0;
         obj["totalTangkaiPanjang"] += data["TANGKAI PANJANG"] || 0;
 
         return obj;
@@ -654,6 +679,7 @@ const utilsInspection = {
         totalBuahKecil2Diterima: 0,
         totalRusakDimakanTikusDiterima: 0,
         totalPartenokarpiDiterima: 0,
+        totalBuahBesarDiterima: 0,
         totalTangkaiPanjang: 0,
       },
     );
@@ -797,26 +823,16 @@ const utilsInspection = {
     // });
 
     totalAcceptedModified =
-      totalMatang +
-      totalLewatMatang +
-      totalJanjangKosongDiterima +
-      totalBuahKecil5Diterima +
-      totalBuahKecil3Diterima +
-      (isLngm ? totalBuahKecil2Diterima : 0) +
-      totalPartenokarpiDiterima +
-      totalMentahDiterima;
+      totalMatangRaw +
+      totalLewatMatangRaw +
+      totalMentahDiterimaRaw +
+      totalJanjangKosongDiterimaRaw;
 
     totalRejectedModified =
-      totalMentah +
-      totalJanjangKosong +
-      totalBuahKecil3 +
-      totalBuahKecil5 +
-      (isLngm ? totalBuahKecil2 : 0) +
-      totalMatangDitolak +
-      totalLewatMatangDitolak +
-      totalRusakDimakanTikus +
-      totalTangkaiPanjangDitolak +
-      totalPartenokarpiDitolak;
+      totalMentahRaw +
+      totalJanjangKosongRaw +
+      totalLewatMatangDitolakRaw +
+      totalMatangDitolakRaw;
 
     const totalMultiple = item.grading_result?.["total_multiple"] || 0;
 
@@ -847,6 +863,17 @@ const utilsInspection = {
       totalTandan,
       totalFined,
       totalMultiple,
+
+      totalMatangRaw,
+      totalLewatMatangRaw,
+      totalMentahDiterimaRaw,
+      totalJanjangKosongDiterimaRaw,
+      totalMentahRaw,
+      totalJanjangKosongRaw,
+      totalLewatMatangDitolakRaw,
+      totalMatangDitolakRaw,
+      totalBuahBesarDiterima,
+      totalBuahBesarDitolak,
 
       totalMentahDiterima,
       totalJanjangKosongDiterima,
@@ -4227,6 +4254,41 @@ class DashboardV4Controller {
         percentRejected,
       } = utilsInspection.getAllMonitoringDataNew(inspections);
 
+      const avgClassificationGrading = {
+        diterima: {
+          main: {
+            MATANG: [],
+            "LEWAT MATANG": [],
+            MENTAH: [],
+            "JANJANG KOSONG": [],
+          },
+          sub: {
+            "BUAH KECIL DIBAWAH 3KG": [],
+            "BUAH KECIL DIBAWAH 5KG": [],
+            "TANGKAI PANJANG": [],
+            "RUSAK DIMAKAN TIKUS": [],
+            PARTENOKARPI: [],
+            "BUAH BESAR": [],
+          },
+        },
+        ditolak: {
+          main: {
+            MENTAH: [],
+            "JANJANG KOSONG": [],
+            "LEWAT MATANG": [],
+            MATANG: [],
+          },
+          sub: {
+            "BUAH KECIL DIBAWAH 3KG": [],
+            "BUAH KECIL DIBAWAH 5KG": [],
+            "TANGKAI PANJANG": [],
+            "RUSAK DIMAKAN TIKUS": [],
+            PARTENOKARPI: [],
+            "BUAH BESAR": [],
+          },
+        },
+      };
+
       const avgClassification = {
         // DITERIMA MAIN
         matang_diterima: [],
@@ -4400,9 +4462,18 @@ class DashboardV4Controller {
           true,
           "DD/MM/YY",
         );
-        const week = getWeekNumber(dateForGrouping);
-
         const {
+          totalMatangRaw,
+          totalLewatMatangRaw,
+          totalMentahDiterimaRaw,
+          totalJanjangKosongDiterimaRaw,
+          totalMentahRaw,
+          totalJanjangKosongRaw,
+          totalLewatMatangDitolakRaw,
+          totalMatangDitolakRaw,
+          totalBuahBesarDiterima,
+          totalBuahBesarDitolak,
+
           percentJangkos,
           percentBuahKecil3,
           percentBuahKecil5,
@@ -4477,8 +4548,7 @@ class DashboardV4Controller {
             avgClassificationTren[key][day] = [];
           avgClassificationTren[key][day].push(percent);
 
-          if (!avgClassificationVendor[key])
-            avgClassificationVendor[key] = {};
+          if (!avgClassificationVendor[key]) avgClassificationVendor[key] = {};
           if (!avgClassificationVendor[key][vendorName]) {
             avgClassificationVendor[key][vendorName] = {
               count: 0,
@@ -4587,11 +4657,132 @@ class DashboardV4Controller {
           totalRusakDimakanTikus,
           percentRusakDimakanTikus,
         );
-        recordClassification(
-          "partenokarpi_ditolak",
-          totalPartenokarpiDitolak,
-          percentPartenokarpiDitolak,
+        const recordAvgGrading = (group, section, key, count) => {
+          if (!avgClassificationGrading[group])
+            avgClassificationGrading[group] = {};
+          if (!avgClassificationGrading[group][section])
+            avgClassificationGrading[group][section] = {};
+          if (!avgClassificationGrading[group][section][key])
+            avgClassificationGrading[group][section][key] = [];
+          avgClassificationGrading[group][section][key].push(count);
+        };
+
+        // DITERIMA MAIN (Literal classification names)
+        recordAvgGrading("diterima", "main", "MATANG", totalMatangRaw);
+        recordAvgGrading(
+          "diterima",
+          "main",
+          "LEWAT MATANG",
+          totalLewatMatangRaw,
         );
+        recordAvgGrading("diterima", "main", "MENTAH", totalMentahDiterimaRaw);
+        recordAvgGrading(
+          "diterima",
+          "main",
+          "JANJANG KOSONG",
+          totalJanjangKosongDiterimaRaw,
+        );
+
+        // DITERIMA SUB
+        if (isLngm)
+          recordAvgGrading(
+            "diterima",
+            "sub",
+            "BUAH KECIL DIBAWAH 2KG",
+            totalBuahKecil2Diterima,
+          );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "BUAH KECIL DIBAWAH 3KG",
+          totalBuahKecil3Diterima,
+        );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "BUAH KECIL DIBAWAH 5KG",
+          totalBuahKecil5Diterima,
+        );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "TANGKAI PANJANG",
+          totalTangkaiPanjang,
+        );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "RUSAK DIMAKAN TIKUS",
+          totalRusakDimakanTikusDiterima,
+        );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "PARTENOKARPI",
+          totalPartenokarpiDiterima,
+        );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "BUAH BESAR",
+          totalBuahBesarDiterima,
+        );
+
+        // DITOLAK MAIN
+        recordAvgGrading("ditolak", "main", "MENTAH", totalMentahRaw);
+        recordAvgGrading(
+          "ditolak",
+          "main",
+          "JANJANG KOSONG",
+          totalJanjangKosongRaw,
+        );
+        recordAvgGrading(
+          "ditolak",
+          "main",
+          "LEWAT MATANG",
+          totalLewatMatangDitolakRaw,
+        );
+        recordAvgGrading("ditolak", "main", "MATANG", totalMatangDitolakRaw);
+
+        // DITOLAK SUB
+        if (isLngm)
+          recordAvgGrading(
+            "ditolak",
+            "sub",
+            "BUAH KECIL DIBAWAH 2KG",
+            totalBuahKecil2,
+          );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "BUAH KECIL DIBAWAH 3KG",
+          totalBuahKecil3,
+        );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "BUAH KECIL DIBAWAH 5KG",
+          totalBuahKecil5,
+        );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "TANGKAI PANJANG",
+          totalTangkaiPanjangDitolak,
+        );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "RUSAK DIMAKAN TIKUS",
+          totalRusakDimakanTikus,
+        );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "PARTENOKARPI",
+          totalPartenokarpiDitolak,
+        );
+        recordAvgGrading("ditolak", "sub", "BUAH BESAR", totalBuahBesarDitolak);
 
         // LEGACY ALIASES
         recordClassification("matang", totalMatang, percentMatang);
@@ -5151,29 +5342,33 @@ class DashboardV4Controller {
 
       const { lowest, highest } = getTopScores(inspections, 10);
 
-      const averageGrading = Object.entries(avgClassification).reduce(
-        (obj, [key, value]) => {
-          if (
-            !isKynm &&
-            [
-              "tangkai_panjang_didenda",
-              "rusak_dimakan_tikus_didenda",
-            ].includes(key)
-          ) {
-            return obj;
-          }
-
+      const computeSectionPercentages = (sectionObj) =>
+        Object.entries(sectionObj || {}).reduce((obj, [key, value]) => {
           obj[key] = value?.length
             ? countPercentage(
                 value.reduce((tot, num) => tot + Number(num || 0), 0),
                 grandTotalTandan,
               )
             : 0;
-
           return obj;
+        }, {});
+
+      const averageGrading = {
+        diterima: {
+          main: computeSectionPercentages(
+            avgClassificationGrading.diterima?.main,
+          ),
+          sub: computeSectionPercentages(
+            avgClassificationGrading.diterima?.sub,
+          ),
         },
-        {},
-      );
+        ditolak: {
+          main: computeSectionPercentages(
+            avgClassificationGrading.ditolak?.main,
+          ),
+          sub: computeSectionPercentages(avgClassificationGrading.ditolak?.sub),
+        },
+      };
       const averageVendorAccepted = Object.entries(avgAcceptedVendor).reduce(
         (obj, [key, value]) => {
           obj[key] = (
@@ -5291,10 +5486,9 @@ class DashboardV4Controller {
       ).reduce((o, [key, value]) => {
         if (
           !isKynm &&
-          [
-            "tangkai_panjang_didenda",
-            "rusak_dimakan_tikus_didenda",
-          ].includes(key)
+          ["tangkai_panjang_didenda", "rusak_dimakan_tikus_didenda"].includes(
+            key,
+          )
         ) {
           return o;
         }
@@ -5346,10 +5540,7 @@ class DashboardV4Controller {
       ).reduce((obj, [c, data]) => {
         if (
           !isKynm &&
-          [
-            "tangkai_panjang_didenda",
-            "rusak_dimakan_tikus_didenda",
-          ].includes(c)
+          ["tangkai_panjang_didenda", "rusak_dimakan_tikus_didenda"].includes(c)
         ) {
           return obj;
         }
