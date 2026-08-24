@@ -563,11 +563,11 @@ connectToDatabase().then(async (res) => {
   //   },
   // );
 
-  const results = await InspectionDataModel.find({
-    company: "6a449b3897ad166780382f09",
-  }).lean();
+  // const results = await InspectionDataModel.find({
+  //   company: "6a449b3897ad166780382f09",
+  // }).lean();
 
-  console.log({ results: results });
+  // console.log({ results: results });
 
   console.log("Done");
   process.exit();

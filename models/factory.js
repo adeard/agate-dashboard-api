@@ -17,6 +17,14 @@ const SCHEMA = new Schema(
       type: String,
       default: '',
     },
+    api_key: {
+      type: String,
+      default: null,
+    },
+    api_secret: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
