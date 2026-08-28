@@ -3,11 +3,14 @@ const InspectionDataModel = require('../../models/inspection-data');
 const { createResponseSuccess } = require('../../utils/helpers');
 
 function formatInspectionItemSummary(doc) {
-  const gr = doc.grading_result || {};
+  const gr = { ...doc, ...(doc.grading_result || {}) };
   const header = gr.header || {};
   const timbangan = gr.timbangan || {};
   const janjang = gr.janjang || {};
   const formPerhitungan = gr.form_perhitungan || {};
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const storedCalc = mInput.calc || gr.calc || doc.calc || {};
+  const vendorCalc = storedCalc.vendorCalc || {};
 
   return {
     _id: doc._id,
@@ -18,11 +21,11 @@ function formatInspectionItemSummary(doc) {
     model_ai_version: gr.model_ai_version || null,
 
     header: {
-      kode_vendor: doc.vendor_code || header.kode_vendor || null,
-      nama_vendor: doc.vendor_name || header.nama_vendor || null,
-      mill_code: header.mill_code || null,
-      kelompok_pemasok: header.kelompok_pemasok || null,
-      kode_pemasok: header.kode_pemasok || null,
+      kode_vendor: doc.vendor_code || header.kode_vendor || gr.vendor_code || null,
+      nama_vendor: doc.vendor_name || header.nama_vendor || gr.vendor_name || null,
+      mill_code: header.mill_code || gr.mill_code || null,
+      kelompok_pemasok: header.kelompok_pemasok || storedCalc.kelompokName || null,
+      kode_pemasok: header.kode_pemasok || storedCalc.kelompok || null,
       no_plat: doc.vehicle_number || header.no_plat || null,
       product: header.product || 'Fruit Fresh Bunch',
       waktu_mulai_timbang: doc.date
@@ -35,23 +38,23 @@ function formatInspectionItemSummary(doc) {
     },
 
     timbangan: {
-      bruto_sistem_kg: timbangan.bruto_sistem_kg ?? null,
-      tare_estimasi_kg: timbangan.tare_estimasi_kg ?? doc.tarra ?? null,
-      berat_brondolan_kg: timbangan.berat_brondolan_kg ?? null,
-      netto_estimasi_kg: timbangan.netto_estimasi_kg ?? null,
-      grade_truck: timbangan.grade_truck ?? null,
+      bruto_sistem_kg: timbangan.bruto_sistem_kg ?? mInput.bruto ?? doc.wbin ?? null,
+      tare_estimasi_kg: timbangan.tare_estimasi_kg ?? mInput.tare ?? doc.tarra ?? null,
+      berat_brondolan_kg: timbangan.berat_brondolan_kg ?? mInput.brondolan_weight ?? null,
+      netto_estimasi_kg: timbangan.netto_estimasi_kg ?? storedCalc.NETTO ?? null,
+      grade_truck: timbangan.grade_truck ?? (storedCalc.gradeTruck || {}).code ?? null,
     },
 
     janjang: {
-      diterima: janjang.diterima ?? gr.total_accepted ?? null,
-      dikembalikan: janjang.dikembalikan ?? gr.total_rejected ?? null,
-      dikembalikan_gross: janjang.dikembalikan_gross ?? null,
-      bjr_kg: janjang.bjr_kg ?? null,
-      bjr_flag: janjang.bjr_flag ?? null,
+      diterima: janjang.diterima ?? gr.total_accepted ?? doc.total_accepted ?? null,
+      dikembalikan: janjang.dikembalikan ?? storedCalc.totalDikembalikan ?? gr.total_rejected ?? doc.total_rejected ?? null,
+      dikembalikan_gross: janjang.dikembalikan_gross ?? storedCalc.totalDikembalikanGross ?? null,
+      bjr_kg: janjang.bjr_kg ?? (storedCalc.BJR ? safeFloat(storedCalc.BJR) : null),
+      bjr_flag: janjang.bjr_flag ?? (storedCalc.grade || {}).code ?? null,
     },
 
     form_perhitungan: {
-      potongan_final_pct: formPerhitungan.potongan_final_pct ?? null,
+      potongan_final_pct: formPerhitungan.potongan_final_pct ?? vendorCalc.potonganFinal ?? mInput.potonganFinalManual ?? null,
     },
 
     date: doc.date,
@@ -65,7 +68,7 @@ function safeFloat(val, defaultVal = 0) {
 }
 
 function formatRedistribusiPotongan(doc) {
-  const gr = doc.grading_result || {};
+  const gr = { ...doc, ...(doc.grading_result || {}) };
   const mInput = gr.manual_input || doc.manual_input || {};
   const storedCalc = mInput.calc || gr.calc || doc.calc || {};
 
@@ -241,36 +244,357 @@ function formatRedistribusiPotongan(doc) {
   return resultList;
 }
 
+function formatGradingAi(doc) {
+  const gr = { ...doc, ...(doc.grading_result || {}) };
+
+  if (Array.isArray(gr.grading_ai) && gr.grading_ai.length > 0) {
+    return gr.grading_ai.map((item) => ({
+      kode_kriteria: item.kode_kriteria || item.kriteria_code || item.code || '',
+      nama_kriteria: item.nama_kriteria || item.kriteria || item.name || '',
+      jumlah_janjang: Number(item.jumlah_janjang ?? item.count ?? 0),
+      tindakan: item.tindakan || 'Terima',
+      jjg_diterima: Number(item.jjg_diterima ?? 0),
+      jjg_ditolak: Number(item.jjg_ditolak ?? 0),
+      kg_denda: item.kg_denda !== null && item.kg_denda !== undefined ? safeFloat(item.kg_denda) : null,
+      parent: item.parent ?? null,
+    }));
+  }
+
+  const classSummary = gr.classification_summary || {};
+  const acceptedSummary = gr.accepted_summary || {};
+  const rejectedSummary = gr.rejected_summary || {};
+  const finedSummary = gr.fined_summary || {};
+  const rejectedList = Array.isArray(gr.classification_rejected)
+    ? gr.classification_rejected.map((s) => String(s).toUpperCase())
+    : ['MENTAH', 'JANJANG KOSONG'];
+
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const storedCalc = mInput.calc || gr.calc || doc.calc || {};
+  const buahHitamVal = Number(gr.buah_hitam_diterima ?? mInput.buahHitamDiterima ?? 0);
+
+  const getCorrectedSummary = () => {
+    const mainClasses = ['MENTAH', 'LEWAT MATANG', 'JANJANG KOSONG', 'MATANG'];
+    const res = {};
+
+    for (const cat of mainClasses) {
+      const classObj = classSummary[cat] || acceptedSummary[cat] || rejectedSummary[cat] || {};
+      const normalTotal = Number(classObj['NORMAL'] ?? 0);
+      const pestTotal = Number(classObj['RUSAK DIMAKAN TIKUS'] ?? classObj['DIMAKAN TIKUS'] ?? classObj['PEST'] ?? 0);
+      const overlap = Math.min(normalTotal, pestTotal);
+
+      res[cat] = {
+        NORMAL: Math.max(0, normalTotal - overlap),
+        'RUSAK DIMAKAN TIKUS': overlap > 0 ? overlap : pestTotal,
+        'TANGKAI PANJANG': Number(classObj['TANGKAI PANJANG'] ?? classObj['TP'] ?? 0),
+        'BUAH KECIL DIBAWAH 5KG': Number(classObj['BUAH KECIL DIBAWAH 5KG'] ?? classObj['BUAH KECIL'] ?? classObj['K'] ?? 0),
+        'BUAH KECIL DIBAWAH 3KG': Number(classObj['BUAH KECIL DIBAWAH 3KG'] ?? classObj['EXTRA KECIL'] ?? classObj['XS'] ?? 0),
+      };
+    }
+
+    if (buahHitamVal > 0 && res['MENTAH']) {
+      const mentahNormal = res['MENTAH'].NORMAL || 0;
+      const shift = Math.min(buahHitamVal, mentahNormal);
+      res['MENTAH'].NORMAL = Math.max(0, mentahNormal - shift);
+      if (res['MATANG']) {
+        res['MATANG'].NORMAL = (res['MATANG'].NORMAL || 0) + shift;
+      }
+    }
+
+    return res;
+  };
+
+  const correctedMap = getCorrectedSummary();
+
+  const getMainClassTotal = (mainKey) => {
+    if (classSummary[mainKey] && classSummary[mainKey].TOTAL !== undefined) {
+      return Number(classSummary[mainKey].TOTAL);
+    }
+    if (acceptedSummary[mainKey] && acceptedSummary[mainKey].TOTAL !== undefined) {
+      return Number(acceptedSummary[mainKey].TOTAL);
+    }
+    if (rejectedSummary[mainKey] && rejectedSummary[mainKey].TOTAL !== undefined) {
+      return Number(rejectedSummary[mainKey].TOTAL);
+    }
+    return 0;
+  };
+
+  const getSubclassCount = (mainKey, subclassAliases) => {
+    const classObj = correctedMap[mainKey] || classSummary[mainKey] || acceptedSummary[mainKey] || rejectedSummary[mainKey] || {};
+    for (const alias of subclassAliases) {
+      if (classObj[alias] !== undefined) {
+        return Number(classObj[alias]);
+      }
+    }
+    return 0;
+  };
+
+  const getSubclassKgDenda = (subclassAliases, docFallbackKey) => {
+    for (const alias of subclassAliases) {
+      if (finedSummary[alias]) {
+        const val = finedSummary[alias].DENDA ?? finedSummary[alias].TOTAL;
+        if (val !== undefined && val !== null) return safeFloat(val);
+      }
+    }
+    if (docFallbackKey && doc[docFallbackKey] !== undefined && doc[docFallbackKey] !== null) {
+      return safeFloat(doc[docFallbackKey]);
+    }
+    if (docFallbackKey && gr[docFallbackKey] !== undefined && gr[docFallbackKey] !== null) {
+      return safeFloat(gr[docFallbackKey]);
+    }
+    return 0.0;
+  };
+
+  const getMatangKgDenda = () => {
+    if (gr.total_fined !== undefined && gr.total_fined !== null && Number(gr.total_fined) > 0) {
+      return safeFloat(gr.total_fined);
+    }
+    if (storedCalc.kgDendaTabel !== undefined && storedCalc.kgDendaTabel !== null) {
+      return safeFloat(storedCalc.kgDendaTabel);
+    }
+    let totalDenda = 0;
+    for (const k of Object.keys(finedSummary)) {
+      const val = finedSummary[k].DENDA ?? finedSummary[k].TOTAL ?? 0;
+      totalDenda += safeFloat(val);
+    }
+    return safeFloat(totalDenda);
+  };
+
+  const gradingAiResult = [];
+
+  // Main classes (parent: null)
+  const mentahTotal = getMainClassTotal('MENTAH');
+  const mentahRejected = rejectedList.includes('MENTAH') || true;
+  gradingAiResult.push({
+    kode_kriteria: 'A',
+    nama_kriteria: 'Buah Mentah',
+    jumlah_janjang: mentahTotal,
+    tindakan: mentahRejected ? 'Tolak' : 'Terima',
+    jjg_diterima: mentahRejected ? 0 : mentahTotal,
+    jjg_ditolak: mentahRejected ? mentahTotal : 0,
+    kg_denda: mentahRejected ? null : 0.0,
+    parent: null,
+  });
+
+  const lewatTotal = getMainClassTotal('LEWAT MATANG');
+  const lewatRejected = rejectedList.includes('LEWAT MATANG');
+  gradingAiResult.push({
+    kode_kriteria: 'O',
+    nama_kriteria: 'Lewat Matang',
+    jumlah_janjang: lewatTotal,
+    tindakan: lewatRejected ? 'Tolak' : 'Terima',
+    jjg_diterima: lewatRejected ? 0 : lewatTotal,
+    jjg_ditolak: lewatRejected ? lewatTotal : 0,
+    kg_denda: lewatRejected ? null : 0.0,
+    parent: null,
+  });
+
+  const tkosongTotal = getMainClassTotal('JANJANG KOSONG');
+  const tkosongRejected = rejectedList.includes('JANJANG KOSONG') || true;
+  gradingAiResult.push({
+    kode_kriteria: 'E',
+    nama_kriteria: 'Janjang Kosong',
+    jumlah_janjang: tkosongTotal,
+    tindakan: tkosongRejected ? 'Tolak' : 'Terima',
+    jjg_diterima: tkosongRejected ? 0 : tkosongTotal,
+    jjg_ditolak: tkosongRejected ? tkosongTotal : 0,
+    kg_denda: tkosongRejected ? null : 0.0,
+    parent: null,
+  });
+
+  const matangTotal = getMainClassTotal('MATANG');
+  const matangRejected = rejectedList.includes('MATANG');
+  gradingAiResult.push({
+    kode_kriteria: 'N',
+    nama_kriteria: 'Buah Matang',
+    jumlah_janjang: matangTotal,
+    tindakan: matangRejected ? 'Tolak' : 'Terima',
+    jjg_diterima: matangRejected ? 0 : matangTotal,
+    jjg_ditolak: matangRejected ? matangTotal : 0,
+    kg_denda: matangRejected ? null : getMatangKgDenda(),
+    parent: null,
+  });
+
+  // Subclasses with parents (N, A, O, E)
+  const parentConfigs = [
+    { parentCode: 'N', mainKey: 'MATANG', defaultTindakan: 'Terima', isRejected: matangRejected },
+    { parentCode: 'A', mainKey: 'MENTAH', defaultTindakan: 'Tolak', isRejected: true },
+    { parentCode: 'O', mainKey: 'LEWAT MATANG', defaultTindakan: 'Terima', isRejected: lewatRejected },
+    { parentCode: 'E', mainKey: 'JANJANG KOSONG', defaultTindakan: 'Tolak', isRejected: true },
+  ];
+
+  const subclassDefinitions = [
+    {
+      code: 'K',
+      name: 'Buah Kecil',
+      aliases: ['BUAH KECIL DIBAWAH 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH KECIL', 'KECIL'],
+      docFallbackKey: 'small_fruit_fined_in_kg',
+    },
+    {
+      code: 'XS',
+      name: 'Buah Extra Kecil',
+      aliases: ['BUAH KECIL DIBAWAH 3KG', 'EXTRA KECIL', 'EXTRA_KECIL', 'EXTRAKECIL', 'BUAH EXTRA KECIL'],
+      docFallbackKey: 'small_fruit_3_fined_in_kg',
+    },
+    {
+      code: 'PEST',
+      name: 'Dimakan Tikus',
+      aliases: ['RUSAK DIMAKAN TIKUS', 'DIMAKAN TIKUS', 'EATENBYRAT', 'PEST'],
+      docFallbackKey: 'pest_fined_in_kg',
+    },
+    {
+      code: 'TP',
+      name: 'Tangkai Panjang',
+      aliases: ['TANGKAI PANJANG', 'TANGKAI_PANJANG', 'TPANJANG', 'TP'],
+      docFallbackKey: 'long_stash_fined_in_kg',
+    },
+  ];
+
+  for (const subDef of subclassDefinitions) {
+    for (const pConf of parentConfigs) {
+      const count = getSubclassCount(pConf.mainKey, subDef.aliases);
+      const isParentRejected = pConf.isRejected;
+      const tindakan = isParentRejected ? 'Tolak' : 'Terima';
+      const jjg_diterima = isParentRejected ? 0 : count;
+      const jjg_ditolak = isParentRejected ? count : 0;
+      let kg_denda = null;
+
+      if (!isParentRejected) {
+        kg_denda = getSubclassKgDenda(subDef.aliases, subDef.docFallbackKey);
+      }
+
+      gradingAiResult.push({
+        kode_kriteria: subDef.code,
+        nama_kriteria: subDef.name,
+        jumlah_janjang: count,
+        tindakan,
+        jjg_diterima,
+        jjg_ditolak,
+        kg_denda,
+        parent: pConf.parentCode,
+      });
+    }
+  }
+
+  return gradingAiResult;
+}
+
+function formatPotonganTambahan(doc) {
+  const gr = doc.grading_result || {};
+  if (gr.potongan_tambahan && typeof gr.potongan_tambahan === 'object') {
+    const pt = gr.potongan_tambahan;
+    return {
+      buah_busuk_pct: pt.buah_busuk_pct !== undefined && pt.buah_busuk_pct !== null ? safeFloat(pt.buah_busuk_pct) : null,
+      pasir_pct: pt.pasir_pct !== undefined && pt.pasir_pct !== null ? safeFloat(pt.pasir_pct) : null,
+      air_pct: pt.air_pct !== undefined && pt.air_pct !== null ? safeFloat(pt.air_pct) : null,
+      sampah_pct: pt.sampah_pct !== undefined && pt.sampah_pct !== null ? safeFloat(pt.sampah_pct) : null,
+      partenokarpi_pct: pt.partenokarpi_pct !== undefined && pt.partenokarpi_pct !== null ? safeFloat(pt.partenokarpi_pct) : null,
+      restan_pct: pt.restan_pct !== undefined && pt.restan_pct !== null ? safeFloat(pt.restan_pct) : null,
+      abnormal_pct: pt.abnormal_pct !== undefined && pt.abnormal_pct !== null ? safeFloat(pt.abnormal_pct) : null,
+      dura_pct: pt.dura_pct !== undefined && pt.dura_pct !== null ? safeFloat(pt.dura_pct) : null,
+      pesifera_pct: pt.pesifera_pct !== undefined && pt.pesifera_pct !== null ? safeFloat(pt.pesifera_pct) : null,
+      lainnya_pct: pt.lainnya_pct !== undefined && pt.lainnya_pct !== null ? safeFloat(pt.lainnya_pct) : null,
+      total_potongan_tambahan_pct: pt.total_potongan_tambahan_pct !== undefined && pt.total_potongan_tambahan_pct !== null ? safeFloat(pt.total_potongan_tambahan_pct) : null,
+      total_potongan_ai_pct: pt.total_potongan_ai_pct !== undefined && pt.total_potongan_ai_pct !== null ? safeFloat(pt.total_potongan_ai_pct) : null,
+    };
+  }
+
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const potongan = mInput.potongan || {};
+  const storedCalc = mInput.calc || gr.calc || doc.calc || {};
+
+  const parseNullFloat = (key, altKey) => {
+    const val = potongan[key] ?? potongan[altKey] ?? gr[key] ?? doc[key];
+    if (val === undefined || val === null || val === '') return null;
+    return safeFloat(val);
+  };
+
+  const buah_busuk_pct = parseNullFloat('potongan_buah_busuk', 'buah_busuk');
+  const pasir_pct = parseNullFloat('potongan_pasir', 'pasir');
+  const air_pct = parseNullFloat('potongan_air', 'air');
+  const sampah_pct = parseNullFloat('potongan_sampah', 'sampah');
+  const partenokarpi_pct = parseNullFloat('potongan_partenokarpi', 'partenokarpi');
+  const restan_pct = parseNullFloat('potongan_restan', 'restan');
+  const abnormal_pct = parseNullFloat('potongan_abnormal', 'abnormal');
+  const dura_pct = parseNullFloat('potongan_dura', 'dura');
+  const pesifera_pct = parseNullFloat('potongan_pesifera', 'pesifera');
+  const lainnya_pct = parseNullFloat('potongan_lainnya', 'lainnya');
+
+  const valuesList = [
+    buah_busuk_pct, pasir_pct, air_pct, sampah_pct,
+    partenokarpi_pct, restan_pct, abnormal_pct, dura_pct,
+    pesifera_pct, lainnya_pct
+  ].filter((v) => v !== null);
+
+  const total_potongan_tambahan_pct = valuesList.length > 0
+    ? safeFloat(valuesList.reduce((a, b) => a + b, 0))
+    : null;
+
+  const total_potongan_ai_pct = storedCalc.kgDendaTabelPct !== undefined
+    ? safeFloat(storedCalc.kgDendaTabelPct)
+    : (gr.potongan_ai !== undefined ? safeFloat(gr.potongan_ai) : null);
+
+  return {
+    buah_busuk_pct,
+    pasir_pct,
+    air_pct,
+    sampah_pct,
+    partenokarpi_pct,
+    restan_pct,
+    abnormal_pct,
+    dura_pct,
+    pesifera_pct,
+    lainnya_pct,
+    total_potongan_tambahan_pct,
+    total_potongan_ai_pct,
+  };
+}
+
+function formatFormPerhitungan(doc) {
+  const gr = doc.grading_result || {};
+  if (gr.form_perhitungan && typeof gr.form_perhitungan === 'object') {
+    const fp = gr.form_perhitungan;
+    return {
+      form_a_pct: fp.form_a_pct !== undefined && fp.form_a_pct !== null ? safeFloat(fp.form_a_pct) : null,
+      form_b_pct: fp.form_b_pct !== undefined && fp.form_b_pct !== null ? safeFloat(fp.form_b_pct) : null,
+      potongan_pct: fp.potongan_pct !== undefined && fp.potongan_pct !== null ? safeFloat(fp.potongan_pct) : null,
+      adjusted_form_b_pct: fp.adjusted_form_b_pct !== undefined && fp.adjusted_form_b_pct !== null ? safeFloat(fp.adjusted_form_b_pct) : null,
+      potongan_final_pct: fp.potongan_final_pct !== undefined && fp.potongan_final_pct !== null ? safeFloat(fp.potongan_final_pct) : null,
+    };
+  }
+
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const storedCalc = mInput.calc || gr.calc || doc.calc || {};
+  const vendorCalc = storedCalc.vendorCalc || {};
+  const plasmaCalc = storedCalc.plasmaCalc || {};
+
+  const activeCalc = storedCalc.isPlasmaCalc ? plasmaCalc : vendorCalc;
+
+  const form_a_pct = activeCalc.formA !== undefined ? safeFloat(activeCalc.formA) : (gr.form_a !== undefined ? safeFloat(gr.form_a) : null);
+  const form_b_pct = activeCalc.formBBG !== undefined ? safeFloat(activeCalc.formBBG) : (mInput.formBVisual !== undefined ? safeFloat(mInput.formBVisual) : null);
+  const potongan_pct = activeCalc.potonganFinal !== undefined ? safeFloat(activeCalc.potonganFinal) : null;
+  const adjusted_form_b_pct = activeCalc.formBAG !== undefined ? safeFloat(activeCalc.formBAG) : (gr.form_b_ag !== undefined ? safeFloat(gr.form_b_ag) : null);
+  const potongan_final_pct = activeCalc.potonganFinal !== undefined ? safeFloat(activeCalc.potonganFinal) : (gr.potongan_final !== undefined ? safeFloat(gr.potongan_final) : null);
+
+  return {
+    form_a_pct,
+    form_b_pct,
+    potongan_pct,
+    adjusted_form_b_pct,
+    potongan_final_pct,
+  };
+}
+
 function formatInspectionItemDetail(doc) {
   const summary = formatInspectionItemSummary(doc);
   const gr = doc.grading_result || {};
 
   return {
     ...summary,
-    grading_ai: gr.grading_ai || [],
-    buah_hitam_diterima: gr.buah_hitam_diterima ?? null,
+    grading_ai: formatGradingAi(doc),
+    buah_hitam_diterima: gr.buah_hitam_diterima ?? mInput.buahHitamDiterima ?? null,
     redistribusi_potongan: formatRedistribusiPotongan(doc),
-    potongan_tambahan: gr.potongan_tambahan || {
-      buah_busuk_pct: null,
-      pasir_pct: null,
-      air_pct: null,
-      sampah_pct: null,
-      partenokarpi_pct: null,
-      restan_pct: null,
-      abnormal_pct: null,
-      dura_pct: null,
-      pesifera_pct: null,
-      lainnya_pct: null,
-      total_potongan_tambahan_pct: null,
-      total_potongan_ai_pct: null,
-    },
-    form_perhitungan: gr.form_perhitungan || {
-      form_a_pct: null,
-      form_b_pct: null,
-      potongan_pct: null,
-      adjusted_form_b_pct: null,
-      potongan_final_pct: null,
-    },
+    potongan_tambahan: formatPotonganTambahan(doc),
+    form_perhitungan: formatFormPerhitungan(doc),
     remark: doc.notes || gr.remark || null,
     audit: gr.audit || {
       created_at: doc.createdAt
