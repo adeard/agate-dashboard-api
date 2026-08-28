@@ -479,7 +479,7 @@ function formatGradingAi(doc) {
 }
 
 function formatPotonganTambahan(doc) {
-  const gr = doc.grading_result || {};
+  const gr = { ...doc, ...(doc.grading_result || {}) };
   if (gr.potongan_tambahan && typeof gr.potongan_tambahan === 'object') {
     const pt = gr.potongan_tambahan;
     return {
@@ -550,7 +550,7 @@ function formatPotonganTambahan(doc) {
 }
 
 function formatFormPerhitungan(doc) {
-  const gr = doc.grading_result || {};
+  const gr = { ...doc, ...(doc.grading_result || {}) };
   if (gr.form_perhitungan && typeof gr.form_perhitungan === 'object') {
     const fp = gr.form_perhitungan;
     return {
@@ -586,7 +586,8 @@ function formatFormPerhitungan(doc) {
 
 function formatInspectionItemDetail(doc) {
   const summary = formatInspectionItemSummary(doc);
-  const gr = doc.grading_result || {};
+  const gr = { ...doc, ...(doc.grading_result || {}) };
+  const mInput = gr.manual_input || doc.manual_input || {};
 
   return {
     ...summary,
