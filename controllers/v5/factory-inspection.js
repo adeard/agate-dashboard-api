@@ -58,6 +58,189 @@ function formatInspectionItemSummary(doc) {
   };
 }
 
+function safeFloat(val, defaultVal = 0) {
+  if (val === null || val === undefined || val === '') return defaultVal;
+  const num = parseFloat(val);
+  return isNaN(num) ? defaultVal : Math.round(num * 100) / 100;
+}
+
+function formatRedistribusiPotongan(doc) {
+  const gr = doc.grading_result || {};
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const storedCalc = mInput.calc || gr.calc || doc.calc || {};
+
+  const vendorCalc = storedCalc.vendorCalc || {};
+  const plasmaCalc = storedCalc.plasmaCalc || {};
+  const panenCalc = storedCalc.panenCalc || {};
+
+  let activeCalc = vendorCalc;
+  if (storedCalc.isPlasmaCalc) {
+    activeCalc = plasmaCalc;
+  } else if (storedCalc.isNilaiPanen) {
+    activeCalc = panenCalc;
+  }
+
+  const redistribusiObj = activeCalc.redistribusi || storedCalc.redistribusi || gr.redistribusi || {};
+  const redistribusiCalcRows = redistribusiObj.rows || mInput.redistribusi_rows || gr.redistribusi_rows || [];
+
+  const standardCriteria = [
+    {
+      code: 'A',
+      name: 'Buah Mentah',
+      aliases: ['A', 'MENTAH', 'BUAH MENTAH', 'BUAH MENTAH A'],
+      flatKeys: { ai_pct: 'mentah_ai_pct', redis_pct: 'mentah_redis_pct', redis_kg: 'mentah_redis_kg' },
+    },
+    {
+      code: 'O',
+      name: 'Lewat Matang',
+      aliases: ['O', 'LEWAT MATANG', 'LEWAT_MATANG', 'LEWAT MASAK', 'LEWAT MATANG O'],
+      flatKeys: { ai_pct: 'lewatmasak_ai_pct', redis_pct: 'lewatmasak_redis_pct', redis_kg: 'lewatmasak_redis_kg' },
+    },
+    {
+      code: 'E',
+      name: 'Janjang Kosong',
+      aliases: ['E', 'JANJANG KOSONG', 'JANJANG_KOSONG', 'TKOSONG', 'JANJANG KOSONG E'],
+      flatKeys: { ai_pct: 'tkosong_ai_pct', redis_pct: 'tkosong_redis_pct', redis_kg: 'tkosong_redis_kg' },
+    },
+    {
+      code: 'K',
+      name: 'Buah Kecil',
+      aliases: ['K', 'KECIL', 'BUAH KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH KECIL DIBAWAH 2KG'],
+      flatKeys: { ai_pct: 'kecil_ai_pct', redis_pct: 'kecil_redis_pct', redis_kg: 'kecil_redis_kg' },
+    },
+    {
+      code: 'XS',
+      name: 'Buah Extra Kecil',
+      aliases: ['XS', 'EXTRAKECIL', 'EXTRA_KECIL', 'EXTRA KECIL', 'BUAH EXTRA KECIL', 'BUAH KECIL DIBAWAH 3KG'],
+      flatKeys: { ai_pct: 'extrakecil_ai_pct', redis_pct: 'extrakecil_redis_pct', redis_kg: 'extrakecil_redis_kg' },
+    },
+    {
+      code: 'PEST',
+      name: 'Dimakan Tikus',
+      aliases: ['PEST', 'EATENBYRAT', 'DIMAKAN TIKUS', 'RUSAK DIMAKAN TIKUS'],
+      flatKeys: { ai_pct: 'eatenbyrat_ai_pct', redis_pct: 'eatenbyrat_redis_pct', redis_kg: 'eatenbyrat_redis_kg' },
+    },
+    {
+      code: 'TP',
+      name: 'Tangkai Panjang',
+      aliases: ['TP', 'TPANJANG', 'TANGKAI_PANJANG', 'TANGKAI PANJANG'],
+      flatKeys: { ai_pct: 'tpanjang_ai_pct', redis_pct: 'tpanjang_redis_pct', redis_kg: 'tpanjang_redis_kg' },
+    },
+  ];
+
+  const getKriteriaName = (code) => {
+    const std = standardCriteria.find((c) => c.code === code);
+    return std ? std.name : code;
+  };
+
+  const findStdByAlias = (str) => {
+    if (!str) return null;
+    const upper = String(str).trim().toUpperCase();
+    return standardCriteria.find((c) => c.aliases.includes(upper)) || null;
+  };
+
+  const existingMap = new Map();
+
+  if (Array.isArray(gr.redistribusi_potongan)) {
+    for (const item of gr.redistribusi_potongan) {
+      if (!item || typeof item !== 'object') continue;
+      const rawKey = item.kode_kriteria || item.kriteria_code || item.code || item.name || item.kriteria || '';
+      const std = findStdByAlias(rawKey);
+      const code = std ? std.code : (item.kode_kriteria || item.kriteria_code || item.code || rawKey);
+      const kriteriaName = item.kriteria || item.nama_kriteria || item.kriteria_name || item.name || (std ? std.name : code);
+
+      if (code) {
+        existingMap.set(code, {
+          kode_kriteria: code,
+          kriteria: kriteriaName,
+          ai_pct: safeFloat(item.ai_pct ?? item.aiPct ?? 0),
+          redistribusi_pct: safeFloat(item.redistribusi_pct ?? item.redisPct ?? 0),
+          redistribusi_kg: safeFloat(item.redistribusi_kg ?? item.redisKg ?? 0),
+        });
+      }
+    }
+  }
+
+  const findRedisRow = (std) => {
+    if (!Array.isArray(redistribusiCalcRows)) return null;
+    return redistribusiCalcRows.find((r) => {
+      if (!r || typeof r !== 'object') return false;
+      const keysToTest = [r.kriteria_code, r.code, r.kode_kriteria, r.name, r.kriteria, r.kriteria_name];
+      return keysToTest.some((k) => k && std.aliases.includes(String(k).trim().toUpperCase()));
+    });
+  };
+
+  const resultList = [];
+  for (const std of standardCriteria) {
+    if (existingMap.has(std.code)) {
+      resultList.push(existingMap.get(std.code));
+    } else {
+      const row = findRedisRow(std);
+      let ai_pct = 0;
+      let redis_pct = 0;
+      let redis_kg = 0;
+      let kriteriaName = std.name;
+
+      if (row) {
+        ai_pct = safeFloat(row.aiPct ?? row.ai_pct ?? 0);
+        redis_pct = safeFloat(row.redisPct ?? row.redistribusi_pct ?? 0);
+        redis_kg = safeFloat(row.redisKg ?? row.redistribusi_kg ?? 0);
+        if (row.kriteria || row.name || row.kriteria_name) {
+          kriteriaName = row.kriteria || row.name || row.kriteria_name;
+        }
+      } else {
+        const aiKey = std.flatKeys.ai_pct;
+        const redisPctKey = std.flatKeys.redis_pct;
+        const redisKgKey = std.flatKeys.redis_kg;
+
+        ai_pct = safeFloat(gr[aiKey] ?? doc[aiKey] ?? mInput[aiKey] ?? 0);
+        redis_pct = safeFloat(gr[redisPctKey] ?? doc[redisPctKey] ?? mInput[redisPctKey] ?? 0);
+        redis_kg = safeFloat(gr[redisKgKey] ?? doc[redisKgKey] ?? mInput[redisKgKey] ?? 0);
+      }
+
+      resultList.push({
+        kode_kriteria: std.code,
+        kriteria: kriteriaName,
+        ai_pct,
+        redistribusi_pct: redis_pct,
+        redistribusi_kg: redis_kg,
+      });
+    }
+  }
+
+  const addedCodes = new Set(resultList.map((item) => item.kode_kriteria));
+
+  if (Array.isArray(gr.redistribusi_potongan)) {
+    for (const [code, item] of existingMap.entries()) {
+      if (!addedCodes.has(code)) {
+        resultList.push(item);
+        addedCodes.add(code);
+      }
+    }
+  }
+
+  if (Array.isArray(redistribusiCalcRows)) {
+    for (const row of redistribusiCalcRows) {
+      if (!row || typeof row !== 'object') continue;
+      const rawKey = row.kriteria_code || row.code || row.kode_kriteria || row.name || row.kriteria || '';
+      const std = findStdByAlias(rawKey);
+      const code = std ? std.code : (row.kriteria_code || row.code || rawKey);
+      if (code && !addedCodes.has(code)) {
+        resultList.push({
+          kode_kriteria: code,
+          kriteria: row.kriteria || row.name || row.kriteria_name || (std ? std.name : code),
+          ai_pct: safeFloat(row.aiPct ?? row.ai_pct ?? 0),
+          redistribusi_pct: safeFloat(row.redisPct ?? row.redistribusi_pct ?? 0),
+          redistribusi_kg: safeFloat(row.redisKg ?? row.redistribusi_kg ?? 0),
+        });
+        addedCodes.add(code);
+      }
+    }
+  }
+
+  return resultList;
+}
+
 function formatInspectionItemDetail(doc) {
   const summary = formatInspectionItemSummary(doc);
   const gr = doc.grading_result || {};
@@ -66,7 +249,7 @@ function formatInspectionItemDetail(doc) {
     ...summary,
     grading_ai: gr.grading_ai || [],
     buah_hitam_diterima: gr.buah_hitam_diterima ?? null,
-    redistribusi_potongan: gr.redistribusi_potongan || [],
+    redistribusi_potongan: formatRedistribusiPotongan(doc),
     potongan_tambahan: gr.potongan_tambahan || {
       buah_busuk_pct: null,
       pasir_pct: null,
