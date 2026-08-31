@@ -316,7 +316,8 @@
           "kriteria": { "type": "string" },
           "ai_pct": { "type": "number" },
           "redistribusi_pct": { "type": "number" },
-          "redistribusi_kg": { "type": "number" }
+          "redistribusi_kg": { "type": "number" },
+          "parent": { "type": "string", "nullable": true }
         }
       },
       "PotonganTambahan": {

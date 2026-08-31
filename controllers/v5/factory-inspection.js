@@ -67,6 +67,16 @@ function safeFloat(val, defaultVal = 0) {
   return isNaN(num) ? defaultVal : Math.round(num * 100) / 100;
 }
 
+function normalizeParentCode(p) {
+  if (p === null || p === undefined || p === '') return null;
+  const upper = String(p).trim().toUpperCase();
+  if (['N', 'MATANG', 'BUAH MATANG'].includes(upper)) return 'N';
+  if (['A', 'MENTAH', 'BUAH MENTAH'].includes(upper)) return 'A';
+  if (['O', 'LEWAT MATANG', 'LEWAT_MATANG', 'LEWAT MASAK'].includes(upper)) return 'O';
+  if (['E', 'JANJANG KOSONG', 'JANJANG_KOSONG', 'TKOSONG'].includes(upper)) return 'E';
+  return upper;
+}
+
 function formatRedistribusiPotongan(doc) {
   const gr = { ...doc, ...(doc.grading_result || {}) };
   const mInput = gr.manual_input || doc.manual_input || {};
@@ -86,25 +96,31 @@ function formatRedistribusiPotongan(doc) {
   const redistribusiObj = activeCalc.redistribusi || storedCalc.redistribusi || gr.redistribusi || {};
   const redistribusiCalcRows = redistribusiObj.rows || mInput.redistribusi_rows || gr.redistribusi_rows || [];
 
-  const standardCriteria = [
+  const mainCriteria = [
     {
       code: 'A',
       name: 'Buah Mentah',
       aliases: ['A', 'MENTAH', 'BUAH MENTAH', 'BUAH MENTAH A'],
       flatKeys: { ai_pct: 'mentah_ai_pct', redis_pct: 'mentah_redis_pct', redis_kg: 'mentah_redis_kg' },
+      parent: null,
     },
     {
       code: 'O',
       name: 'Lewat Matang',
       aliases: ['O', 'LEWAT MATANG', 'LEWAT_MATANG', 'LEWAT MASAK', 'LEWAT MATANG O'],
       flatKeys: { ai_pct: 'lewatmasak_ai_pct', redis_pct: 'lewatmasak_redis_pct', redis_kg: 'lewatmasak_redis_kg' },
+      parent: null,
     },
     {
       code: 'E',
       name: 'Janjang Kosong',
       aliases: ['E', 'JANJANG KOSONG', 'JANJANG_KOSONG', 'TKOSONG', 'JANJANG KOSONG E'],
       flatKeys: { ai_pct: 'tkosong_ai_pct', redis_pct: 'tkosong_redis_pct', redis_kg: 'tkosong_redis_kg' },
+      parent: null,
     },
+  ];
+
+  const subclassDefinitions = [
     {
       code: 'K',
       name: 'Buah Kecil',
@@ -131,15 +147,17 @@ function formatRedistribusiPotongan(doc) {
     },
   ];
 
-  const getKriteriaName = (code) => {
-    const std = standardCriteria.find((c) => c.code === code);
-    return std ? std.name : code;
-  };
+  const allStandardCriteria = [...mainCriteria, ...subclassDefinitions];
 
   const findStdByAlias = (str) => {
     if (!str) return null;
     const upper = String(str).trim().toUpperCase();
-    return standardCriteria.find((c) => c.aliases.includes(upper)) || null;
+    return allStandardCriteria.find((c) => c.aliases.includes(upper)) || null;
+  };
+
+  const getCompositeKey = (code, parent) => {
+    const normParent = normalizeParentCode(parent);
+    return `${code}_${normParent ?? 'ROOT'}`;
   };
 
   const existingMap = new Map();
@@ -151,34 +169,47 @@ function formatRedistribusiPotongan(doc) {
       const std = findStdByAlias(rawKey);
       const code = std ? std.code : (item.kode_kriteria || item.kriteria_code || item.code || rawKey);
       const kriteriaName = item.kriteria || item.nama_kriteria || item.kriteria_name || item.name || (std ? std.name : code);
+      const parent = normalizeParentCode(item.parent ?? item.parent_code ?? item.parentCode ?? (std && std.parent !== undefined ? std.parent : null));
 
       if (code) {
-        existingMap.set(code, {
+        const cKey = getCompositeKey(code, parent);
+        existingMap.set(cKey, {
           kode_kriteria: code,
           kriteria: kriteriaName,
           ai_pct: safeFloat(item.ai_pct ?? item.aiPct ?? 0),
           redistribusi_pct: safeFloat(item.redistribusi_pct ?? item.redisPct ?? 0),
           redistribusi_kg: safeFloat(item.redistribusi_kg ?? item.redisKg ?? 0),
+          parent: parent,
         });
       }
     }
   }
 
-  const findRedisRow = (std) => {
+  const findRedisRow = (std, parentCode) => {
     if (!Array.isArray(redistribusiCalcRows)) return null;
     return redistribusiCalcRows.find((r) => {
       if (!r || typeof r !== 'object') return false;
       const keysToTest = [r.kriteria_code, r.code, r.kode_kriteria, r.name, r.kriteria, r.kriteria_name];
-      return keysToTest.some((k) => k && std.aliases.includes(String(k).trim().toUpperCase()));
+      const matchesCode = keysToTest.some((k) => k && std.aliases.includes(String(k).trim().toUpperCase()));
+      if (!matchesCode) return false;
+      const rParent = normalizeParentCode(r.parent ?? r.parent_code ?? r.parentCode);
+      if (parentCode === null) {
+        return rParent === null;
+      }
+      return rParent === parentCode;
     });
   };
 
   const resultList = [];
-  for (const std of standardCriteria) {
-    if (existingMap.has(std.code)) {
-      resultList.push(existingMap.get(std.code));
+  const parentConfigs = ['N', 'A', 'O', 'E'];
+
+  // 1. Process Main Criteria (A, O, E) -> parent: null
+  for (const std of mainCriteria) {
+    const cKey = getCompositeKey(std.code, null);
+    if (existingMap.has(cKey)) {
+      resultList.push(existingMap.get(cKey));
     } else {
-      const row = findRedisRow(std);
+      const row = findRedisRow(std, null);
       let ai_pct = 0;
       let redis_pct = 0;
       let redis_kg = 0;
@@ -207,36 +238,86 @@ function formatRedistribusiPotongan(doc) {
         ai_pct,
         redistribusi_pct: redis_pct,
         redistribusi_kg: redis_kg,
+        parent: null,
       });
     }
   }
 
-  const addedCodes = new Set(resultList.map((item) => item.kode_kriteria));
+  // 2. Process Subclasses (K, XS, PEST, TP) across parents ('N', 'A', 'O', 'E')
+  for (const subDef of subclassDefinitions) {
+    for (const parentCode of parentConfigs) {
+      const cKey = getCompositeKey(subDef.code, parentCode);
+      if (existingMap.has(cKey)) {
+        resultList.push(existingMap.get(cKey));
+      } else {
+        const row = findRedisRow(subDef, parentCode);
+        let ai_pct = 0;
+        let redis_pct = 0;
+        let redis_kg = 0;
+        let kriteriaName = subDef.name;
 
-  if (Array.isArray(gr.redistribusi_potongan)) {
-    for (const [code, item] of existingMap.entries()) {
-      if (!addedCodes.has(code)) {
-        resultList.push(item);
-        addedCodes.add(code);
+        if (row) {
+          ai_pct = safeFloat(row.aiPct ?? row.ai_pct ?? 0);
+          redis_pct = safeFloat(row.redisPct ?? row.redistribusi_pct ?? 0);
+          redis_kg = safeFloat(row.redisKg ?? row.redistribusi_kg ?? 0);
+          if (row.kriteria || row.name || row.kriteria_name) {
+            kriteriaName = row.kriteria || row.name || row.kriteria_name;
+          }
+        } else if (parentCode === 'N') {
+          // Fallback to legacy flat keys for primary subclass parent 'N'
+          const aiKey = subDef.flatKeys.ai_pct;
+          const redisPctKey = subDef.flatKeys.redis_pct;
+          const redisKgKey = subDef.flatKeys.redis_kg;
+
+          ai_pct = safeFloat(gr[aiKey] ?? doc[aiKey] ?? mInput[aiKey] ?? 0);
+          redis_pct = safeFloat(gr[redisPctKey] ?? doc[redisPctKey] ?? mInput[redisPctKey] ?? 0);
+          redis_kg = safeFloat(gr[redisKgKey] ?? doc[redisKgKey] ?? mInput[redisKgKey] ?? 0);
+        }
+
+        resultList.push({
+          kode_kriteria: subDef.code,
+          kriteria: kriteriaName,
+          ai_pct,
+          redistribusi_pct: redis_pct,
+          redistribusi_kg: redis_kg,
+          parent: parentCode,
+        });
       }
     }
   }
 
+  const addedKeys = new Set(resultList.map((item) => getCompositeKey(item.kode_kriteria, item.parent)));
+
+  // Add any extra items from existingMap that weren't in standard set
+  if (Array.isArray(gr.redistribusi_potongan)) {
+    for (const [cKey, item] of existingMap.entries()) {
+      if (!addedKeys.has(cKey)) {
+        resultList.push(item);
+        addedKeys.add(cKey);
+      }
+    }
+  }
+
+  // Add any extra items from redistribusiCalcRows that weren't in standard set
   if (Array.isArray(redistribusiCalcRows)) {
     for (const row of redistribusiCalcRows) {
       if (!row || typeof row !== 'object') continue;
       const rawKey = row.kriteria_code || row.code || row.kode_kriteria || row.name || row.kriteria || '';
       const std = findStdByAlias(rawKey);
       const code = std ? std.code : (row.kriteria_code || row.code || rawKey);
-      if (code && !addedCodes.has(code)) {
+      const parent = normalizeParentCode(row.parent ?? row.parent_code ?? row.parentCode);
+      const cKey = getCompositeKey(code, parent);
+
+      if (code && !addedKeys.has(cKey)) {
         resultList.push({
           kode_kriteria: code,
           kriteria: row.kriteria || row.name || row.kriteria_name || (std ? std.name : code),
           ai_pct: safeFloat(row.aiPct ?? row.ai_pct ?? 0),
           redistribusi_pct: safeFloat(row.redisPct ?? row.redistribusi_pct ?? 0),
           redistribusi_kg: safeFloat(row.redisKg ?? row.redistribusi_kg ?? 0),
+          parent: parent,
         });
-        addedCodes.add(code);
+        addedKeys.add(cKey);
       }
     }
   }

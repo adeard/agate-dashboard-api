@@ -243,25 +243,60 @@ _Alternative Endpoint:_ `GET /api/v5/factory-inspection/detail?ticket_number=A00
     "buah_hitam_diterima": 10,
     "redistribusi_potongan": [
       {
+        "kode_kriteria": "A",
+        "kriteria": "Buah Mentah",
+        "ai_pct": 0,
+        "redistribusi_pct": 0,
+        "redistribusi_kg": 0,
+        "parent": null
+      },
+      {
+        "kode_kriteria": "O",
+        "kriteria": "Lewat Matang",
+        "ai_pct": 0,
+        "redistribusi_pct": 0,
+        "redistribusi_kg": 0,
+        "parent": null
+      },
+      {
+        "kode_kriteria": "E",
+        "kriteria": "Janjang Kosong",
+        "ai_pct": 0,
+        "redistribusi_pct": 0,
+        "redistribusi_kg": 0,
+        "parent": null
+      },
+      {
         "kode_kriteria": "K",
         "kriteria": "Buah Kecil",
         "ai_pct": 0.62,
         "redistribusi_pct": 0.61,
-        "redistribusi_kg": 55.39
+        "redistribusi_kg": 55.39,
+        "parent": "N"
       },
       {
         "kode_kriteria": "PEST",
         "kriteria": "Dimakan Tikus",
         "ai_pct": 0.19,
         "redistribusi_pct": 0.19,
-        "redistribusi_kg": 17.25
+        "redistribusi_kg": 17.25,
+        "parent": "N"
       },
       {
         "kode_kriteria": "TP",
         "kriteria": "Tangkai Panjang",
         "ai_pct": 0.16,
         "redistribusi_pct": 0.16,
-        "redistribusi_kg": 14.53
+        "redistribusi_kg": 14.53,
+        "parent": "N"
+      },
+      {
+        "kode_kriteria": "TP",
+        "kriteria": "Tangkai Panjang",
+        "ai_pct": 0.05,
+        "redistribusi_pct": 0.05,
+        "redistribusi_kg": 4.5,
+        "parent": "O"
       }
     ],
     "potongan_tambahan": {
