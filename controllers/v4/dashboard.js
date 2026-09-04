@@ -2475,9 +2475,20 @@ class DashboardV4Controller {
       3: "Plasma",
     };
 
-    const { targetDate, targetEnd, factory, company, vendor_type } = req.query;
+    const {
+      targetDate,
+      targetEnd,
+      date_from,
+      date_to,
+      factory,
+      company,
+      vendor_type,
+    } = req.query;
 
-    if (!targetDate || !targetEnd) {
+    const fromDate = date_from || targetDate;
+    const toDate = date_to || targetEnd;
+
+    if (!fromDate || !toDate) {
       return res.status(400).json({
         code: 500,
         success: false,
@@ -2485,19 +2496,33 @@ class DashboardV4Controller {
       });
     }
 
-    // Parse the target date using dayjs
-    const startDate = dayjs(targetDate).startOf("day").add(7, "hour"); // 6 AM on the target date
-    const endDate = dayjs(targetEnd)
+    let ids = req.query.ids;
+    ids = Array.isArray(ids)
+      ? ids
+      : typeof ids === "string"
+        ? ids.split(",")
+        : [];
+    const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
+
+    // Parse the target date using dayjs (shift from 06:00 to 05:59:59 next day)
+    const startDate = dayjs(fromDate).hour(6).minute(0).second(0).millisecond(0);
+    const endDate = dayjs(toDate)
       .add(1, "day")
-      .startOf("day")
-      .add(3, "hour"); // 3 AM the next day
+      .hour(5)
+      .minute(59)
+      .second(59)
+      .millisecond(999);
 
     let query = {
       date: {
         $gte: startDate.toDate(),
-        $lt: endDate.toDate(),
+        $lte: endDate.toDate(),
       },
     };
+
+    if (uniqIds.length) {
+      query.vendor = { $in: uniqIds };
+    }
 
     if (company) {
       query.company = company;
@@ -2557,8 +2582,14 @@ class DashboardV4Controller {
         e.vehicle_number !== "BH 4321 ALB",
     );
 
-    const periodString = `${dayjs(targetDate).format("MMMM YYYY")} - ${dayjs(
-      targetEnd,
+    const hasMultipleDates =
+      fromDate &&
+      toDate &&
+      dayjs(fromDate).format("YYYY-MM-DD") !==
+        dayjs(toDate).format("YYYY-MM-DD");
+
+    const periodString = `${dayjs(fromDate).format("MMMM YYYY")} - ${dayjs(
+      toDate,
     ).format("MMMM YYYY")}`;
 
     // Prepare the Excel data
@@ -2719,12 +2750,16 @@ class DashboardV4Controller {
     let daysDateArray = [];
 
     data.forEach((item, index) => {
-      const date = dayjs(item.date).format("DD/MM/YYYY");
-      const month = dayjs(item.date).format("MMMM YYYY");
+      // Adjust date for shift-based day (06:00 to 05:59 next day) only when filtering multiple dates
+      const dateForGrouping = hasMultipleDates
+        ? dayjs(item["date"]).subtract(6, "hour").toDate()
+        : item["date"];
+      const date = dayjs(dateForGrouping).format("DD/MM/YYYY");
+      const month = dayjs(dateForGrouping).format("MMMM YYYY");
       const hour = dayjs(item.date).hour();
       const minute = dayjs(item.date).minute();
-      const week = getWeekNumber(item.date);
-      const day = dayjs(item.date).format("dddd");
+      const week = getWeekNumber(dateForGrouping);
+      const day = dayjs(dateForGrouping).format("dddd");
 
       // Track daily truck counts for gradingTrucks
       if (!gradingTrucks[date]) {
@@ -2825,23 +2860,39 @@ class DashboardV4Controller {
       dailyTruckCount[day]["total_truk"] += 1;
 
       if (!avgWeek[week]) {
-        avgWeek[week] = { accepted: [], rejected: [], fined: [] };
+        avgWeek[week] = {
+          total_tandan: 0,
+          total_accepted: 0,
+          total_rejected: 0,
+          total_fined: 0,
+        };
       }
+      avgWeek[week].total_tandan += totalTandanItem;
+      avgWeek[week].total_accepted += totalAcceptedModified;
+      avgWeek[week].total_rejected += totalRejectedModified;
+      avgWeek[week].total_fined += totalFinedItem;
 
       if (!avgWeekDemography[week]) {
         avgWeekDemography[week] = {
-          accepted: {
-            matang: [],
-            lewat_matang: [],
-            tangkai_panjang: [],
-          },
-          rejected: {
-            mentah: [],
-            janjang_kosong: [],
-            buah_kecil: [],
-          },
+          total_tandan: 0,
+          total_accepted: 0,
+          matang: 0,
+          lewat_matang: 0,
+          tangkai_panjang: 0,
+          mentah: 0,
+          janjang_kosong: 0,
+          buah_kecil: 0,
         };
       }
+      avgWeekDemography[week].total_tandan += totalTandanItem;
+      avgWeekDemography[week].total_accepted += totalAcceptedModified;
+      avgWeekDemography[week].matang += totalMatang;
+      avgWeekDemography[week].lewat_matang += totalLewatMatang;
+      avgWeekDemography[week].tangkai_panjang += totalTangkaiPanjang;
+      avgWeekDemography[week].mentah += totalMentah;
+      avgWeekDemography[week].janjang_kosong += totalJanjangKosong;
+      avgWeekDemography[week].buah_kecil +=
+        totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
 
       if (!machineUtilityWeek[week]) {
         machineUtilityWeek[week] = {
@@ -2933,10 +2984,6 @@ class DashboardV4Controller {
         totalAcceptedModified,
       );
 
-      avgWeek[week]["accepted"].push(percentAccepted);
-      avgWeek[week]["rejected"].push(percentRejected);
-      avgWeek[week]["fined"].push(percentFined);
-
       if (percentRejected >= 25) {
         if (hour >= 7 && hour < 18) {
           hourDataReject["before6pm"]["total_trucks"] += 1;
@@ -2960,7 +3007,7 @@ class DashboardV4Controller {
           ] += percentRejected;
         } else if (
           hour >= 18 ||
-          (hour < 7 && dayjs(item.date).date() === endDate.date())
+          hour < 7
         ) {
           hourDataReject["after6pm"]["total_trucks"] += 1;
           hourDataReject["after6pm"]["total_tandan"] += totalTandanItem;
@@ -3176,20 +3223,6 @@ class DashboardV4Controller {
         }
       }
 
-      avgWeekDemography[week]["accepted"]["matang"].push(percentMatang);
-      avgWeekDemography[week]["accepted"]["lewat_matang"].push(
-        percentLewatMatang,
-      );
-      avgWeekDemography[week]["accepted"]["tangkai_panjang"].push(
-        percentTangkaiPanjang,
-      );
-
-      avgWeekDemography[week]["rejected"]["mentah"].push(percentMentah);
-      avgWeekDemography[week]["rejected"]["janjang_kosong"].push(
-        percentJangkos,
-      );
-      avgWeekDemography[week]["rejected"]["buah_kecil"].push(percentBuahKecil);
-
       bestAcceptedTrucks[vehicleNumber]["count"] += 1;
       bestAcceptedTrucks[vehicleNumber]["tandan"] += totalTandanItem;
       bestAcceptedTrucks[vehicleNumber]["accepted"] += percentAccepted;
@@ -3307,22 +3340,16 @@ class DashboardV4Controller {
       ["Week", "% Diterima", "% Ditolak", "% Didenda"],
     ];
     Object.keys(avgWeek).forEach((week) => {
-      let accepted = avgWeek[week]["accepted"];
-      let rejected = avgWeek[week]["rejected"];
-      let fined = avgWeek[week]["fined"];
-
-      let acceptedAvg =
-        accepted.reduce((n, c) => n + Number(c), 0) / accepted?.length;
-      let rejectedAvg =
-        rejected.reduce((n, c) => n + Number(c), 0) / rejected?.length;
-      let finedAvg =
-        fined.reduce((n, c) => n + Number(c), 0) / accepted?.length;
+      const w = avgWeek[week];
+      const acceptedPercent = countPercentage(w.total_accepted, w.total_tandan);
+      const rejectedPercent = countPercentage(w.total_rejected, w.total_tandan);
+      const finedPercent = countPercentage(w.total_fined, w.total_tandan);
 
       avgWeekData.push([
         week,
-        acceptedAvg.toFixed(2),
-        rejectedAvg.toFixed(2),
-        finedAvg.toFixed(2),
+        acceptedPercent.toFixed(2),
+        rejectedPercent.toFixed(2),
+        finedPercent.toFixed(2),
       ]);
     });
     avgWeekData.push([
@@ -3336,38 +3363,23 @@ class DashboardV4Controller {
       ["", "% MM", "% LM", "% TP", "% M", "% JK", "% BK"],
     ];
     Object.keys(avgWeekDemography).forEach((week) => {
-      let accepted = avgWeekDemography[week]["accepted"];
-      let rejected = avgWeekDemography[week]["rejected"];
-      const joined = { ...accepted, ...rejected };
+      const item = avgWeekDemography[week];
+      const percentMM = countPercentage(item.matang, item.total_tandan);
+      const percentLM = countPercentage(item.lewat_matang, item.total_tandan);
+      const percentTP = countPercentage(item.tangkai_panjang, item.total_accepted);
+      const percentM = countPercentage(item.mentah, item.total_tandan);
+      const percentJK = countPercentage(item.janjang_kosong, item.total_tandan);
+      const percentBK = countPercentage(item.buah_kecil, item.total_tandan);
 
-      let temp = [week, "", "", "", "", "", "", ""];
-
-      Object.keys(joined).forEach((key) => {
-        const item = joined[key];
-        let avg = item.reduce((n, c) => n + Number(c), 0) / item?.length;
-        switch (key) {
-          case "matang":
-            temp[1] = avg.toFixed(2);
-            break;
-          case "lewat_matang":
-            temp[2] = avg.toFixed(2);
-            break;
-          case "tangkai_panjang":
-            temp[3] = avg.toFixed(2);
-            break;
-          case "mentah":
-            temp[4] = avg.toFixed(2);
-            break;
-          case "janjang_kosong":
-            temp[5] = avg.toFixed(2);
-            break;
-          case "buah_kecil":
-            temp[6] = avg.toFixed(2);
-            break;
-        }
-      });
-
-      avgWeekDemographyData.push(temp);
+      avgWeekDemographyData.push([
+        week,
+        percentMM.toFixed(2),
+        percentLM.toFixed(2),
+        percentTP.toFixed(2),
+        percentM.toFixed(2),
+        percentJK.toFixed(2),
+        percentBK.toFixed(2),
+      ]);
     });
 
     const bestAcceptedTrucksData = [
