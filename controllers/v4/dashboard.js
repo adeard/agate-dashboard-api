@@ -2505,7 +2505,11 @@ class DashboardV4Controller {
     const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
     // Parse the target date using dayjs (shift from 06:00 to 05:59:59 next day)
-    const startDate = dayjs(fromDate).hour(6).minute(0).second(0).millisecond(0);
+    const startDate = dayjs(fromDate)
+      .hour(6)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
     const endDate = dayjs(toDate)
       .add(1, "day")
       .hour(5)
@@ -2612,22 +2616,68 @@ class DashboardV4Controller {
         "TBS Ditolak",
         "TBS Didenda",
         "TBS Multiple",
+        "Diterima",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Ditolak",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
         "Mentah",
         "Matang",
         "Lewat Matang",
         "Janjang Kosong",
         "Buah Kecil <3kg",
         "Buah Kecil <5kg",
-        ...(isLngm ? ["Buah Kecil <2kg"] : []),
+        "Buah Kecil <2kg",
         "Tangkai Panjang",
-        ...(isKynm
-          ? [
-              "Tangkai Panjang Didenda",
-              "Rusak Dimakan Tikus",
-              "Rusak Dimakan Tikus Didenda",
-            ]
-          : []),
-        // "Matang Katro",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
       ],
     ];
 
@@ -2815,6 +2865,22 @@ class DashboardV4Controller {
         totalRusakDimakanTikusDitolak,
         percentRusakDimakanTikusDidenda,
         percentRusakDimakanTikusDitolak,
+        totalMatangRaw,
+        totalLewatMatangRaw,
+        totalMentahDiterimaRaw,
+        totalJanjangKosongDiterimaRaw,
+        totalMentahRaw,
+        totalJanjangKosongRaw,
+        totalLewatMatangDitolakRaw,
+        totalMatangDitolakRaw,
+        totalBuahBesarDiterima,
+        totalBuahBesarDitolak,
+        totalBuahKecil5Diterima,
+        totalBuahKecil3Diterima,
+        totalBuahKecil2Diterima,
+        totalRusakDimakanTikusDiterima,
+        totalPartenokarpiDiterima,
+        totalPartenokarpiDitolak,
       } = utilsInspection.getTotalAndPercentClassificationNew(item, isLngm);
 
       totalAllTandan += totalTandanItem;
@@ -2876,23 +2942,71 @@ class DashboardV4Controller {
         avgWeekDemography[week] = {
           total_tandan: 0,
           total_accepted: 0,
+          total_rejected: 0,
+          // Diterima
+          mentah_diterima: 0,
           matang: 0,
           lewat_matang: 0,
+          janjang_kosong_diterima: 0,
+          buah_kecil_3_diterima: 0,
+          buah_kecil_5_diterima: 0,
+          buah_kecil_2_diterima: 0,
           tangkai_panjang: 0,
+          rusak_dimakan_tikus_diterima: 0,
+          buah_besar_diterima: 0,
+          partenokarpi_diterima: 0,
+          // Ditolak
           mentah: 0,
+          matang_ditolak: 0,
+          lewat_matang_ditolak: 0,
           janjang_kosong: 0,
-          buah_kecil: 0,
+          buah_kecil_3: 0,
+          buah_kecil_5: 0,
+          buah_kecil_2: 0,
+          tangkai_panjang_ditolak: 0,
+          rusak_dimakan_tikus: 0,
+          buah_besar_ditolak: 0,
+          partenokarpi_ditolak: 0,
         };
       }
       avgWeekDemography[week].total_tandan += totalTandanItem;
       avgWeekDemography[week].total_accepted += totalAcceptedModified;
-      avgWeekDemography[week].matang += totalMatang;
-      avgWeekDemography[week].lewat_matang += totalLewatMatang;
-      avgWeekDemography[week].tangkai_panjang += totalTangkaiPanjang;
-      avgWeekDemography[week].mentah += totalMentah;
-      avgWeekDemography[week].janjang_kosong += totalJanjangKosong;
-      avgWeekDemography[week].buah_kecil +=
-        totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+      avgWeekDemography[week].total_rejected += totalRejectedModified;
+      // Diterima
+      avgWeekDemography[week].mentah_diterima += totalMentahDiterimaRaw || 0;
+      avgWeekDemography[week].matang += totalMatangRaw || 0;
+      avgWeekDemography[week].lewat_matang += totalLewatMatangRaw || 0;
+      avgWeekDemography[week].janjang_kosong_diterima +=
+        totalJanjangKosongDiterimaRaw || 0;
+      avgWeekDemography[week].buah_kecil_3_diterima +=
+        totalBuahKecil3Diterima || 0;
+      avgWeekDemography[week].buah_kecil_5_diterima +=
+        totalBuahKecil5Diterima || 0;
+      avgWeekDemography[week].buah_kecil_2_diterima +=
+        totalBuahKecil2Diterima || 0;
+      avgWeekDemography[week].tangkai_panjang += totalTangkaiPanjang || 0;
+      avgWeekDemography[week].rusak_dimakan_tikus_diterima +=
+        totalRusakDimakanTikusDiterima || 0;
+      avgWeekDemography[week].buah_besar_diterima +=
+        totalBuahBesarDiterima || 0;
+      avgWeekDemography[week].partenokarpi_diterima +=
+        totalPartenokarpiDiterima || 0;
+      // Ditolak
+      avgWeekDemography[week].mentah += totalMentahRaw || 0;
+      avgWeekDemography[week].matang_ditolak += totalMatangDitolakRaw || 0;
+      avgWeekDemography[week].lewat_matang_ditolak +=
+        totalLewatMatangDitolakRaw || 0;
+      avgWeekDemography[week].janjang_kosong += totalJanjangKosongRaw || 0;
+      avgWeekDemography[week].buah_kecil_3 += totalBuahKecil3 || 0;
+      avgWeekDemography[week].buah_kecil_5 += totalBuahKecil5 || 0;
+      avgWeekDemography[week].buah_kecil_2 += totalBuahKecil2 || 0;
+      avgWeekDemography[week].tangkai_panjang_ditolak +=
+        totalTangkaiPanjangDitolak || 0;
+      avgWeekDemography[week].rusak_dimakan_tikus +=
+        totalRusakDimakanTikusDitolak || totalRusakDimakanTikus || 0;
+      avgWeekDemography[week].buah_besar_ditolak += totalBuahBesarDitolak || 0;
+      avgWeekDemography[week].partenokarpi_ditolak +=
+        totalPartenokarpiDitolak || 0;
 
       if (!machineUtilityWeek[week]) {
         machineUtilityWeek[week] = {
@@ -2915,19 +3029,30 @@ class DashboardV4Controller {
           count: 0,
           tandan: 0,
           accepted: 0,
+          // AVG Diterima
+          mentah_diterima: 0,
           matang: 0,
           lewat_matang: 0,
+          janjang_kosong_diterima: 0,
+          buah_kecil_3_diterima: 0,
+          buah_kecil_5_diterima: 0,
+          buah_kecil_2_diterima: 0,
           tangkai_panjang: 0,
+          rusak_dimakan_tikus_diterima: 0,
+          buah_besar_diterima: 0,
+          partenokarpi_diterima: 0,
+          // AVG Ditolak
           mentah: 0,
+          matang_ditolak: 0,
+          lewat_matang_ditolak: 0,
           janjang_kosong: 0,
-          buah_kecil: 0,
-          ...(isKynm
-            ? {
-                tangkai_panjang_didenda: 0,
-                rusak_dimakan_tikus: 0,
-                rusak_dimakan_tikus_didenda: 0,
-              }
-            : {}),
+          buah_kecil_3: 0,
+          buah_kecil_5: 0,
+          buah_kecil_2: 0,
+          tangkai_panjang_ditolak: 0,
+          rusak_dimakan_tikus: 0,
+          buah_besar_ditolak: 0,
+          partenokarpi_ditolak: 0,
         };
       }
 
@@ -2936,19 +3061,30 @@ class DashboardV4Controller {
           count: 0,
           tandan: 0,
           accepted: 0,
+          // AVG Diterima
+          mentah_diterima: 0,
           matang: 0,
           lewat_matang: 0,
+          janjang_kosong_diterima: 0,
+          buah_kecil_3_diterima: 0,
+          buah_kecil_5_diterima: 0,
+          buah_kecil_2_diterima: 0,
           tangkai_panjang: 0,
+          rusak_dimakan_tikus_diterima: 0,
+          buah_besar_diterima: 0,
+          partenokarpi_diterima: 0,
+          // AVG Ditolak
           mentah: 0,
+          matang_ditolak: 0,
+          lewat_matang_ditolak: 0,
           janjang_kosong: 0,
-          buah_kecil: 0,
-          ...(isKynm
-            ? {
-                tangkai_panjang_didenda: 0,
-                rusak_dimakan_tikus: 0,
-                rusak_dimakan_tikus_didenda: 0,
-              }
-            : {}),
+          buah_kecil_3: 0,
+          buah_kecil_5: 0,
+          buah_kecil_2: 0,
+          tangkai_panjang_ditolak: 0,
+          rusak_dimakan_tikus: 0,
+          buah_besar_ditolak: 0,
+          partenokarpi_ditolak: 0,
           trucks: {},
         };
       }
@@ -2958,19 +3094,30 @@ class DashboardV4Controller {
           count: 0,
           tandan: 0,
           accepted: 0,
+          // AVG Diterima
+          mentah_diterima: 0,
           matang: 0,
           lewat_matang: 0,
+          janjang_kosong_diterima: 0,
+          buah_kecil_3_diterima: 0,
+          buah_kecil_5_diterima: 0,
+          buah_kecil_2_diterima: 0,
           tangkai_panjang: 0,
+          rusak_dimakan_tikus_diterima: 0,
+          buah_besar_diterima: 0,
+          partenokarpi_diterima: 0,
+          // AVG Ditolak
           mentah: 0,
+          matang_ditolak: 0,
+          lewat_matang_ditolak: 0,
           janjang_kosong: 0,
-          buah_kecil: 0,
-          ...(isKynm
-            ? {
-                tangkai_panjang_didenda: 0,
-                rusak_dimakan_tikus: 0,
-                rusak_dimakan_tikus_didenda: 0,
-              }
-            : {}),
+          buah_kecil_3: 0,
+          buah_kecil_5: 0,
+          buah_kecil_2: 0,
+          tangkai_panjang_ditolak: 0,
+          rusak_dimakan_tikus: 0,
+          buah_besar_ditolak: 0,
+          partenokarpi_ditolak: 0,
         };
       }
 
@@ -3005,10 +3152,7 @@ class DashboardV4Controller {
           hourDataReject["before6pm"]["trucks"][vehicleNumber][
             "percent_rejected"
           ] += percentRejected;
-        } else if (
-          hour >= 18 ||
-          hour < 7
-        ) {
+        } else if (hour >= 18 || hour < 7) {
           hourDataReject["after6pm"]["total_trucks"] += 1;
           hourDataReject["after6pm"]["total_tandan"] += totalTandanItem;
           hourDataReject["after6pm"]["total_accepted"] += totalAcceptedModified;
@@ -3226,64 +3370,228 @@ class DashboardV4Controller {
       bestAcceptedTrucks[vehicleNumber]["count"] += 1;
       bestAcceptedTrucks[vehicleNumber]["tandan"] += totalTandanItem;
       bestAcceptedTrucks[vehicleNumber]["accepted"] += percentAccepted;
-      bestAcceptedTrucks[vehicleNumber]["matang"] += percentMatang;
-      bestAcceptedTrucks[vehicleNumber]["lewat_matang"] += percentLewatMatang;
-      bestAcceptedTrucks[vehicleNumber]["tangkai_panjang"] +=
-        percentTangkaiPanjang;
-      bestAcceptedTrucks[vehicleNumber]["mentah"] += percentMentah;
-      bestAcceptedTrucks[vehicleNumber]["janjang_kosong"] += percentJangkos;
-      bestAcceptedTrucks[vehicleNumber]["buah_kecil"] += percentBuahKecil;
-      if (isKynm) {
-        bestAcceptedTrucks[vehicleNumber]["tangkai_panjang_didenda"] +=
-          percentTangkaiPanjangDidenda;
-        bestAcceptedTrucks[vehicleNumber]["rusak_dimakan_tikus"] +=
-          percentRusakDimakanTikus;
-        bestAcceptedTrucks[vehicleNumber]["rusak_dimakan_tikus_didenda"] +=
-          percentRusakDimakanTikusDidenda;
-      }
+      // AVG Diterima
+      bestAcceptedTrucks[vehicleNumber]["mentah_diterima"] += countPercentage(
+        totalMentahDiterimaRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["matang"] += countPercentage(
+        totalMatangRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["lewat_matang"] += countPercentage(
+        totalLewatMatangRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["janjang_kosong_diterima"] +=
+        countPercentage(totalJanjangKosongDiterimaRaw, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_3_diterima"] +=
+        countPercentage(totalBuahKecil3Diterima, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_5_diterima"] +=
+        countPercentage(totalBuahKecil5Diterima, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_2_diterima"] +=
+        countPercentage(totalBuahKecil2Diterima, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["tangkai_panjang"] += countPercentage(
+        totalTangkaiPanjang,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["rusak_dimakan_tikus_diterima"] +=
+        countPercentage(totalRusakDimakanTikusDiterima, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["buah_besar_diterima"] +=
+        countPercentage(totalBuahBesarDiterima, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["partenokarpi_diterima"] +=
+        countPercentage(totalPartenokarpiDiterima, totalTandanItem);
+      // AVG Ditolak
+      bestAcceptedTrucks[vehicleNumber]["mentah"] += countPercentage(
+        totalMentahRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["matang_ditolak"] += countPercentage(
+        totalMatangDitolakRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["lewat_matang_ditolak"] +=
+        countPercentage(totalLewatMatangDitolakRaw, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["janjang_kosong"] += countPercentage(
+        totalJanjangKosongRaw,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_3"] += countPercentage(
+        totalBuahKecil3,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_5"] += countPercentage(
+        totalBuahKecil5,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["buah_kecil_2"] += countPercentage(
+        totalBuahKecil2,
+        totalTandanItem,
+      );
+      bestAcceptedTrucks[vehicleNumber]["tangkai_panjang_ditolak"] +=
+        countPercentage(totalTangkaiPanjangDitolak, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["rusak_dimakan_tikus"] +=
+        countPercentage(
+          totalRusakDimakanTikusDitolak || totalRusakDimakanTikus,
+          totalTandanItem,
+        );
+      bestAcceptedTrucks[vehicleNumber]["buah_besar_ditolak"] +=
+        countPercentage(totalBuahBesarDitolak, totalTandanItem);
+      bestAcceptedTrucks[vehicleNumber]["partenokarpi_ditolak"] +=
+        countPercentage(totalPartenokarpiDitolak, totalTandanItem);
 
       avgVendor[vendorName]["count"] += 1;
       avgVendor[vendorName]["tandan"] += totalTandanItem;
       avgVendor[vendorName]["accepted"] += percentAccepted;
-      avgVendor[vendorName]["matang"] += percentMatang;
-      avgVendor[vendorName]["lewat_matang"] += percentLewatMatang;
-      avgVendor[vendorName]["tangkai_panjang"] += percentTangkaiPanjang;
-      avgVendor[vendorName]["mentah"] += percentMentah;
-      avgVendor[vendorName]["janjang_kosong"] += percentJangkos;
-      avgVendor[vendorName]["buah_kecil"] += percentBuahKecil;
-      if (isKynm) {
-        avgVendor[vendorName]["tangkai_panjang_didenda"] +=
-          percentTangkaiPanjangDidenda;
-        avgVendor[vendorName]["rusak_dimakan_tikus"] +=
-          percentRusakDimakanTikus;
-        avgVendor[vendorName]["rusak_dimakan_tikus_didenda"] +=
-          percentRusakDimakanTikusDidenda;
-      }
+      // AVG Diterima
+      avgVendor[vendorName]["mentah_diterima"] += countPercentage(
+        totalMentahDiterimaRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["matang"] += countPercentage(
+        totalMatangRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["lewat_matang"] += countPercentage(
+        totalLewatMatangRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["janjang_kosong_diterima"] += countPercentage(
+        totalJanjangKosongDiterimaRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_3_diterima"] += countPercentage(
+        totalBuahKecil3Diterima,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_5_diterima"] += countPercentage(
+        totalBuahKecil5Diterima,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_2_diterima"] += countPercentage(
+        totalBuahKecil2Diterima,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["tangkai_panjang"] += countPercentage(
+        totalTangkaiPanjang,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["rusak_dimakan_tikus_diterima"] += countPercentage(
+        totalRusakDimakanTikusDiterima,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_besar_diterima"] += countPercentage(
+        totalBuahBesarDiterima,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["partenokarpi_diterima"] += countPercentage(
+        totalPartenokarpiDiterima,
+        totalTandanItem,
+      );
+      // AVG Ditolak
+      avgVendor[vendorName]["mentah"] += countPercentage(
+        totalMentahRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["matang_ditolak"] += countPercentage(
+        totalMatangDitolakRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["lewat_matang_ditolak"] += countPercentage(
+        totalLewatMatangDitolakRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["janjang_kosong"] += countPercentage(
+        totalJanjangKosongRaw,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_3"] += countPercentage(
+        totalBuahKecil3,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_5"] += countPercentage(
+        totalBuahKecil5,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_kecil_2"] += countPercentage(
+        totalBuahKecil2,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["tangkai_panjang_ditolak"] += countPercentage(
+        totalTangkaiPanjangDitolak,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["rusak_dimakan_tikus"] += countPercentage(
+        totalRusakDimakanTikusDitolak || totalRusakDimakanTikus,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["buah_besar_ditolak"] += countPercentage(
+        totalBuahBesarDitolak,
+        totalTandanItem,
+      );
+      avgVendor[vendorName]["partenokarpi_ditolak"] += countPercentage(
+        totalPartenokarpiDitolak,
+        totalTandanItem,
+      );
 
       avgVendor[vendorName]["trucks"][vehicleNumber]["count"] += 1;
-      avgVendor[vendorName]["trucks"][vehicleNumber]["tandan"] += totalTandanItem;
+      avgVendor[vendorName]["trucks"][vehicleNumber]["tandan"] +=
+        totalTandanItem;
       avgVendor[vendorName]["trucks"][vehicleNumber]["accepted"] +=
         percentAccepted;
-      avgVendor[vendorName]["trucks"][vehicleNumber]["matang"] += percentMatang;
+      // AVG Diterima
+      avgVendor[vendorName]["trucks"][vehicleNumber]["mentah_diterima"] +=
+        countPercentage(totalMentahDiterimaRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["matang"] +=
+        countPercentage(totalMatangRaw, totalTandanItem);
       avgVendor[vendorName]["trucks"][vehicleNumber]["lewat_matang"] +=
-        percentLewatMatang;
+        countPercentage(totalLewatMatangRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber][
+        "janjang_kosong_diterima"
+      ] += countPercentage(totalJanjangKosongDiterimaRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_3_diterima"] +=
+        countPercentage(totalBuahKecil3Diterima, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_5_diterima"] +=
+        countPercentage(totalBuahKecil5Diterima, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_2_diterima"] +=
+        countPercentage(totalBuahKecil2Diterima, totalTandanItem);
       avgVendor[vendorName]["trucks"][vehicleNumber]["tangkai_panjang"] +=
-        percentTangkaiPanjang;
-      avgVendor[vendorName]["trucks"][vehicleNumber]["mentah"] += percentMentah;
+        countPercentage(totalTangkaiPanjang, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber][
+        "rusak_dimakan_tikus_diterima"
+      ] += countPercentage(totalRusakDimakanTikusDiterima, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_besar_diterima"] +=
+        countPercentage(totalBuahBesarDiterima, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber][
+        "partenokarpi_diterima"
+      ] += countPercentage(totalPartenokarpiDiterima, totalTandanItem);
+      // AVG Ditolak
+      avgVendor[vendorName]["trucks"][vehicleNumber]["mentah"] +=
+        countPercentage(totalMentahRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["matang_ditolak"] +=
+        countPercentage(totalMatangDitolakRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["lewat_matang_ditolak"] +=
+        countPercentage(totalLewatMatangDitolakRaw, totalTandanItem);
       avgVendor[vendorName]["trucks"][vehicleNumber]["janjang_kosong"] +=
-        percentJangkos;
-      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil"] +=
-        percentBuahKecil;
-      if (isKynm) {
-        avgVendor[vendorName]["trucks"][vehicleNumber][
-          "tangkai_panjang_didenda"
-        ] += percentTangkaiPanjangDidenda;
-        avgVendor[vendorName]["trucks"][vehicleNumber]["rusak_dimakan_tikus"] +=
-          percentRusakDimakanTikus;
-        avgVendor[vendorName]["trucks"][vehicleNumber][
-          "rusak_dimakan_tikus_didenda"
-        ] += percentRusakDimakanTikusDidenda;
-      }
+        countPercentage(totalJanjangKosongRaw, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_3"] +=
+        countPercentage(totalBuahKecil3, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_5"] +=
+        countPercentage(totalBuahKecil5, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_kecil_2"] +=
+        countPercentage(totalBuahKecil2, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber][
+        "tangkai_panjang_ditolak"
+      ] += countPercentage(totalTangkaiPanjangDitolak, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["rusak_dimakan_tikus"] +=
+        countPercentage(
+          totalRusakDimakanTikusDitolak || totalRusakDimakanTikus,
+          totalTandanItem,
+        );
+      avgVendor[vendorName]["trucks"][vehicleNumber]["buah_besar_ditolak"] +=
+        countPercentage(totalBuahBesarDitolak, totalTandanItem);
+      avgVendor[vendorName]["trucks"][vehicleNumber]["partenokarpi_ditolak"] +=
+        countPercentage(totalPartenokarpiDitolak, totalTandanItem);
 
       const durations = dayjs(item.finish_date).diff(
         dayjs(item.date),
@@ -3294,39 +3602,45 @@ class DashboardV4Controller {
         index + 1,
         date,
         item.machine,
-        item.delivery_number,
+        item.delivery_number || "-",
         dayjs(item.date).format("HH:mm"),
-        dayjs(item.finish_date).format("HH:mm"),
-        durations,
-        Math.floor(
-          Number(Number(totalTandanItem) / Number(durations)),
-        ),
+        item.finish_date ? dayjs(item.finish_date).format("HH:mm") : "-",
+        durations || 0,
+        durations > 0
+          ? Math.floor(Number(totalTandanItem) / Number(durations))
+          : 0,
         vehicleNumber,
         item.vendor_name,
         vendoryTypeDict?.[item.vendor_type] || "-",
-        totalTandanItem,
-        totalAcceptedModified,
-        totalRejectedModified,
-        totalFinedItem,
-        totalMultiple,
-        totalMentah,
-        totalMatang,
-        totalLewatMatang,
-        totalJanjangKosong,
-        totalBuahKecil3,
-        totalBuahKecil5,
-        ...(isLngm ? [totalBuahKecil2] : []),
-        totalTangkaiPanjang,
-        ...(isKynm
-          ? [
-              totalTangkaiPanjangDidenda,
-              totalRusakDimakanTikus,
-              totalRusakDimakanTikusDidenda,
-            ]
-          : []),
-        // '',
-
-        // item.grading_result.total_matang_katro,
+        totalTandanItem || 0,
+        totalAcceptedModified || 0,
+        totalRejectedModified || 0,
+        totalFinedItem || 0,
+        totalMultiple || 0,
+        // Diterima
+        totalMentahDiterimaRaw || 0,
+        totalMatangRaw || 0,
+        totalLewatMatangRaw || 0,
+        totalJanjangKosongDiterimaRaw || 0,
+        totalBuahKecil3Diterima || 0,
+        totalBuahKecil5Diterima || 0,
+        totalBuahKecil2Diterima || 0,
+        totalTangkaiPanjang || 0,
+        totalRusakDimakanTikusDiterima || 0,
+        totalBuahBesarDiterima || 0,
+        totalPartenokarpiDiterima || 0,
+        // Ditolak
+        totalMentahRaw || 0,
+        totalMatangDitolakRaw || 0,
+        totalLewatMatangDitolakRaw || 0,
+        totalJanjangKosongRaw || 0,
+        totalBuahKecil3 || 0,
+        totalBuahKecil5 || 0,
+        totalBuahKecil2 || 0,
+        totalTangkaiPanjangDitolak || 0,
+        totalRusakDimakanTikusDitolak || totalRusakDimakanTikus || 0,
+        totalBuahBesarDitolak || 0,
+        totalPartenokarpiDitolak || 0,
       ]);
     });
 
@@ -3359,26 +3673,89 @@ class DashboardV4Controller {
 
     const avgWeekDemographyData = [
       [periodString],
-      ["Week", "Buah Diterima", "", "", "Buah Ditolak", "", ""],
-      ["", "% MM", "% LM", "% TP", "% M", "% JK", "% BK"],
+      [
+        "Week",
+        "Diterima",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Ditolak",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        "",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+      ],
     ];
     Object.keys(avgWeekDemography).forEach((week) => {
       const item = avgWeekDemography[week];
-      const percentMM = countPercentage(item.matang, item.total_tandan);
-      const percentLM = countPercentage(item.lewat_matang, item.total_tandan);
-      const percentTP = countPercentage(item.tangkai_panjang, item.total_accepted);
-      const percentM = countPercentage(item.mentah, item.total_tandan);
-      const percentJK = countPercentage(item.janjang_kosong, item.total_tandan);
-      const percentBK = countPercentage(item.buah_kecil, item.total_tandan);
+      const totalTandan = item.total_tandan || 1;
 
       avgWeekDemographyData.push([
         week,
-        percentMM.toFixed(2),
-        percentLM.toFixed(2),
-        percentTP.toFixed(2),
-        percentM.toFixed(2),
-        percentJK.toFixed(2),
-        percentBK.toFixed(2),
+        // Diterima
+        countPercentage(item.mentah_diterima, totalTandan).toFixed(2),
+        countPercentage(item.matang, totalTandan).toFixed(2),
+        countPercentage(item.lewat_matang, totalTandan).toFixed(2),
+        countPercentage(item.janjang_kosong_diterima, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_3_diterima, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_5_diterima, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_2_diterima, totalTandan).toFixed(2),
+        countPercentage(item.tangkai_panjang, totalTandan).toFixed(2),
+        countPercentage(item.rusak_dimakan_tikus_diterima, totalTandan).toFixed(
+          2,
+        ),
+        countPercentage(item.buah_besar_diterima, totalTandan).toFixed(2),
+        countPercentage(item.partenokarpi_diterima, totalTandan).toFixed(2),
+        // Ditolak
+        countPercentage(item.mentah, totalTandan).toFixed(2),
+        countPercentage(item.matang_ditolak, totalTandan).toFixed(2),
+        countPercentage(item.lewat_matang_ditolak, totalTandan).toFixed(2),
+        countPercentage(item.janjang_kosong, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_3, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_5, totalTandan).toFixed(2),
+        countPercentage(item.buah_kecil_2, totalTandan).toFixed(2),
+        countPercentage(item.tangkai_panjang_ditolak, totalTandan).toFixed(2),
+        countPercentage(item.rusak_dimakan_tikus, totalTandan).toFixed(2),
+        countPercentage(item.buah_besar_ditolak, totalTandan).toFixed(2),
+        countPercentage(item.partenokarpi_ditolak, totalTandan).toFixed(2),
       ]);
     });
 
@@ -3391,21 +3768,60 @@ class DashboardV4Controller {
         "Total Truk",
         "Kontribusi",
         "Avg Tandan",
-        "Estimasi BJR",
         "Avg % Diterima",
-        "Avg % MM",
-        "Avg % LM",
-        "Avg % TP",
-        "Avg % M",
-        "Avg % JK",
-        "Avg % BK",
-        ...(isKynm
-          ? [
-              "Avg % TP Didenda",
-              "Avg % Rusak Tikus",
-              "Avg % Rusak Tikus Didenda",
-            ]
-          : []),
+        "AVG Diterima",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "AVG Ditolak",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
       ],
     ];
     Object.keys(bestAcceptedTrucks)
@@ -3429,27 +3845,37 @@ class DashboardV4Controller {
           count,
           countPercentage(item["tandan"], totalAllTandan).toFixed(2) + "%",
           avgTandan,
-          Number(10000 / avgTandan).toFixed(2),
           Number(item["accepted"] / count).toFixed(2),
+          // AVG Diterima
+          Number(item["mentah_diterima"] / count).toFixed(2),
           Number(item["matang"] / count).toFixed(2),
           Number(item["lewat_matang"] / count).toFixed(2),
+          Number(item["janjang_kosong_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_3_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_5_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_2_diterima"] / count).toFixed(2),
           Number(item["tangkai_panjang"] / count).toFixed(2),
+          Number(item["rusak_dimakan_tikus_diterima"] / count).toFixed(2),
+          Number(item["buah_besar_diterima"] / count).toFixed(2),
+          Number(item["partenokarpi_diterima"] / count).toFixed(2),
+          // AVG Ditolak
           Number(item["mentah"] / count).toFixed(2),
+          Number(item["matang_ditolak"] / count).toFixed(2),
+          Number(item["lewat_matang_ditolak"] / count).toFixed(2),
           Number(item["janjang_kosong"] / count).toFixed(2),
-          Number(item["buah_kecil"] / count).toFixed(2),
-          ...(isKynm
-            ? [
-                Number(item["tangkai_panjang_didenda"] / count).toFixed(2),
-                Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
-                Number(item["rusak_dimakan_tikus_didenda"] / count).toFixed(2),
-              ]
-            : []),
+          Number(item["buah_kecil_3"] / count).toFixed(2),
+          Number(item["buah_kecil_5"] / count).toFixed(2),
+          Number(item["buah_kecil_2"] / count).toFixed(2),
+          Number(item["tangkai_panjang_ditolak"] / count).toFixed(2),
+          Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
+          Number(item["buah_besar_ditolak"] / count).toFixed(2),
+          Number(item["partenokarpi_ditolak"] / count).toFixed(2),
         ];
 
         bestAcceptedTrucksData.push(temp);
       });
     bestAcceptedTrucksData.push([
-      "** Kontribusi merupakan persentase terhadap keseluruhan truk dalam Januari - Maret 2025",
+      `** Kontribusi merupakan persentase terhadap keseluruhan truk dalam ${periodString}`,
     ]);
 
     const worstAcceptedTrucksData = [
@@ -3461,21 +3887,60 @@ class DashboardV4Controller {
         "Total Truk",
         "Kontribusi",
         "Avg Tandan",
-        "Estimasi BJR",
         "Avg % Diterima",
-        "Avg % MM",
-        "Avg % LM",
-        "Avg % TP",
-        "Avg % M",
-        "Avg % JK",
-        "Avg % BK",
-        ...(isKynm
-          ? [
-              "Avg % TP Didenda",
-              "Avg % Rusak Tikus",
-              "Avg % Rusak Tikus Didenda",
-            ]
-          : []),
+        "AVG Diterima",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "AVG Ditolak",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
       ],
     ];
     Object.keys(bestAcceptedTrucks)
@@ -3499,27 +3964,37 @@ class DashboardV4Controller {
           count,
           countPercentage(item["tandan"], totalAllTandan).toFixed(2) + "%",
           avgTandan,
-          Number(10000 / avgTandan).toFixed(2),
           Number(item["accepted"] / count).toFixed(2),
+          // AVG Diterima
+          Number(item["mentah_diterima"] / count).toFixed(2),
           Number(item["matang"] / count).toFixed(2),
           Number(item["lewat_matang"] / count).toFixed(2),
+          Number(item["janjang_kosong_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_3_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_5_diterima"] / count).toFixed(2),
+          Number(item["buah_kecil_2_diterima"] / count).toFixed(2),
           Number(item["tangkai_panjang"] / count).toFixed(2),
+          Number(item["rusak_dimakan_tikus_diterima"] / count).toFixed(2),
+          Number(item["buah_besar_diterima"] / count).toFixed(2),
+          Number(item["partenokarpi_diterima"] / count).toFixed(2),
+          // AVG Ditolak
           Number(item["mentah"] / count).toFixed(2),
+          Number(item["matang_ditolak"] / count).toFixed(2),
+          Number(item["lewat_matang_ditolak"] / count).toFixed(2),
           Number(item["janjang_kosong"] / count).toFixed(2),
-          Number(item["buah_kecil"] / count).toFixed(2),
-          ...(isKynm
-            ? [
-                Number(item["tangkai_panjang_didenda"] / count).toFixed(2),
-                Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
-                Number(item["rusak_dimakan_tikus_didenda"] / count).toFixed(2),
-              ]
-            : []),
+          Number(item["buah_kecil_3"] / count).toFixed(2),
+          Number(item["buah_kecil_5"] / count).toFixed(2),
+          Number(item["buah_kecil_2"] / count).toFixed(2),
+          Number(item["tangkai_panjang_ditolak"] / count).toFixed(2),
+          Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
+          Number(item["buah_besar_ditolak"] / count).toFixed(2),
+          Number(item["partenokarpi_ditolak"] / count).toFixed(2),
         ];
 
         worstAcceptedTrucksData.push(temp);
       });
     worstAcceptedTrucksData.push([
-      "** Kontribusi merupakan persentase terhadap keseluruhan truk dalam Januari - Maret 2025",
+      `** Kontribusi merupakan persentase terhadap keseluruhan truk dalam ${periodString}`,
     ]);
 
     const hourDataRejectData = [
@@ -3801,29 +4276,68 @@ class DashboardV4Controller {
       ]);
     });
 
-    const avgVendorHeader = [
-      "Total Truk",
-      "Kontribusi %",
-      "Avg Tandan",
-      "Estimasi BJR",
-      "Avg Diterima %",
-      "Avg MM %",
-      "Avg LM %",
-      "Avg TP %",
-      "Avg M %",
-      "Avg JK %",
-      "Avg BK %",
-      ...(isKynm
-        ? [
-            "Avg % TP Didenda",
-            "Avg % Rusak Tikus",
-            "Avg % Rusak Tikus Didenda",
-          ]
-        : []),
-    ];
     const avgVendorData = [
       [periodString],
-      ["No", "Vendor", ...avgVendorHeader],
+      [
+        "No",
+        "Vendor",
+        "Total Truk",
+        "Kontribusi %",
+        "Avg Tandan",
+        "Avg Diterima %",
+        "AVG Diterima",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "AVG Ditolak",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+        "Mentah",
+        "Matang",
+        "Lewat Matang",
+        "Janjang Kosong",
+        "Buah Kecil <3kg",
+        "Buah Kecil <5kg",
+        "Buah Kecil <2kg",
+        "Tangkai Panjang",
+        "Rusak Dimakan Tikus",
+        "Buah Besar",
+        "Partenokarpi",
+      ],
     ];
     Object.keys(avgVendor).forEach((vendor, idx) => {
       const item = avgVendor[vendor];
@@ -3833,41 +4347,109 @@ class DashboardV4Controller {
         idx + 1,
         vendor,
         item.count,
-        countPercentage(item.count, data?.length).toFixed(2),
+        countPercentage(item.count, data?.length).toFixed(2) + "%",
         avgTandan,
-        (10000 / avgTandan).toFixed(2),
         (item.accepted / item.count).toFixed(2),
+        // AVG Diterima
+        (item.mentah_diterima / item.count).toFixed(2),
         (item.matang / item.count).toFixed(2),
         (item.lewat_matang / item.count).toFixed(2),
+        (item.janjang_kosong_diterima / item.count).toFixed(2),
+        (item.buah_kecil_3_diterima / item.count).toFixed(2),
+        (item.buah_kecil_5_diterima / item.count).toFixed(2),
+        (item.buah_kecil_2_diterima / item.count).toFixed(2),
         (item.tangkai_panjang / item.count).toFixed(2),
+        (item.rusak_dimakan_tikus_diterima / item.count).toFixed(2),
+        (item.buah_besar_diterima / item.count).toFixed(2),
+        (item.partenokarpi_diterima / item.count).toFixed(2),
+        // AVG Ditolak
         (item.mentah / item.count).toFixed(2),
+        (item.matang_ditolak / item.count).toFixed(2),
+        (item.lewat_matang_ditolak / item.count).toFixed(2),
         (item.janjang_kosong / item.count).toFixed(2),
-        (item.buah_kecil / item.count).toFixed(2),
-        ...(isKynm
-          ? [
-              (item.tangkai_panjang_didenda / item.count).toFixed(2),
-              (item.rusak_dimakan_tikus / item.count).toFixed(2),
-              (item.rusak_dimakan_tikus_didenda / item.count).toFixed(2),
-            ]
-          : []),
+        (item.buah_kecil_3 / item.count).toFixed(2),
+        (item.buah_kecil_5 / item.count).toFixed(2),
+        (item.buah_kecil_2 / item.count).toFixed(2),
+        (item.tangkai_panjang_ditolak / item.count).toFixed(2),
+        (item.rusak_dimakan_tikus / item.count).toFixed(2),
+        (item.buah_besar_ditolak / item.count).toFixed(2),
+        (item.partenokarpi_ditolak / item.count).toFixed(2),
       ]);
     });
 
     avgVendorData.push([
-      "** Kontribusi merupakan persentase terhadap keseluruhan truk dalam Januari - Maret 2025",
+      `** Kontribusi merupakan persentase terhadap keseluruhan truk dalam ${periodString}`,
     ]);
 
     Object.keys(avgVendor)
-      .map((vendor, idx) => {
+      .map((vendor) => {
         const item = avgVendor[vendor];
-
         return { vendor_name: vendor, ...item };
       })
       .sort((a, b) => b.count - a.count)
       .forEach((d) => {
         avgVendorData.push([""]);
         avgVendorData.push([`Most Frequent Truck ${d.vendor_name}`]);
-        avgVendorData.push(["No", "Plat Nomor", ...avgVendorHeader]);
+        avgVendorData.push([
+          "No",
+          "Plat Nomor",
+          "Total Truk",
+          "Kontribusi %",
+          "Avg Tandan",
+          "Avg Diterima %",
+          "AVG Diterima",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "AVG Ditolak",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+        ]);
+        avgVendorData.push([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Mentah",
+          "Matang",
+          "Lewat Matang",
+          "Janjang Kosong",
+          "Buah Kecil <3kg",
+          "Buah Kecil <5kg",
+          "Buah Kecil <2kg",
+          "Tangkai Panjang",
+          "Rusak Dimakan Tikus",
+          "Buah Besar",
+          "Partenokarpi",
+          "Mentah",
+          "Matang",
+          "Lewat Matang",
+          "Janjang Kosong",
+          "Buah Kecil <3kg",
+          "Buah Kecil <5kg",
+          "Buah Kecil <2kg",
+          "Tangkai Panjang",
+          "Rusak Dimakan Tikus",
+          "Buah Besar",
+          "Partenokarpi",
+        ]);
         Object.keys(d.trucks)
           .map((t) => ({ vehicle_number: t, ...d["trucks"][t] }))
           .sort((a, b) => b.count - a.count)
@@ -3878,28 +4460,38 @@ class DashboardV4Controller {
               idx + 1,
               item.vehicle_number,
               item.count,
-              countPercentage(item.count, data?.length).toFixed(2),
+              countPercentage(item.count, data?.length).toFixed(2) + "%",
               avgTandan,
-              (10000 / avgTandan).toFixed(2),
               (item.accepted / item.count).toFixed(2),
+              // AVG Diterima
+              (item.mentah_diterima / item.count).toFixed(2),
               (item.matang / item.count).toFixed(2),
               (item.lewat_matang / item.count).toFixed(2),
+              (item.janjang_kosong_diterima / item.count).toFixed(2),
+              (item.buah_kecil_3_diterima / item.count).toFixed(2),
+              (item.buah_kecil_5_diterima / item.count).toFixed(2),
+              (item.buah_kecil_2_diterima / item.count).toFixed(2),
               (item.tangkai_panjang / item.count).toFixed(2),
+              (item.rusak_dimakan_tikus_diterima / item.count).toFixed(2),
+              (item.buah_besar_diterima / item.count).toFixed(2),
+              (item.partenokarpi_diterima / item.count).toFixed(2),
+              // AVG Ditolak
               (item.mentah / item.count).toFixed(2),
+              (item.matang_ditolak / item.count).toFixed(2),
+              (item.lewat_matang_ditolak / item.count).toFixed(2),
               (item.janjang_kosong / item.count).toFixed(2),
-              (item.buah_kecil / item.count).toFixed(2),
-              ...(isKynm
-                ? [
-                    (item.tangkai_panjang_didenda / item.count).toFixed(2),
-                    (item.rusak_dimakan_tikus / item.count).toFixed(2),
-                    (item.rusak_dimakan_tikus_didenda / item.count).toFixed(2),
-                  ]
-                : []),
+              (item.buah_kecil_3 / item.count).toFixed(2),
+              (item.buah_kecil_5 / item.count).toFixed(2),
+              (item.buah_kecil_2 / item.count).toFixed(2),
+              (item.tangkai_panjang_ditolak / item.count).toFixed(2),
+              (item.rusak_dimakan_tikus / item.count).toFixed(2),
+              (item.buah_besar_ditolak / item.count).toFixed(2),
+              (item.partenokarpi_ditolak / item.count).toFixed(2),
             ]);
           });
 
         avgVendorData.push([
-          "** Kontribusi merupakan persentase terhadap keseluruhan truk dalam Januari - Maret 2025",
+          `** Kontribusi merupakan persentase terhadap keseluruhan truk dalam ${periodString}`,
         ]);
       });
 
@@ -4106,55 +4698,362 @@ class DashboardV4Controller {
     const workbook = XLSX.utils.book_new();
     // Create a worksheet
     const wsRaw = XLSX.utils.aoa_to_sheet(rawDataExcel);
+    const rawMerges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 37 } },
+      { s: { r: 1, c: 16 }, e: { r: 1, c: 26 } },
+      { s: { r: 1, c: 27 }, e: { r: 1, c: 37 } },
+    ];
+    for (let c = 0; c <= 15; c++) {
+      rawMerges.push({ s: { r: 1, c }, e: { r: 2, c } });
+    }
+    wsRaw["!merges"] = rawMerges;
+
+    wsRaw["!cols"] = [
+      { wch: 6 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 10 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 22 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
+
     XLSX.utils.book_append_sheet(workbook, wsRaw, "Raw Data");
     const wsAvgWeek = XLSX.utils.aoa_to_sheet(avgWeekData);
     XLSX.utils.book_append_sheet(workbook, wsAvgWeek, "Average Reject Accept");
     const wsAvgWeekDemography = XLSX.utils.aoa_to_sheet(avgWeekDemographyData);
+    const avgWeekDemographyMerges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 22 } },
+      { s: { r: 1, c: 0 }, e: { r: 2, c: 0 } },
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 11 } },
+      { s: { r: 1, c: 12 }, e: { r: 1, c: 22 } },
+    ];
+    wsAvgWeekDemography["!merges"] = avgWeekDemographyMerges;
+
+    wsAvgWeekDemography["!cols"] = [
+      { wch: 10 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
+
     XLSX.utils.book_append_sheet(
       workbook,
       wsAvgWeekDemography,
       "Average Demografi Klasifikasi",
     );
     const wsBestAccepted = XLSX.utils.aoa_to_sheet(bestAcceptedTrucksData);
+    const bestAcceptedMerges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 28 } },
+      { s: { r: 1, c: 7 }, e: { r: 1, c: 17 } },
+      { s: { r: 1, c: 18 }, e: { r: 1, c: 28 } },
+    ];
+    for (let c = 0; c <= 6; c++) {
+      bestAcceptedMerges.push({ s: { r: 1, c }, e: { r: 2, c } });
+    }
+    wsBestAccepted["!merges"] = bestAcceptedMerges;
+
+    wsBestAccepted["!cols"] = [
+      { wch: 6 },
+      { wch: 14 },
+      { wch: 22 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
+
     XLSX.utils.book_append_sheet(workbook, wsBestAccepted, "Best 20 Accepted");
     const wsWorsttAccepted = XLSX.utils.aoa_to_sheet(worstAcceptedTrucksData);
+    const worstAcceptedMerges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 28 } },
+      { s: { r: 1, c: 7 }, e: { r: 1, c: 17 } },
+      { s: { r: 1, c: 18 }, e: { r: 1, c: 28 } },
+    ];
+    for (let c = 0; c <= 6; c++) {
+      worstAcceptedMerges.push({ s: { r: 1, c }, e: { r: 2, c } });
+    }
+    wsWorsttAccepted["!merges"] = worstAcceptedMerges;
+
+    wsWorsttAccepted["!cols"] = [
+      { wch: 6 },
+      { wch: 14 },
+      { wch: 22 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
+
     XLSX.utils.book_append_sheet(
       workbook,
       wsWorsttAccepted,
       "Top 20 Worst Trucks",
     );
-    const wsHourTruck = XLSX.utils.aoa_to_sheet(hourDataRejectData);
-    XLSX.utils.book_append_sheet(workbook, wsHourTruck, "Reject by Shift Data");
-    const wsTotalJanjang = XLSX.utils.aoa_to_sheet(totalJanjangData);
-    XLSX.utils.book_append_sheet(
-      workbook,
-      wsTotalJanjang,
-      "Total Tandan Recap",
-    );
-    const wsMachineUtility = XLSX.utils.aoa_to_sheet(machineUtilityWeekData);
-    XLSX.utils.book_append_sheet(
-      workbook,
-      wsMachineUtility,
-      "Machine Utilities",
-    );
+    // const wsHourTruck = XLSX.utils.aoa_to_sheet(hourDataRejectData);
+    // XLSX.utils.book_append_sheet(workbook, wsHourTruck, "Reject by Shift Data");
+    // const wsTotalJanjang = XLSX.utils.aoa_to_sheet(totalJanjangData);
+    // XLSX.utils.book_append_sheet(
+    //   workbook,
+    //   wsTotalJanjang,
+    //   "Total Tandan Recap",
+    // );
+    // const wsMachineUtility = XLSX.utils.aoa_to_sheet(machineUtilityWeekData);
+    // XLSX.utils.book_append_sheet(
+    //   workbook,
+    //   wsMachineUtility,
+    //   "Machine Utilities",
+    // );
     const wsAvgVendor = XLSX.utils.aoa_to_sheet(avgVendorData);
+    const avgVendorMerges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 27 } },
+      { s: { r: 1, c: 6 }, e: { r: 1, c: 16 } },
+      { s: { r: 1, c: 17 }, e: { r: 1, c: 27 } },
+    ];
+    for (let c = 0; c <= 5; c++) {
+      avgVendorMerges.push({ s: { r: 1, c }, e: { r: 2, c } });
+    }
+    wsAvgVendor["!merges"] = avgVendorMerges;
+
+    wsAvgVendor["!cols"] = [
+      { wch: 6 },
+      { wch: 22 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 14 },
+    ];
+
     XLSX.utils.book_append_sheet(workbook, wsAvgVendor, "Average Vendor");
-    const wsTotalJanjangDuration = XLSX.utils.aoa_to_sheet(
-      totalJanjangDurationData,
-    );
-    XLSX.utils.book_append_sheet(
-      workbook,
-      wsTotalJanjangDuration,
-      "Total Tandan Duration Recap",
-    );
-    const wsDailyTruck = XLSX.utils.aoa_to_sheet(dailyTruckCountData);
-    XLSX.utils.book_append_sheet(
-      workbook,
-      wsDailyTruck,
-      "Daily Truck Day Time",
-    );
+    // const wsTotalJanjangDuration = XLSX.utils.aoa_to_sheet(
+    //   totalJanjangDurationData,
+    // );
+    // XLSX.utils.book_append_sheet(
+    //   workbook,
+    //   wsTotalJanjangDuration,
+    //   "Total Tandan Duration Recap",
+    // );
+    // const wsDailyTruck = XLSX.utils.aoa_to_sheet(dailyTruckCountData);
+    // XLSX.utils.book_append_sheet(
+    //   workbook,
+    //   wsDailyTruck,
+    //   "Daily Truck Day Time",
+    // );
     const wsTrukPerHari = XLSX.utils.aoa_to_sheet(trukPerHari);
     XLSX.utils.book_append_sheet(workbook, wsTrukPerHari, "Total Truk Harian");
+
+    // Performance Durasi grouping
+    const performanceDurasiGrouped = {};
+    const daysId = {
+      Sunday: "Minggu",
+      Monday: "Senin",
+      Tuesday: "Selasa",
+      Wednesday: "Rabu",
+      Thursday: "Kamis",
+      Friday: "Jumat",
+      Saturday: "Sabtu",
+    };
+
+    data.forEach((item) => {
+      const dateObj = item.date;
+      if (!dateObj) return;
+
+      const shiftedDate = dayjs(dateObj).subtract(6, "hour");
+      const dayKey = shiftedDate.format("YYYY-MM-DD");
+
+      if (!performanceDurasiGrouped[dayKey]) {
+        const dayNameEn = shiftedDate.format("dddd");
+        performanceDurasiGrouped[dayKey] = {
+          hari: daysId[dayNameEn] || dayNameEn,
+          tanggal: shiftedDate.format("DD/MM/YYYY"),
+          trucks: 0,
+          minDate: dayjs(dateObj),
+          maxDate: dayjs(item.finish_date || dateObj),
+        };
+      }
+
+      performanceDurasiGrouped[dayKey].trucks += 1;
+
+      const currentItemStartDate = dayjs(dateObj);
+      const currentItemFinishDate = dayjs(item.finish_date || dateObj);
+      if (
+        currentItemStartDate.isBefore(performanceDurasiGrouped[dayKey].minDate)
+      ) {
+        performanceDurasiGrouped[dayKey].minDate = currentItemStartDate;
+      }
+      if (
+        currentItemFinishDate.isAfter(performanceDurasiGrouped[dayKey].maxDate)
+      ) {
+        performanceDurasiGrouped[dayKey].maxDate = currentItemFinishDate;
+      }
+    });
+
+    const performanceDurasiRows = [
+      [
+        "Hari",
+        "Tanggal",
+        "Jumlah truk",
+        "Mulai Grading",
+        "Selesai Grading",
+        "Durasi Grading",
+      ],
+    ];
+
+    const sortedPerformanceDays = Object.keys(performanceDurasiGrouped).sort(
+      (a, b) => dayjs(a).valueOf() - dayjs(b).valueOf(),
+    );
+
+    sortedPerformanceDays.forEach((dayKey) => {
+      const group = performanceDurasiGrouped[dayKey];
+      const minD = group.minDate;
+      const maxD = group.maxDate;
+
+      const durasiMenit = maxD.diff(minD, "minute");
+      const hours = Math.floor(durasiMenit / 60);
+      const minutes = durasiMenit % 60;
+      const durasiFormat = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+      performanceDurasiRows.push([
+        group.hari,
+        group.tanggal,
+        group.trucks,
+        minD.format("HH:mm"),
+        maxD.format("HH:mm"),
+        durasiFormat,
+      ]);
+    });
+
+    const wsPerformanceDurasi = XLSX.utils.aoa_to_sheet(performanceDurasiRows);
+    wsPerformanceDurasi["!cols"] = [
+      { wch: 15 }, // Hari
+      { wch: 15 }, // Tanggal
+      { wch: 15 }, // Jumlah truk
+      { wch: 15 }, // Mulai Grading
+      { wch: 15 }, // Selesai Grading
+      { wch: 15 }, // Durasi Grading
+    ];
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      wsPerformanceDurasi,
+      "Performance Durasi",
+    );
 
     // Write the file
     // XLSX.writeFile(workbook, `Report${new Date().toISOString()}.xlsx`);
