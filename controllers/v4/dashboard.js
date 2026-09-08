@@ -2188,7 +2188,17 @@ class DashboardV4Controller {
                 dayjs(item.finish_date).diff(dayjs(item.date), "minute"),
               )
             : 0;
-        const prevTruck = inspections[index + 1];
+        let prevTruck = null;
+        for (let i = index + 1; i < inspections.length; i++) {
+          if (
+            inspections[i].machine !== undefined &&
+            item.machine !== undefined &&
+            String(inspections[i].machine) === String(item.machine)
+          ) {
+            prevTruck = inspections[i];
+            break;
+          }
+        }
         const durationGap =
           prevTruck?.finish_date && item.date
             ? dayjs(item.date).diff(dayjs(prevTruck.finish_date), "minute")
@@ -6420,7 +6430,17 @@ class DashboardV4Controller {
                 dayjs(item.finish_date).diff(dayjs(item.date), "minute"),
               )
             : 0;
-        const prevTruck = inspections[index + 1];
+        let prevTruck = null;
+        for (let i = index + 1; i < inspections.length; i++) {
+          if (
+            inspections[i].machine !== undefined &&
+            item.machine !== undefined &&
+            String(inspections[i].machine) === String(item.machine)
+          ) {
+            prevTruck = inspections[i];
+            break;
+          }
+        }
         const durationGap =
           prevTruck?.finish_date && item.date
             ? dayjs(item.date).diff(dayjs(prevTruck.finish_date), "minute")
