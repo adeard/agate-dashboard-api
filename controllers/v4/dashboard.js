@@ -3718,6 +3718,20 @@ class DashboardV4Controller {
       trukPerHari.push([index + 1, date, trucks["Truk"]]);
     });
 
+    const formatNumberId = (val, decimals = 2) => {
+      const num = Number(val);
+      if (isNaN(num) || val === null || val === undefined) {
+        return (0).toLocaleString("id-ID", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        });
+      }
+      return num.toLocaleString("id-ID", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    };
+
     const avgWeekData = [
       [periodString],
       ["Week", "% Diterima", "% Ditolak", "% Didenda"],
@@ -3730,9 +3744,9 @@ class DashboardV4Controller {
 
       avgWeekData.push([
         week,
-        acceptedPercent.toFixed(2),
-        rejectedPercent.toFixed(2),
-        finedPercent.toFixed(2),
+        formatNumberId(acceptedPercent),
+        formatNumberId(rejectedPercent),
+        formatNumberId(finedPercent),
       ]);
     });
     avgWeekData.push([
@@ -3800,31 +3814,31 @@ class DashboardV4Controller {
       avgWeekDemographyData.push([
         week,
         // Diterima
-        countPercentage(item.mentah_diterima, totalTandan).toFixed(2),
-        countPercentage(item.matang, totalTandan).toFixed(2),
-        countPercentage(item.lewat_matang, totalTandan).toFixed(2),
-        countPercentage(item.janjang_kosong_diterima, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_3_diterima, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_5_diterima, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_2_diterima, totalTandan).toFixed(2),
-        countPercentage(item.tangkai_panjang, totalTandan).toFixed(2),
-        countPercentage(item.rusak_dimakan_tikus_diterima, totalTandan).toFixed(
-          2,
+        formatNumberId(countPercentage(item.mentah_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.matang, totalTandan)),
+        formatNumberId(countPercentage(item.lewat_matang, totalTandan)),
+        formatNumberId(countPercentage(item.janjang_kosong_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_3_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_5_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_2_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.tangkai_panjang, totalTandan)),
+        formatNumberId(
+          countPercentage(item.rusak_dimakan_tikus_diterima, totalTandan),
         ),
-        countPercentage(item.buah_besar_diterima, totalTandan).toFixed(2),
-        countPercentage(item.partenokarpi_diterima, totalTandan).toFixed(2),
+        formatNumberId(countPercentage(item.buah_besar_diterima, totalTandan)),
+        formatNumberId(countPercentage(item.partenokarpi_diterima, totalTandan)),
         // Ditolak
-        countPercentage(item.mentah, totalTandan).toFixed(2),
-        countPercentage(item.matang_ditolak, totalTandan).toFixed(2),
-        countPercentage(item.lewat_matang_ditolak, totalTandan).toFixed(2),
-        countPercentage(item.janjang_kosong, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_3, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_5, totalTandan).toFixed(2),
-        countPercentage(item.buah_kecil_2, totalTandan).toFixed(2),
-        countPercentage(item.tangkai_panjang_ditolak, totalTandan).toFixed(2),
-        countPercentage(item.rusak_dimakan_tikus, totalTandan).toFixed(2),
-        countPercentage(item.buah_besar_ditolak, totalTandan).toFixed(2),
-        countPercentage(item.partenokarpi_ditolak, totalTandan).toFixed(2),
+        formatNumberId(countPercentage(item.mentah, totalTandan)),
+        formatNumberId(countPercentage(item.matang_ditolak, totalTandan)),
+        formatNumberId(countPercentage(item.lewat_matang_ditolak, totalTandan)),
+        formatNumberId(countPercentage(item.janjang_kosong, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_3, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_5, totalTandan)),
+        formatNumberId(countPercentage(item.buah_kecil_2, totalTandan)),
+        formatNumberId(countPercentage(item.tangkai_panjang_ditolak, totalTandan)),
+        formatNumberId(countPercentage(item.rusak_dimakan_tikus, totalTandan)),
+        formatNumberId(countPercentage(item.buah_besar_ditolak, totalTandan)),
+        formatNumberId(countPercentage(item.partenokarpi_ditolak, totalTandan)),
       ]);
     });
 
@@ -3835,7 +3849,7 @@ class DashboardV4Controller {
         "Plat Nomor",
         "Vendor",
         "Total Truk",
-        "Kontribusi",
+        "Kontribusi %",
         "Avg Tandan",
         "Avg % Diterima",
         "AVG Diterima",
@@ -3912,33 +3926,33 @@ class DashboardV4Controller {
           item.truck,
           item.vendor,
           count,
-          countPercentage(item["tandan"], totalAllTandan).toFixed(2) + "%",
+          formatNumberId(countPercentage(item["tandan"], totalAllTandan)),
           avgTandan,
-          Number(item["accepted"] / count).toFixed(2),
+          formatNumberId(item["accepted"] / count),
           // AVG Diterima
-          Number(item["mentah_diterima"] / count).toFixed(2),
-          Number(item["matang"] / count).toFixed(2),
-          Number(item["lewat_matang"] / count).toFixed(2),
-          Number(item["janjang_kosong_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_3_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_5_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_2_diterima"] / count).toFixed(2),
-          Number(item["tangkai_panjang"] / count).toFixed(2),
-          Number(item["rusak_dimakan_tikus_diterima"] / count).toFixed(2),
-          Number(item["buah_besar_diterima"] / count).toFixed(2),
-          Number(item["partenokarpi_diterima"] / count).toFixed(2),
+          formatNumberId(item["mentah_diterima"] / count),
+          formatNumberId(item["matang"] / count),
+          formatNumberId(item["lewat_matang"] / count),
+          formatNumberId(item["janjang_kosong_diterima"] / count),
+          formatNumberId(item["buah_kecil_3_diterima"] / count),
+          formatNumberId(item["buah_kecil_5_diterima"] / count),
+          formatNumberId(item["buah_kecil_2_diterima"] / count),
+          formatNumberId(item["tangkai_panjang"] / count),
+          formatNumberId(item["rusak_dimakan_tikus_diterima"] / count),
+          formatNumberId(item["buah_besar_diterima"] / count),
+          formatNumberId(item["partenokarpi_diterima"] / count),
           // AVG Ditolak
-          Number(item["mentah"] / count).toFixed(2),
-          Number(item["matang_ditolak"] / count).toFixed(2),
-          Number(item["lewat_matang_ditolak"] / count).toFixed(2),
-          Number(item["janjang_kosong"] / count).toFixed(2),
-          Number(item["buah_kecil_3"] / count).toFixed(2),
-          Number(item["buah_kecil_5"] / count).toFixed(2),
-          Number(item["buah_kecil_2"] / count).toFixed(2),
-          Number(item["tangkai_panjang_ditolak"] / count).toFixed(2),
-          Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
-          Number(item["buah_besar_ditolak"] / count).toFixed(2),
-          Number(item["partenokarpi_ditolak"] / count).toFixed(2),
+          formatNumberId(item["mentah"] / count),
+          formatNumberId(item["matang_ditolak"] / count),
+          formatNumberId(item["lewat_matang_ditolak"] / count),
+          formatNumberId(item["janjang_kosong"] / count),
+          formatNumberId(item["buah_kecil_3"] / count),
+          formatNumberId(item["buah_kecil_5"] / count),
+          formatNumberId(item["buah_kecil_2"] / count),
+          formatNumberId(item["tangkai_panjang_ditolak"] / count),
+          formatNumberId(item["rusak_dimakan_tikus"] / count),
+          formatNumberId(item["buah_besar_ditolak"] / count),
+          formatNumberId(item["partenokarpi_ditolak"] / count),
         ];
 
         bestAcceptedTrucksData.push(temp);
@@ -3954,7 +3968,7 @@ class DashboardV4Controller {
         "Plat Nomor",
         "Vendor",
         "Total Truk",
-        "Kontribusi",
+        "Kontribusi %",
         "Avg Tandan",
         "Avg % Diterima",
         "AVG Diterima",
@@ -4031,33 +4045,33 @@ class DashboardV4Controller {
           item.truck,
           item.vendor,
           count,
-          countPercentage(item["tandan"], totalAllTandan).toFixed(2) + "%",
+          formatNumberId(countPercentage(item["tandan"], totalAllTandan)),
           avgTandan,
-          Number(item["accepted"] / count).toFixed(2),
+          formatNumberId(item["accepted"] / count),
           // AVG Diterima
-          Number(item["mentah_diterima"] / count).toFixed(2),
-          Number(item["matang"] / count).toFixed(2),
-          Number(item["lewat_matang"] / count).toFixed(2),
-          Number(item["janjang_kosong_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_3_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_5_diterima"] / count).toFixed(2),
-          Number(item["buah_kecil_2_diterima"] / count).toFixed(2),
-          Number(item["tangkai_panjang"] / count).toFixed(2),
-          Number(item["rusak_dimakan_tikus_diterima"] / count).toFixed(2),
-          Number(item["buah_besar_diterima"] / count).toFixed(2),
-          Number(item["partenokarpi_diterima"] / count).toFixed(2),
+          formatNumberId(item["mentah_diterima"] / count),
+          formatNumberId(item["matang"] / count),
+          formatNumberId(item["lewat_matang"] / count),
+          formatNumberId(item["janjang_kosong_diterima"] / count),
+          formatNumberId(item["buah_kecil_3_diterima"] / count),
+          formatNumberId(item["buah_kecil_5_diterima"] / count),
+          formatNumberId(item["buah_kecil_2_diterima"] / count),
+          formatNumberId(item["tangkai_panjang"] / count),
+          formatNumberId(item["rusak_dimakan_tikus_diterima"] / count),
+          formatNumberId(item["buah_besar_diterima"] / count),
+          formatNumberId(item["partenokarpi_diterima"] / count),
           // AVG Ditolak
-          Number(item["mentah"] / count).toFixed(2),
-          Number(item["matang_ditolak"] / count).toFixed(2),
-          Number(item["lewat_matang_ditolak"] / count).toFixed(2),
-          Number(item["janjang_kosong"] / count).toFixed(2),
-          Number(item["buah_kecil_3"] / count).toFixed(2),
-          Number(item["buah_kecil_5"] / count).toFixed(2),
-          Number(item["buah_kecil_2"] / count).toFixed(2),
-          Number(item["tangkai_panjang_ditolak"] / count).toFixed(2),
-          Number(item["rusak_dimakan_tikus"] / count).toFixed(2),
-          Number(item["buah_besar_ditolak"] / count).toFixed(2),
-          Number(item["partenokarpi_ditolak"] / count).toFixed(2),
+          formatNumberId(item["mentah"] / count),
+          formatNumberId(item["matang_ditolak"] / count),
+          formatNumberId(item["lewat_matang_ditolak"] / count),
+          formatNumberId(item["janjang_kosong"] / count),
+          formatNumberId(item["buah_kecil_3"] / count),
+          formatNumberId(item["buah_kecil_5"] / count),
+          formatNumberId(item["buah_kecil_2"] / count),
+          formatNumberId(item["tangkai_panjang_ditolak"] / count),
+          formatNumberId(item["rusak_dimakan_tikus"] / count),
+          formatNumberId(item["buah_besar_ditolak"] / count),
+          formatNumberId(item["partenokarpi_ditolak"] / count),
         ];
 
         worstAcceptedTrucksData.push(temp);
@@ -4073,26 +4087,34 @@ class DashboardV4Controller {
     hourDataRejectData.push([
       1,
       "07:00 - 18:00",
-      countPercentage(
-        hourDataReject["before6pm"].total_accepted,
-        hourDataReject["before6pm"].total_tandan,
-      ).toFixed(2),
-      countPercentage(
-        hourDataReject["before6pm"].total_rejected,
-        hourDataReject["before6pm"].total_tandan,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          hourDataReject["before6pm"].total_accepted,
+          hourDataReject["before6pm"].total_tandan,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          hourDataReject["before6pm"].total_rejected,
+          hourDataReject["before6pm"].total_tandan,
+        ),
+      ),
     ]);
     hourDataRejectData.push([
       2,
       "18:00 - 03:00",
-      countPercentage(
-        hourDataReject["after6pm"].total_accepted,
-        hourDataReject["after6pm"].total_tandan,
-      ).toFixed(2),
-      countPercentage(
-        hourDataReject["after6pm"].total_rejected,
-        hourDataReject["after6pm"].total_tandan,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          hourDataReject["after6pm"].total_accepted,
+          hourDataReject["after6pm"].total_tandan,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          hourDataReject["after6pm"].total_rejected,
+          hourDataReject["after6pm"].total_tandan,
+        ),
+      ),
     ]);
     hourDataRejectData.push([""]);
     Object.keys(hourDataReject).forEach((category, idx) => {
@@ -4105,7 +4127,7 @@ class DashboardV4Controller {
         "Plat Nomor",
         "Vendor",
         "Total",
-        "Kontribusi",
+        "Kontribusi %",
       ]);
       Object.keys(item.trucks)
         .map((k) => ({
@@ -4120,7 +4142,7 @@ class DashboardV4Controller {
             t.vehicle_number,
             t.vendor_name,
             t.count + "x",
-            countPercentage(t.count, item.total_trucks).toFixed(2) + "%",
+            formatNumberId(countPercentage(t.count, item.total_trucks)),
           ]);
         });
 
@@ -4134,7 +4156,7 @@ class DashboardV4Controller {
         "Kategori",
         "Estimasi BJR",
         "Total Truk",
-        "Kontribusi",
+        "Kontribusi %",
         "Total Janjang",
         "% Diterima",
         "% Matang",
@@ -4150,117 +4172,165 @@ class DashboardV4Controller {
       "400 - 600 Janjang",
       "16 - 30kg",
       totalJanjangObj["<600"].total_trucks,
-      countPercentage(
-        totalJanjangObj["<600"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObj["<600"].total_janjang,
-      countPercentage(
-        totalJanjangObj["<600"].total_accepted,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].matang,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].lewat_matang,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].tangkai_panjang,
-        totalJanjangObj["<600"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].mentah,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].janjang_kosong,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<600"].buah_kecil,
-        totalJanjangObj["<600"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].total_accepted,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].matang,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].lewat_matang,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].tangkai_panjang,
+          totalJanjangObj["<600"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].mentah,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].janjang_kosong,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<600"].buah_kecil,
+          totalJanjangObj["<600"].total_janjang,
+        ),
+      ),
     ]);
     totalJanjangData.push([
       2,
       "601 - 1000 Janjang",
       "10 - 15kg",
       totalJanjangObj["<1000"].total_trucks,
-      countPercentage(
-        totalJanjangObj["<1000"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObj["<1000"].total_janjang,
-      countPercentage(
-        totalJanjangObj["<1000"].total_accepted,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].matang,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].lewat_matang,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].tangkai_panjang,
-        totalJanjangObj["<1000"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].mentah,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].janjang_kosong,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj["<1000"].buah_kecil,
-        totalJanjangObj["<1000"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].total_accepted,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].matang,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].lewat_matang,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].tangkai_panjang,
+          totalJanjangObj["<1000"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].mentah,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].janjang_kosong,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj["<1000"].buah_kecil,
+          totalJanjangObj["<1000"].total_janjang,
+        ),
+      ),
     ]);
     totalJanjangData.push([
       3,
       "> 1000 Janjang",
       "<10kg",
       totalJanjangObj[">1000"].total_trucks,
-      countPercentage(
-        totalJanjangObj[">1000"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObj[">1000"].total_janjang,
-      countPercentage(
-        totalJanjangObj[">1000"].total_accepted,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].matang,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].lewat_matang,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].tangkai_panjang,
-        totalJanjangObj[">1000"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].mentah,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].janjang_kosong,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObj[">1000"].buah_kecil,
-        totalJanjangObj[">1000"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].total_accepted,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].matang,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].lewat_matang,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].tangkai_panjang,
+          totalJanjangObj[">1000"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].mentah,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].janjang_kosong,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObj[">1000"].buah_kecil,
+          totalJanjangObj[">1000"].total_janjang,
+        ),
+      ),
     ]);
     totalJanjangData.push([""]);
     Object.keys(totalJanjangObj).forEach((category, idx) => {
@@ -4277,7 +4347,7 @@ class DashboardV4Controller {
         // 'Plat Nomor',
         "Vendor",
         "Total",
-        "Kontribusi",
+        "Kontribusi %",
       ]);
       Object.keys(item.vendors)
         .map((k) => ({
@@ -4292,7 +4362,7 @@ class DashboardV4Controller {
             // t.vehicle_number,
             t.vendor_name,
             t.count + "x",
-            countPercentage(t.count, item.total_trucks).toFixed(2) + "%",
+            formatNumberId(countPercentage(t.count, item.total_trucks)),
           ]);
         });
 
@@ -4335,13 +4405,13 @@ class DashboardV4Controller {
         item.total_trucks,
         Math.round(item.total_trucks / 7),
         item["machine"][1],
-        countPercentage(item["machine"][1], item.total_trucks).toFixed(2) + "%",
+        formatNumberId(countPercentage(item["machine"][1], item.total_trucks)),
         item["machine"][2],
-        countPercentage(item["machine"][2], item.total_trucks).toFixed(2) + "%",
+        formatNumberId(countPercentage(item["machine"][2], item.total_trucks)),
         item["machine"][3],
-        countPercentage(item["machine"][3], item.total_trucks).toFixed(2) + "%",
+        formatNumberId(countPercentage(item["machine"][3], item.total_trucks)),
         item["machine"][4],
-        countPercentage(item["machine"][4], item.total_trucks).toFixed(2) + "%",
+        formatNumberId(countPercentage(item["machine"][4], item.total_trucks)),
       ]);
     });
 
@@ -4416,33 +4486,33 @@ class DashboardV4Controller {
         idx + 1,
         vendor,
         item.count,
-        countPercentage(item.count, data?.length).toFixed(2) + "%",
+        formatNumberId(countPercentage(item.count, data?.length)),
         avgTandan,
-        (item.accepted / item.count).toFixed(2),
+        formatNumberId(item.accepted / item.count),
         // AVG Diterima
-        (item.mentah_diterima / item.count).toFixed(2),
-        (item.matang / item.count).toFixed(2),
-        (item.lewat_matang / item.count).toFixed(2),
-        (item.janjang_kosong_diterima / item.count).toFixed(2),
-        (item.buah_kecil_3_diterima / item.count).toFixed(2),
-        (item.buah_kecil_5_diterima / item.count).toFixed(2),
-        (item.buah_kecil_2_diterima / item.count).toFixed(2),
-        (item.tangkai_panjang / item.count).toFixed(2),
-        (item.rusak_dimakan_tikus_diterima / item.count).toFixed(2),
-        (item.buah_besar_diterima / item.count).toFixed(2),
-        (item.partenokarpi_diterima / item.count).toFixed(2),
+        formatNumberId(item.mentah_diterima / item.count),
+        formatNumberId(item.matang / item.count),
+        formatNumberId(item.lewat_matang / item.count),
+        formatNumberId(item.janjang_kosong_diterima / item.count),
+        formatNumberId(item.buah_kecil_3_diterima / item.count),
+        formatNumberId(item.buah_kecil_5_diterima / item.count),
+        formatNumberId(item.buah_kecil_2_diterima / item.count),
+        formatNumberId(item.tangkai_panjang / item.count),
+        formatNumberId(item.rusak_dimakan_tikus_diterima / item.count),
+        formatNumberId(item.buah_besar_diterima / item.count),
+        formatNumberId(item.partenokarpi_diterima / item.count),
         // AVG Ditolak
-        (item.mentah / item.count).toFixed(2),
-        (item.matang_ditolak / item.count).toFixed(2),
-        (item.lewat_matang_ditolak / item.count).toFixed(2),
-        (item.janjang_kosong / item.count).toFixed(2),
-        (item.buah_kecil_3 / item.count).toFixed(2),
-        (item.buah_kecil_5 / item.count).toFixed(2),
-        (item.buah_kecil_2 / item.count).toFixed(2),
-        (item.tangkai_panjang_ditolak / item.count).toFixed(2),
-        (item.rusak_dimakan_tikus / item.count).toFixed(2),
-        (item.buah_besar_ditolak / item.count).toFixed(2),
-        (item.partenokarpi_ditolak / item.count).toFixed(2),
+        formatNumberId(item.mentah / item.count),
+        formatNumberId(item.matang_ditolak / item.count),
+        formatNumberId(item.lewat_matang_ditolak / item.count),
+        formatNumberId(item.janjang_kosong / item.count),
+        formatNumberId(item.buah_kecil_3 / item.count),
+        formatNumberId(item.buah_kecil_5 / item.count),
+        formatNumberId(item.buah_kecil_2 / item.count),
+        formatNumberId(item.tangkai_panjang_ditolak / item.count),
+        formatNumberId(item.rusak_dimakan_tikus / item.count),
+        formatNumberId(item.buah_besar_ditolak / item.count),
+        formatNumberId(item.partenokarpi_ditolak / item.count),
       ]);
     });
 
@@ -4529,33 +4599,33 @@ class DashboardV4Controller {
               idx + 1,
               item.vehicle_number,
               item.count,
-              countPercentage(item.count, data?.length).toFixed(2) + "%",
+              formatNumberId(countPercentage(item.count, data?.length)),
               avgTandan,
-              (item.accepted / item.count).toFixed(2),
+              formatNumberId(item.accepted / item.count),
               // AVG Diterima
-              (item.mentah_diterima / item.count).toFixed(2),
-              (item.matang / item.count).toFixed(2),
-              (item.lewat_matang / item.count).toFixed(2),
-              (item.janjang_kosong_diterima / item.count).toFixed(2),
-              (item.buah_kecil_3_diterima / item.count).toFixed(2),
-              (item.buah_kecil_5_diterima / item.count).toFixed(2),
-              (item.buah_kecil_2_diterima / item.count).toFixed(2),
-              (item.tangkai_panjang / item.count).toFixed(2),
-              (item.rusak_dimakan_tikus_diterima / item.count).toFixed(2),
-              (item.buah_besar_diterima / item.count).toFixed(2),
-              (item.partenokarpi_diterima / item.count).toFixed(2),
+              formatNumberId(item.mentah_diterima / item.count),
+              formatNumberId(item.matang / item.count),
+              formatNumberId(item.lewat_matang / item.count),
+              formatNumberId(item.janjang_kosong_diterima / item.count),
+              formatNumberId(item.buah_kecil_3_diterima / item.count),
+              formatNumberId(item.buah_kecil_5_diterima / item.count),
+              formatNumberId(item.buah_kecil_2_diterima / item.count),
+              formatNumberId(item.tangkai_panjang / item.count),
+              formatNumberId(item.rusak_dimakan_tikus_diterima / item.count),
+              formatNumberId(item.buah_besar_diterima / item.count),
+              formatNumberId(item.partenokarpi_diterima / item.count),
               // AVG Ditolak
-              (item.mentah / item.count).toFixed(2),
-              (item.matang_ditolak / item.count).toFixed(2),
-              (item.lewat_matang_ditolak / item.count).toFixed(2),
-              (item.janjang_kosong / item.count).toFixed(2),
-              (item.buah_kecil_3 / item.count).toFixed(2),
-              (item.buah_kecil_5 / item.count).toFixed(2),
-              (item.buah_kecil_2 / item.count).toFixed(2),
-              (item.tangkai_panjang_ditolak / item.count).toFixed(2),
-              (item.rusak_dimakan_tikus / item.count).toFixed(2),
-              (item.buah_besar_ditolak / item.count).toFixed(2),
-              (item.partenokarpi_ditolak / item.count).toFixed(2),
+              formatNumberId(item.mentah / item.count),
+              formatNumberId(item.matang_ditolak / item.count),
+              formatNumberId(item.lewat_matang_ditolak / item.count),
+              formatNumberId(item.janjang_kosong / item.count),
+              formatNumberId(item.buah_kecil_3 / item.count),
+              formatNumberId(item.buah_kecil_5 / item.count),
+              formatNumberId(item.buah_kecil_2 / item.count),
+              formatNumberId(item.tangkai_panjang_ditolak / item.count),
+              formatNumberId(item.rusak_dimakan_tikus / item.count),
+              formatNumberId(item.buah_besar_ditolak / item.count),
+              formatNumberId(item.partenokarpi_ditolak / item.count),
             ]);
           });
 
@@ -4571,7 +4641,7 @@ class DashboardV4Controller {
         "Kategori",
         "Estimasi BJR",
         "Total Truk",
-        "Kontribusi",
+        "Kontribusi %",
         "Total Janjang",
         "% Diterima",
         "% Matang",
@@ -4588,39 +4658,55 @@ class DashboardV4Controller {
       "400 - 600 Janjang",
       "16 - 30kg",
       totalJanjangObjDuration["<600"].total_trucks,
-      countPercentage(
-        totalJanjangObjDuration["<600"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObjDuration["<600"].total_janjang,
-      countPercentage(
-        totalJanjangObjDuration["<600"].total_accepted,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].matang,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].lewat_matang,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].tangkai_panjang,
-        totalJanjangObjDuration["<600"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].mentah,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].janjang_kosong,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<600"].buah_kecil,
-        totalJanjangObjDuration["<600"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].total_accepted,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].matang,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].lewat_matang,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].tangkai_panjang,
+          totalJanjangObjDuration["<600"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].mentah,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].janjang_kosong,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<600"].buah_kecil,
+          totalJanjangObjDuration["<600"].total_janjang,
+        ),
+      ),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration["<600"].duration /
@@ -4633,39 +4719,55 @@ class DashboardV4Controller {
       "601 - 1000 Janjang",
       "10 - 15kg",
       totalJanjangObjDuration["<1000"].total_trucks,
-      countPercentage(
-        totalJanjangObjDuration["<1000"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObjDuration["<1000"].total_janjang,
-      countPercentage(
-        totalJanjangObjDuration["<1000"].total_accepted,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].matang,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].lewat_matang,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].tangkai_panjang,
-        totalJanjangObjDuration["<1000"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].mentah,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].janjang_kosong,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration["<1000"].buah_kecil,
-        totalJanjangObjDuration["<1000"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].total_accepted,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].matang,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].lewat_matang,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].tangkai_panjang,
+          totalJanjangObjDuration["<1000"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].mentah,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].janjang_kosong,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration["<1000"].buah_kecil,
+          totalJanjangObjDuration["<1000"].total_janjang,
+        ),
+      ),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration["<1000"].duration /
@@ -4678,39 +4780,55 @@ class DashboardV4Controller {
       "> 1000 Janjang",
       "<10kg",
       totalJanjangObjDuration[">1000"].total_trucks,
-      countPercentage(
-        totalJanjangObjDuration[">1000"].total_trucks,
-        data?.length,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].total_trucks,
+          data?.length,
+        ),
+      ),
       totalJanjangObjDuration[">1000"].total_janjang,
-      countPercentage(
-        totalJanjangObjDuration[">1000"].total_accepted,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].matang,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].lewat_matang,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].tangkai_panjang,
-        totalJanjangObjDuration[">1000"].total_accepted,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].mentah,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].janjang_kosong,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
-      countPercentage(
-        totalJanjangObjDuration[">1000"].buah_kecil,
-        totalJanjangObjDuration[">1000"].total_janjang,
-      ).toFixed(2),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].total_accepted,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].matang,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].lewat_matang,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].tangkai_panjang,
+          totalJanjangObjDuration[">1000"].total_accepted,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].mentah,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].janjang_kosong,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
+      formatNumberId(
+        countPercentage(
+          totalJanjangObjDuration[">1000"].buah_kecil,
+          totalJanjangObjDuration[">1000"].total_janjang,
+        ),
+      ),
       getDurationStringFromMs(
         Math.round(
           totalJanjangObjDuration[">1000"].duration /
@@ -4746,15 +4864,15 @@ class DashboardV4Controller {
         // console.log({ item, totalDay });
         dailyTruckCountData.push([
           d,
-          Number((item?.["00"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["05"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["10"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["12"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["14"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["16"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["18"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["19"] || 1) / (totalDay || 1)).toFixed(1),
-          Number((item?.["21"] || 1) / (totalDay || 1)).toFixed(1),
+          formatNumberId((item?.["00"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["05"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["10"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["12"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["14"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["16"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["18"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["19"] || 1) / (totalDay || 1), 1),
+          formatNumberId((item?.["21"] || 1) / (totalDay || 1), 1),
           // item['total'],
         ]);
       }
