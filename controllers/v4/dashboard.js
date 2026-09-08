@@ -1171,7 +1171,15 @@ function processInspectionData(inspections) {
           total_tandan: inspection.total_tandan,
           date: inspection.date,
           finish_date: inspection.finish_date,
+          duration: inspection.duration,
+          duration_gap: inspection.duration_gap,
           percent_accepted: inspection.percent_accepted,
+          percent_rejected: inspection.percent_rejected,
+          percent_fined: inspection.percent_fined,
+          mesin: inspection.mesin,
+          delivery_number: inspection.delivery_number,
+          total_multiple: inspection.total_multiple,
+          percent_multiple: inspection.percent_multiple,
         };
       }
 
@@ -1197,6 +1205,10 @@ function processVendorData(vendors) {
     avg_tangkai_panjang: false,
     avg_rusak_dimakan_tikus: false,
     avg_accepted: true,
+    avg_rejected: false,
+    avg_fined: false,
+    percent_rejected: false,
+    percent_fined: false,
     count: true,
     percent_supply: true,
     avg_tandan: true,
@@ -1638,7 +1650,7 @@ class DashboardV4Controller {
 
       // factoryObj and isLngm moved above
 
-      inspections = inspections.map((item) => {
+      inspections = inspections.map((item, index) => {
         const vendorName = item.vendor_name;
         // Adjust date for shift-based day (06:00 to 05:59 next day) only when filtering multiple dates
         const dateForGrouping = hasMultipleDates
@@ -2137,6 +2149,8 @@ class DashboardV4Controller {
             count: 0,
             tandan: 0,
             accepted: 0,
+            rejected: 0,
+            fined: 0,
             matang: 0,
             lewat_matang: 0,
             tangkai_panjang: 0,
@@ -2150,6 +2164,14 @@ class DashboardV4Controller {
         averageVendor[vendorName]["count"] += 1;
         averageVendor[vendorName]["tandan"] += totalTandanItem;
         averageVendor[vendorName]["accepted"] += percentAcceptedModified;
+        averageVendor[vendorName]["rejected"] += countPercentage(
+          totalRejectedModified,
+          totalTandanItem,
+        );
+        averageVendor[vendorName]["fined"] += countPercentage(
+          totalFinedItem,
+          totalTandanItem,
+        );
         averageVendor[vendorName]["matang"] += percentMatang;
         averageVendor[vendorName]["lewat_matang"] += percentLewatMatang;
         averageVendor[vendorName]["tangkai_panjang"] += percentTangkaiPanjang;
@@ -2159,10 +2181,32 @@ class DashboardV4Controller {
         averageVendor[vendorName]["rusak_dimakan_tikus"] +=
           percentRusakDimakanTikus;
 
+        const duration =
+          item.finish_date && item.date
+            ? Math.max(
+                0,
+                dayjs(item.finish_date).diff(dayjs(item.date), "minute"),
+              )
+            : 0;
+        const prevTruck = inspections[index + 1];
+        const durationGap =
+          prevTruck?.finish_date && item.date
+            ? dayjs(item.date).diff(dayjs(prevTruck.finish_date), "minute")
+            : 0;
+        const duration_gap = Math.max(0, durationGap);
+
         const payload = {
           _id: item._id,
           score: item.score,
           percent_accepted: percentAcceptedModified,
+          percent_rejected: countPercentage(
+            totalRejectedModified,
+            totalTandanItem,
+          ),
+          percent_fined: countPercentage(
+            totalFinedItem,
+            totalTandanItem,
+          ),
           percent_matang: percentMatang,
           percent_lewat_matang: percentLewatMatang,
           percent_mentah_diterima: percentMentahDiterima,
@@ -2179,6 +2223,8 @@ class DashboardV4Controller {
           vehicle_number: item["vehicle_number"],
           date: item.date,
           finish_date: item.finish_date,
+          duration,
+          duration_gap,
           mesin: item.machine,
           delivery_number: item.delivery_number,
         };
@@ -2196,6 +2242,8 @@ class DashboardV4Controller {
             trucks: 0,
             avg_tandan: 0,
             avg_accepted: 0,
+            avg_rejected: 0,
+            avg_fined: 0,
             avg_matang: 0,
             avg_lewat_matang: 0,
             avg_mentah: 0,
@@ -2210,6 +2258,10 @@ class DashboardV4Controller {
           totalTandanItem;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_accepted"] +=
           percentAcceptedModified;
+        avgAcceptedVendorHistoryDaily[vendorName][day]["avg_rejected"] +=
+          countPercentage(totalRejectedModified, totalTandanItem);
+        avgAcceptedVendorHistoryDaily[vendorName][day]["avg_fined"] +=
+          countPercentage(totalFinedItem, totalTandanItem);
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_matang"] +=
           percentMatang;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_lewat_matang"] +=
@@ -2275,6 +2327,21 @@ class DashboardV4Controller {
             }),
             avg_tandan: Math.round(Number(value.tandan) / Number(value.count)),
             avg_accepted: (value.accepted / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            avg_rejected: (value.rejected / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            avg_fined: (value.fined / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            percent_rejected: (value.rejected / value.count).toLocaleString(
+              "en",
+              {
+                maximumFractionDigits: 2,
+              },
+            ),
+            percent_fined: (value.fined / value.count).toLocaleString("en", {
               maximumFractionDigits: 2,
             }),
             avg_matang: (value.matang / value.count).toLocaleString("en", {
@@ -2393,6 +2460,8 @@ class DashboardV4Controller {
               trucks: dayData["trucks"],
               avg_tandan: Number(dayData["avg_tandan"] / dayData["trucks"]),
               avg_accepted: dayData["avg_accepted"] / dayData["trucks"],
+              avg_rejected: dayData["avg_rejected"] / dayData["trucks"],
+              avg_fined: dayData["avg_fined"] / dayData["trucks"],
               avg_matang: dayData["avg_matang"] / dayData["trucks"],
               avg_lewat_matang: dayData["avg_lewat_matang"] / dayData["trucks"],
               avg_mentah: dayData["avg_mentah"] / dayData["trucks"],
@@ -5393,7 +5462,7 @@ class DashboardV4Controller {
 
       // factoryObj and isLngm moved above
 
-      inspections = inspections.map((item) => {
+      inspections = inspections.map((item, index) => {
         const vendorName = item.vendor_name;
         // Adjust date for shift-based day (06:00 to 05:59 next day) only when filtering multiple dates
         const dateForGrouping = hasMultipleDates
@@ -6197,6 +6266,8 @@ class DashboardV4Controller {
             count: 0,
             tandan: 0,
             accepted: 0,
+            rejected: 0,
+            fined: 0,
             matang: 0,
             lewat_matang: 0,
             tangkai_panjang: 0,
@@ -6209,6 +6280,14 @@ class DashboardV4Controller {
         averageVendor[vendorName]["count"] += 1;
         averageVendor[vendorName]["tandan"] += totalTandanItem;
         averageVendor[vendorName]["accepted"] += percentAcceptedModified;
+        averageVendor[vendorName]["rejected"] += countPercentage(
+          totalRejectedModified,
+          totalTandanItem,
+        );
+        averageVendor[vendorName]["fined"] += countPercentage(
+          totalFinedItem,
+          totalTandanItem,
+        );
         averageVendor[vendorName]["matang"] += percentMatang;
         averageVendor[vendorName]["lewat_matang"] += percentLewatMatang;
         averageVendor[vendorName]["tangkai_panjang"] += percentTangkaiPanjang;
@@ -6216,10 +6295,32 @@ class DashboardV4Controller {
         averageVendor[vendorName]["janjang_kosong"] += percentJangkos;
         averageVendor[vendorName]["buah_kecil"] += percentBuahKecil;
 
+        const duration =
+          item.finish_date && item.date
+            ? Math.max(
+                0,
+                dayjs(item.finish_date).diff(dayjs(item.date), "minute"),
+              )
+            : 0;
+        const prevTruck = inspections[index + 1];
+        const durationGap =
+          prevTruck?.finish_date && item.date
+            ? dayjs(item.date).diff(dayjs(prevTruck.finish_date), "minute")
+            : 0;
+        const duration_gap = Math.max(0, durationGap);
+
         const payload = {
           _id: item._id,
           score: item.score,
           percent_accepted: percentAcceptedModified,
+          percent_rejected: countPercentage(
+            totalRejectedModified,
+            totalTandanItem,
+          ),
+          percent_fined: countPercentage(
+            totalFinedItem,
+            totalTandanItem,
+          ),
           percent_matang: percentMatang,
           percent_lewat_matang: percentLewatMatang,
           percent_mentah: percentMentah,
@@ -6232,6 +6333,8 @@ class DashboardV4Controller {
           vehicle_number: item["vehicle_number"],
           date: item.date,
           finish_date: item.finish_date,
+          duration,
+          duration_gap,
           mesin: item.machine,
           delivery_number: item.delivery_number,
           total_multiple: item["grading_result"]["total_multiple"],
@@ -6254,6 +6357,8 @@ class DashboardV4Controller {
             trucks: 0,
             avg_tandan: 0,
             avg_accepted: 0,
+            avg_rejected: 0,
+            avg_fined: 0,
             avg_matang: 0,
             avg_lewat_matang: 0,
             avg_mentah: 0,
@@ -6267,6 +6372,10 @@ class DashboardV4Controller {
           totalTandanItem;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_accepted"] +=
           percentAcceptedModified;
+        avgAcceptedVendorHistoryDaily[vendorName][day]["avg_rejected"] +=
+          countPercentage(totalRejectedModified, totalTandanItem);
+        avgAcceptedVendorHistoryDaily[vendorName][day]["avg_fined"] +=
+          countPercentage(totalFinedItem, totalTandanItem);
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_matang"] +=
           percentMatang;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_lewat_matang"] +=
@@ -6343,6 +6452,21 @@ class DashboardV4Controller {
             }),
             avg_tandan: Math.round(Number(value.tandan) / Number(value.count)),
             avg_accepted: (value.accepted / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            avg_rejected: (value.rejected / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            avg_fined: (value.fined / value.count).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
+            percent_rejected: (value.rejected / value.count).toLocaleString(
+              "en",
+              {
+                maximumFractionDigits: 2,
+              },
+            ),
+            percent_fined: (value.fined / value.count).toLocaleString("en", {
               maximumFractionDigits: 2,
             }),
             avg_matang: (value.matang / value.count).toLocaleString("en", {
@@ -6464,6 +6588,8 @@ class DashboardV4Controller {
               trucks: dayData["trucks"],
               avg_tandan: Number(dayData["avg_tandan"] / dayData["trucks"]),
               avg_accepted: dayData["avg_accepted"] / dayData["trucks"],
+              avg_rejected: dayData["avg_rejected"] / dayData["trucks"],
+              avg_fined: dayData["avg_fined"] / dayData["trucks"],
               avg_matang: dayData["avg_matang"] / dayData["trucks"],
               avg_lewat_matang: dayData["avg_lewat_matang"] / dayData["trucks"],
               avg_mentah: dayData["avg_mentah"] / dayData["trucks"],
