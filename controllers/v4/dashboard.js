@@ -97,11 +97,9 @@ const utilsInspection = {
         (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 3KG"
         ] || 0) -
-        (isLngm
-          ? item.grading_result["accepted_summary"]["JANJANG KOSONG"][
-              "BUAH KECIL DIBAWAH 2KG"
-            ] || 0
-          : 0) -
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+          "BUAH KECIL DIBAWAH 2KG"
+        ] || 0) -
         (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 5KG"
         ] || 0)
@@ -229,7 +227,7 @@ const utilsInspection = {
     const percentBuahKecil5 = countPercentage(totalBuahKecil5, totalTandan);
     const percentBuahKecil2 = countPercentage(totalBuahKecil2, totalTandan);
     const percentBuahKecil = countPercentage(
-      totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0),
+      totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2,
       totalTandan,
     );
     const percentRusakDimakanTikus = countPercentage(
@@ -552,11 +550,9 @@ const utilsInspection = {
         (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 3KG"
         ] || 0) -
-        (isLngm
-          ? item.grading_result["accepted_summary"]["JANJANG KOSONG"][
-              "BUAH KECIL DIBAWAH 2KG"
-            ] || 0
-          : 0) -
+        (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
+          "BUAH KECIL DIBAWAH 2KG"
+        ] || 0) -
         (item.grading_result["accepted_summary"]["JANJANG KOSONG"][
           "BUAH KECIL DIBAWAH 5KG"
         ] || 0)
@@ -762,7 +758,7 @@ const utilsInspection = {
     const percentBuahKecil5 = countPercentage(totalBuahKecil5, totalTandan);
     const percentBuahKecil2 = countPercentage(totalBuahKecil2, totalTandan);
     const percentBuahKecil = countPercentage(
-      totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0),
+      totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2,
       totalTandan,
     );
 
@@ -1202,6 +1198,7 @@ function processVendorData(vendors) {
     avg_mentah: false,
     avg_janjang_kosong: false,
     avg_buah_kecil: false,
+    avg_buah_kecil_2: false,
     avg_tangkai_panjang: false,
     avg_rusak_dimakan_tikus: false,
     avg_accepted: true,
@@ -1702,7 +1699,7 @@ class DashboardV4Controller {
         avgClassification["janjang_kosong"].push(percentJangkos);
         avgClassification["buah_kecil_3"].push(percentBuahKecil3);
         avgClassification["buah_kecil_5"].push(percentBuahKecil5);
-        if (isLngm) avgClassification["buah_kecil_2"].push(percentBuahKecil2);
+        avgClassification["buah_kecil_2"].push(percentBuahKecil2);
         avgClassification["tangkai_panjang"].push(percentTangkaiPanjang);
         avgClassification["rusak_dimakan_tikus"].push(percentRusakDimakanTikus);
 
@@ -1744,12 +1741,10 @@ class DashboardV4Controller {
         }
         avgClassificationTren["buah_kecil_5"][day].push(percentBuahKecil5);
 
-        if (isLngm) {
-          if (!avgClassificationTren["buah_kecil_2"][day]) {
-            avgClassificationTren["buah_kecil_2"][day] = [];
-          }
-          avgClassificationTren["buah_kecil_2"][day].push(percentBuahKecil2);
+        if (!avgClassificationTren["buah_kecil_2"][day]) {
+          avgClassificationTren["buah_kecil_2"][day] = [];
         }
+        avgClassificationTren["buah_kecil_2"][day].push(percentBuahKecil2);
 
         if (!avgClassificationTren["tangkai_panjang"][day]) {
           avgClassificationTren["tangkai_panjang"][day] = [];
@@ -1845,17 +1840,15 @@ class DashboardV4Controller {
         avgClassificationVendor["buah_kecil_5"][vendorName]["percent"] +=
           percentBuahKecil5;
 
-        if (isLngm) {
-          if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
-            avgClassificationVendor["buah_kecil_2"][vendorName] = {
-              count: 0,
-              percent: 0,
-            };
-          }
-          avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
-          avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
-            percentBuahKecil2;
+        if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
+          avgClassificationVendor["buah_kecil_2"][vendorName] = {
+            count: 0,
+            percent: 0,
+          };
         }
+        avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
+        avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
+          percentBuahKecil2;
 
         if (!avgClassificationVendor["tangkai_panjang"][vendorName]) {
           avgClassificationVendor["tangkai_panjang"][vendorName] = {
@@ -2059,7 +2052,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
             "Rusak Dimakan Tikus",
           ],
           [
@@ -2068,7 +2061,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
             percentRusakDimakanTikus,
           ],
           true,
@@ -2083,7 +2076,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
             "Rusak Dimakan Tikus",
           ],
           [
@@ -2092,7 +2085,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
             percentRusakDimakanTikus,
           ],
           true,
@@ -2107,7 +2100,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
             "Rusak Dimakan Tikus",
           ],
           [
@@ -2116,7 +2109,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
             percentRusakDimakanTikus,
           ],
           true,
@@ -2135,7 +2128,7 @@ class DashboardV4Controller {
             scoringMultiplier.buah_kecil *
             (totalBuahKecil3 +
               totalBuahKecil5 +
-              (isLngm ? totalBuahKecil2 : 0)),
+              totalBuahKecil2),
           tangkai_panjang:
             scoringMultiplier.tangkai_panjang * totalTangkaiPanjang,
         };
@@ -2225,7 +2218,7 @@ class DashboardV4Controller {
           percent_janjang_kosong: percentJangkos,
           percent_buah_kecil: percentBuahKecil3,
           percent_buah_kecil_5: percentBuahKecil5,
-          ...(isLngm ? { percent_buah_kecil_2: percentBuahKecil2 } : {}),
+          percent_buah_kecil_2: percentBuahKecil2,
           percent_tangkai_panjang: percentTangkaiPanjang,
           percent_rusak_dimakan_tikus: percentRusakDimakanTikus,
           total_tandan: item["grading_result"]["total_tandan"],
@@ -5730,12 +5723,11 @@ class DashboardV4Controller {
           totalBuahKecil3Diterima,
           percentBuahKecil3Diterima,
         );
-        if (isLngm)
-          recordClassification(
-            "buah_kecil_2_diterima",
-            totalBuahKecil2Diterima,
-            percentBuahKecil2Diterima,
-          );
+        recordClassification(
+          "buah_kecil_2_diterima",
+          totalBuahKecil2Diterima,
+          percentBuahKecil2Diterima,
+        );
         recordClassification(
           "tangkai_panjang_diterima",
           totalTangkaiPanjang,
@@ -5781,12 +5773,11 @@ class DashboardV4Controller {
           totalBuahKecil3,
           percentBuahKecil3,
         );
-        if (isLngm)
-          recordClassification(
-            "buah_kecil_2_ditolak",
-            totalBuahKecil2,
-            percentBuahKecil2,
-          );
+        recordClassification(
+          "buah_kecil_2_ditolak",
+          totalBuahKecil2,
+          percentBuahKecil2,
+        );
         recordClassification(
           "tangkai_panjang_ditolak",
           totalTangkaiPanjangDitolak,
@@ -5824,13 +5815,12 @@ class DashboardV4Controller {
         );
 
         // DITERIMA SUB
-        if (isLngm)
-          recordAvgGrading(
-            "diterima",
-            "sub",
-            "BUAH KECIL DIBAWAH 2KG",
-            totalBuahKecil2Diterima,
-          );
+        recordAvgGrading(
+          "diterima",
+          "sub",
+          "BUAH KECIL DIBAWAH 2KG",
+          totalBuahKecil2Diterima,
+        );
         recordAvgGrading(
           "diterima",
           "sub",
@@ -5885,13 +5875,12 @@ class DashboardV4Controller {
         recordAvgGrading("ditolak", "main", "MATANG", totalMatangDitolakRaw);
 
         // DITOLAK SUB
-        if (isLngm)
-          recordAvgGrading(
-            "ditolak",
-            "sub",
-            "BUAH KECIL DIBAWAH 2KG",
-            totalBuahKecil2,
-          );
+        recordAvgGrading(
+          "ditolak",
+          "sub",
+          "BUAH KECIL DIBAWAH 2KG",
+          totalBuahKecil2,
+        );
         recordAvgGrading(
           "ditolak",
           "sub",
@@ -5947,12 +5936,11 @@ class DashboardV4Controller {
           totalBuahKecil3,
           percentBuahKecil3,
         );
-        if (isLngm)
-          recordClassification(
-            "buah_kecil_2",
-            totalBuahKecil2,
-            percentBuahKecil2,
-          );
+        recordClassification(
+          "buah_kecil_2",
+          totalBuahKecil2,
+          percentBuahKecil2,
+        );
         recordClassification(
           "tangkai_panjang",
           totalTangkaiPanjang,
@@ -6050,20 +6038,18 @@ class DashboardV4Controller {
         avgClassificationVendor["buah_kecil_5"][vendorName]["total"] +=
           totalBuahKecil5;
 
-        if (isLngm) {
-          if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
-            avgClassificationVendor["buah_kecil_2"][vendorName] = {
-              count: 0,
-              percent: 0,
-              total: 0,
-            };
-          }
-          avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
-          avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
-            percentBuahKecil2;
-          avgClassificationVendor["buah_kecil_2"][vendorName]["total"] +=
-            totalBuahKecil2;
+        if (!avgClassificationVendor["buah_kecil_2"][vendorName]) {
+          avgClassificationVendor["buah_kecil_2"][vendorName] = {
+            count: 0,
+            percent: 0,
+            total: 0,
+          };
         }
+        avgClassificationVendor["buah_kecil_2"][vendorName]["count"] += 1;
+        avgClassificationVendor["buah_kecil_2"][vendorName]["percent"] +=
+          percentBuahKecil2;
+        avgClassificationVendor["buah_kecil_2"][vendorName]["total"] +=
+          totalBuahKecil2;
 
         if (!avgClassificationVendor["tangkai_panjang"][vendorName]) {
           avgClassificationVendor["tangkai_panjang"][vendorName] = {
@@ -6310,7 +6296,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
           ],
           [
             percentMentah,
@@ -6318,7 +6304,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
           ],
           true,
         );
@@ -6332,7 +6318,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
           ],
           [
             percentMentah,
@@ -6340,7 +6326,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
           ],
           true,
         );
@@ -6354,7 +6340,7 @@ class DashboardV4Controller {
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
-            ...(isLngm ? ["Buah <2kg"] : []),
+            "Buah <2kg",
           ],
           [
             percentMentah,
@@ -6362,7 +6348,7 @@ class DashboardV4Controller {
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
-            ...(isLngm ? [percentBuahKecil2] : []),
+            percentBuahKecil2,
           ],
           true,
         );
@@ -6380,7 +6366,7 @@ class DashboardV4Controller {
             scoringMultiplier.buah_kecil *
             (totalBuahKecil3 +
               totalBuahKecil5 +
-              (isLngm ? totalBuahKecil2 : 0)),
+              totalBuahKecil2),
           tangkai_panjang:
             scoringMultiplier.tangkai_panjang * totalTangkaiPanjang,
         };
@@ -6402,6 +6388,7 @@ class DashboardV4Controller {
             mentah: 0,
             janjang_kosong: 0,
             buah_kecil: 0,
+            buah_kecil_2: 0,
           };
         }
 
@@ -6422,6 +6409,7 @@ class DashboardV4Controller {
         averageVendor[vendorName]["mentah"] += percentMentah;
         averageVendor[vendorName]["janjang_kosong"] += percentJangkos;
         averageVendor[vendorName]["buah_kecil"] += percentBuahKecil;
+        averageVendor[vendorName]["buah_kecil_2"] += percentBuahKecil2;
 
         const duration =
           item.finish_date && item.date
@@ -6464,7 +6452,10 @@ class DashboardV4Controller {
           percent_mentah: percentMentah,
           percent_janjang_kosong: percentJangkos,
           percent_buah_kecil: percentBuahKecil,
-          ...(isLngm ? { percent_buah_kecil_2: percentBuahKecil2 } : {}),
+          percent_buah_kecil_2: percentBuahKecil2,
+          total_buah_kecil_2: totalBuahKecil2,
+          percent_buah_kecil_2_diterima: percentBuahKecil2Diterima,
+          total_buah_kecil_2_diterima: totalBuahKecil2Diterima,
           percent_tangkai_panjang: percentTangkaiPanjang,
           total_tandan: item["grading_result"]["total_tandan"],
           vendor_name: vendorName,
@@ -6503,6 +6494,7 @@ class DashboardV4Controller {
             avg_janjang_kosong: 0,
             avg_tangkai_panjang: 0,
             avg_buah_kecil: 0,
+            avg_buah_kecil_2: 0,
           };
         }
         avgAcceptedVendorHistoryDaily[vendorName][day]["trucks"] += 1;
@@ -6524,6 +6516,8 @@ class DashboardV4Controller {
           percentJangkos;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_buah_kecil"] +=
           percentBuahKecil;
+        avgAcceptedVendorHistoryDaily[vendorName][day]["avg_buah_kecil_2"] +=
+          percentBuahKecil2;
         avgAcceptedVendorHistoryDaily[vendorName][day]["avg_tangkai_panjang"] +=
           percentTangkaiPanjang;
 
@@ -6630,6 +6624,11 @@ class DashboardV4Controller {
                 maximumFractionDigits: 2,
               },
             ),
+            avg_buah_kecil_2: (
+              value.buah_kecil_2 / value.count
+            ).toLocaleString("en", {
+              maximumFractionDigits: 2,
+            }),
             avg_tangkai_panjang: (
               value.tangkai_panjang / value.count
             ).toLocaleString("en", {
@@ -6736,6 +6735,8 @@ class DashboardV4Controller {
               avg_tangkai_panjang:
                 dayData["avg_tangkai_panjang"] / dayData["trucks"],
               avg_buah_kecil: dayData["avg_buah_kecil"] / dayData["trucks"],
+              avg_buah_kecil_2:
+                dayData["avg_buah_kecil_2"] / dayData["trucks"],
             };
           })
           .filter((e) => Boolean(e.avg_accepted));
