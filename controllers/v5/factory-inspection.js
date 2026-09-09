@@ -155,6 +155,12 @@ function formatRedistribusiPotongan(doc) {
     return allStandardCriteria.find((c) => c.aliases.includes(upper)) || null;
   };
 
+  const isSubclassAlias = (str) => {
+    if (!str) return false;
+    const upper = String(str).trim().toUpperCase();
+    return subclassDefinitions.some((c) => c.code === upper || c.aliases.includes(upper));
+  };
+
   const getCompositeKey = (code, parent) => {
     const normParent = normalizeParentCode(parent);
     return `${code}_${normParent ?? 'ROOT'}`;
@@ -169,7 +175,12 @@ function formatRedistribusiPotongan(doc) {
       const std = findStdByAlias(rawKey);
       const code = std ? std.code : (item.kode_kriteria || item.kriteria_code || item.code || rawKey);
       const kriteriaName = item.kriteria || item.nama_kriteria || item.kriteria_name || item.name || (std ? std.name : code);
-      const parent = normalizeParentCode(item.parent ?? item.parent_code ?? item.parentCode ?? (std && std.parent !== undefined ? std.parent : null));
+      let parent = normalizeParentCode(item.parent ?? item.parent_code ?? item.parentCode ?? (std && std.parent !== undefined ? std.parent : null));
+
+      // Subclasses must have a parent; default unparented legacy subclasses to 'N' (Buah Matang)
+      if (!parent && (isSubclassAlias(code) || isSubclassAlias(rawKey))) {
+        parent = 'N';
+      }
 
       if (code) {
         const cKey = getCompositeKey(code, parent);
@@ -192,7 +203,10 @@ function formatRedistribusiPotongan(doc) {
       const keysToTest = [r.kriteria_code, r.code, r.kode_kriteria, r.name, r.kriteria, r.kriteria_name];
       const matchesCode = keysToTest.some((k) => k && std.aliases.includes(String(k).trim().toUpperCase()));
       if (!matchesCode) return false;
-      const rParent = normalizeParentCode(r.parent ?? r.parent_code ?? r.parentCode);
+      let rParent = normalizeParentCode(r.parent ?? r.parent_code ?? r.parentCode);
+      if (!rParent && isSubclassAlias(std.code)) {
+        rParent = 'N';
+      }
       if (parentCode === null) {
         return rParent === null;
       }
@@ -288,27 +302,30 @@ function formatRedistribusiPotongan(doc) {
 
   const addedKeys = new Set(resultList.map((item) => getCompositeKey(item.kode_kriteria, item.parent)));
 
-  // Add any extra items from existingMap that weren't in standard set
+  // Add any extra non-standard items from existingMap that weren't in standard set
   if (Array.isArray(gr.redistribusi_potongan)) {
     for (const [cKey, item] of existingMap.entries()) {
-      if (!addedKeys.has(cKey)) {
+      if (!addedKeys.has(cKey) && item.parent !== null) {
         resultList.push(item);
         addedKeys.add(cKey);
       }
     }
   }
 
-  // Add any extra items from redistribusiCalcRows that weren't in standard set
+  // Add any extra non-standard items from redistribusiCalcRows that weren't in standard set
   if (Array.isArray(redistribusiCalcRows)) {
     for (const row of redistribusiCalcRows) {
       if (!row || typeof row !== 'object') continue;
       const rawKey = row.kriteria_code || row.code || row.kode_kriteria || row.name || row.kriteria || '';
       const std = findStdByAlias(rawKey);
       const code = std ? std.code : (row.kriteria_code || row.code || rawKey);
-      const parent = normalizeParentCode(row.parent ?? row.parent_code ?? row.parentCode);
+      let parent = normalizeParentCode(row.parent ?? row.parent_code ?? row.parentCode);
+      if (!parent && isSubclassAlias(code)) {
+        parent = 'N';
+      }
       const cKey = getCompositeKey(code, parent);
 
-      if (code && !addedKeys.has(cKey)) {
+      if (code && !addedKeys.has(cKey) && parent !== null) {
         resultList.push({
           kode_kriteria: code,
           kriteria: row.kriteria || row.name || row.kriteria_name || (std ? std.name : code),
@@ -328,19 +345,6 @@ function formatRedistribusiPotongan(doc) {
 function formatGradingAi(doc) {
   const gr = { ...doc, ...(doc.grading_result || {}) };
 
-  if (Array.isArray(gr.grading_ai) && gr.grading_ai.length > 0) {
-    return gr.grading_ai.map((item) => ({
-      kode_kriteria: item.kode_kriteria || item.kriteria_code || item.code || '',
-      nama_kriteria: item.nama_kriteria || item.kriteria || item.name || '',
-      jumlah_janjang: Number(item.jumlah_janjang ?? item.count ?? 0),
-      tindakan: item.tindakan || 'Terima',
-      jjg_diterima: Number(item.jjg_diterima ?? 0),
-      jjg_ditolak: Number(item.jjg_ditolak ?? 0),
-      kg_denda: item.kg_denda !== null && item.kg_denda !== undefined ? safeFloat(item.kg_denda) : null,
-      parent: item.parent ?? null,
-    }));
-  }
-
   const classSummary = gr.classification_summary || {};
   const acceptedSummary = gr.accepted_summary || {};
   const rejectedSummary = gr.rejected_summary || {};
@@ -352,6 +356,11 @@ function formatGradingAi(doc) {
   const mInput = gr.manual_input || doc.manual_input || {};
   const storedCalc = mInput.calc || gr.calc || doc.calc || {};
   const buahHitamVal = Number(gr.buah_hitam_diterima ?? mInput.buahHitamDiterima ?? 0);
+
+  const getCompositeKey = (code, parent) => {
+    const normParent = normalizeParentCode(parent);
+    return `${code}_${normParent ?? 'ROOT'}`;
+  };
 
   const getCorrectedSummary = () => {
     const mainClasses = ['MENTAH', 'LEWAT MATANG', 'JANJANG KOSONG', 'MATANG'];
@@ -440,66 +449,45 @@ function formatGradingAi(doc) {
     return safeFloat(totalDenda);
   };
 
-  const gradingAiResult = [];
+  const mainCriteriaDefs = [
+    {
+      code: 'A',
+      name: 'Buah Mentah',
+      aliases: ['A', 'MENTAH', 'BUAH MENTAH', 'BUAH MENTAH A'],
+      isRejected: rejectedList.includes('MENTAH') || true,
+      getTotal: () => getMainClassTotal('MENTAH'),
+      getKgDenda: () => (rejectedList.includes('MENTAH') || true ? null : 0.0),
+    },
+    {
+      code: 'O',
+      name: 'Lewat Matang',
+      aliases: ['O', 'LEWAT MATANG', 'LEWAT_MATANG', 'LEWAT MASAK', 'LEWAT MATANG O'],
+      isRejected: rejectedList.includes('LEWAT MATANG'),
+      getTotal: () => getMainClassTotal('LEWAT MATANG'),
+      getKgDenda: () => (rejectedList.includes('LEWAT MATANG') ? null : 0.0),
+    },
+    {
+      code: 'E',
+      name: 'Janjang Kosong',
+      aliases: ['E', 'JANJANG KOSONG', 'JANJANG_KOSONG', 'TKOSONG', 'JANJANG KOSONG E'],
+      isRejected: rejectedList.includes('JANJANG KOSONG') || true,
+      getTotal: () => getMainClassTotal('JANJANG KOSONG'),
+      getKgDenda: () => (rejectedList.includes('JANJANG KOSONG') || true ? null : 0.0),
+    },
+    {
+      code: 'N',
+      name: 'Buah Matang',
+      aliases: ['N', 'MATANG', 'BUAH MATANG', 'BUAH MATANG N'],
+      isRejected: rejectedList.includes('MATANG'),
+      getTotal: () => getMainClassTotal('MATANG'),
+      getKgDenda: () => (rejectedList.includes('MATANG') ? null : getMatangKgDenda()),
+    },
+  ];
 
-  // Main classes (parent: null)
-  const mentahTotal = getMainClassTotal('MENTAH');
-  const mentahRejected = rejectedList.includes('MENTAH') || true;
-  gradingAiResult.push({
-    kode_kriteria: 'A',
-    nama_kriteria: 'Buah Mentah',
-    jumlah_janjang: mentahTotal,
-    tindakan: mentahRejected ? 'Tolak' : 'Terima',
-    jjg_diterima: mentahRejected ? 0 : mentahTotal,
-    jjg_ditolak: mentahRejected ? mentahTotal : 0,
-    kg_denda: mentahRejected ? null : 0.0,
-    parent: null,
-  });
-
-  const lewatTotal = getMainClassTotal('LEWAT MATANG');
-  const lewatRejected = rejectedList.includes('LEWAT MATANG');
-  gradingAiResult.push({
-    kode_kriteria: 'O',
-    nama_kriteria: 'Lewat Matang',
-    jumlah_janjang: lewatTotal,
-    tindakan: lewatRejected ? 'Tolak' : 'Terima',
-    jjg_diterima: lewatRejected ? 0 : lewatTotal,
-    jjg_ditolak: lewatRejected ? lewatTotal : 0,
-    kg_denda: lewatRejected ? null : 0.0,
-    parent: null,
-  });
-
-  const tkosongTotal = getMainClassTotal('JANJANG KOSONG');
-  const tkosongRejected = rejectedList.includes('JANJANG KOSONG') || true;
-  gradingAiResult.push({
-    kode_kriteria: 'E',
-    nama_kriteria: 'Janjang Kosong',
-    jumlah_janjang: tkosongTotal,
-    tindakan: tkosongRejected ? 'Tolak' : 'Terima',
-    jjg_diterima: tkosongRejected ? 0 : tkosongTotal,
-    jjg_ditolak: tkosongRejected ? tkosongTotal : 0,
-    kg_denda: tkosongRejected ? null : 0.0,
-    parent: null,
-  });
-
-  const matangTotal = getMainClassTotal('MATANG');
-  const matangRejected = rejectedList.includes('MATANG');
-  gradingAiResult.push({
-    kode_kriteria: 'N',
-    nama_kriteria: 'Buah Matang',
-    jumlah_janjang: matangTotal,
-    tindakan: matangRejected ? 'Tolak' : 'Terima',
-    jjg_diterima: matangRejected ? 0 : matangTotal,
-    jjg_ditolak: matangRejected ? matangTotal : 0,
-    kg_denda: matangRejected ? null : getMatangKgDenda(),
-    parent: null,
-  });
-
-  // Subclasses with parents (N, A, O, E)
   const parentConfigs = [
-    { parentCode: 'N', mainKey: 'MATANG', defaultTindakan: 'Terima', isRejected: matangRejected },
+    { parentCode: 'N', mainKey: 'MATANG', defaultTindakan: 'Terima', isRejected: rejectedList.includes('MATANG') },
     { parentCode: 'A', mainKey: 'MENTAH', defaultTindakan: 'Tolak', isRejected: true },
-    { parentCode: 'O', mainKey: 'LEWAT MATANG', defaultTindakan: 'Terima', isRejected: lewatRejected },
+    { parentCode: 'O', mainKey: 'LEWAT MATANG', defaultTindakan: 'Terima', isRejected: rejectedList.includes('LEWAT MATANG') },
     { parentCode: 'E', mainKey: 'JANJANG KOSONG', defaultTindakan: 'Tolak', isRejected: true },
   ];
 
@@ -507,52 +495,158 @@ function formatGradingAi(doc) {
     {
       code: 'K',
       name: 'Buah Kecil',
-      aliases: ['BUAH KECIL DIBAWAH 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH KECIL', 'KECIL'],
+      aliases: ['K', 'KECIL', 'BUAH KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH KECIL DIBAWAH 2KG'],
       docFallbackKey: 'small_fruit_fined_in_kg',
     },
     {
       code: 'XS',
       name: 'Buah Extra Kecil',
-      aliases: ['BUAH KECIL DIBAWAH 3KG', 'EXTRA KECIL', 'EXTRA_KECIL', 'EXTRAKECIL', 'BUAH EXTRA KECIL'],
+      aliases: ['XS', 'EXTRAKECIL', 'EXTRA_KECIL', 'EXTRA KECIL', 'BUAH EXTRA KECIL', 'BUAH KECIL DIBAWAH 3KG'],
       docFallbackKey: 'small_fruit_3_fined_in_kg',
     },
     {
       code: 'PEST',
       name: 'Dimakan Tikus',
-      aliases: ['RUSAK DIMAKAN TIKUS', 'DIMAKAN TIKUS', 'EATENBYRAT', 'PEST'],
+      aliases: ['PEST', 'EATENBYRAT', 'DIMAKAN TIKUS', 'RUSAK DIMAKAN TIKUS'],
       docFallbackKey: 'pest_fined_in_kg',
     },
     {
       code: 'TP',
       name: 'Tangkai Panjang',
-      aliases: ['TANGKAI PANJANG', 'TANGKAI_PANJANG', 'TPANJANG', 'TP'],
+      aliases: ['TP', 'TPANJANG', 'TANGKAI_PANJANG', 'TANGKAI PANJANG'],
       docFallbackKey: 'long_stash_fined_in_kg',
     },
   ];
 
-  for (const subDef of subclassDefinitions) {
-    for (const pConf of parentConfigs) {
-      const count = getSubclassCount(pConf.mainKey, subDef.aliases);
-      const isParentRejected = pConf.isRejected;
-      const tindakan = isParentRejected ? 'Tolak' : 'Terima';
-      const jjg_diterima = isParentRejected ? 0 : count;
-      const jjg_ditolak = isParentRejected ? count : 0;
-      let kg_denda = null;
+  const allAiCriteria = [...mainCriteriaDefs, ...subclassDefinitions];
 
-      if (!isParentRejected) {
-        kg_denda = getSubclassKgDenda(subDef.aliases, subDef.docFallbackKey);
+  const findStdByAlias = (str) => {
+    if (!str) return null;
+    const upper = String(str).trim().toUpperCase();
+    return allAiCriteria.find((c) => c.aliases.includes(upper)) || null;
+  };
+
+  const isSubclassAlias = (str) => {
+    if (!str) return false;
+    const upper = String(str).trim().toUpperCase();
+    return subclassDefinitions.some((c) => c.code === upper || c.aliases.includes(upper));
+  };
+
+  // Map any pre-existing gr.grading_ai array for lookup
+  const existingAiMap = new Map();
+  if (Array.isArray(gr.grading_ai) && gr.grading_ai.length > 0) {
+    for (const item of gr.grading_ai) {
+      if (!item || typeof item !== 'object') continue;
+      const rawKey = item.kode_kriteria || item.kriteria_code || item.code || item.name || item.kriteria || item.nama_kriteria || '';
+      const std = findStdByAlias(rawKey);
+      const code = std ? std.code : (item.kode_kriteria || item.kriteria_code || item.code || rawKey);
+      let parent = normalizeParentCode(item.parent ?? item.parent_code ?? item.parentCode);
+
+      // Subclasses must have a parent; default unparented legacy subclasses to 'N' (Buah Matang)
+      if (!parent && (isSubclassAlias(code) || isSubclassAlias(rawKey))) {
+        parent = 'N';
       }
 
+      if (code) {
+        const cKey = getCompositeKey(code, parent);
+        existingAiMap.set(cKey, {
+          kode_kriteria: code,
+          nama_kriteria: item.nama_kriteria || item.kriteria || item.name || (std ? std.name : code),
+          jumlah_janjang: Number(item.jumlah_janjang ?? item.count ?? 0),
+          tindakan: item.tindakan || null,
+          jjg_diterima: Number(item.jjg_diterima ?? 0),
+          jjg_ditolak: Number(item.jjg_ditolak ?? 0),
+          kg_denda: item.kg_denda !== null && item.kg_denda !== undefined ? safeFloat(item.kg_denda) : null,
+          parent: parent,
+        });
+      }
+    }
+  }
+
+  const gradingAiResult = [];
+
+  // 1. Process Main Criteria (A, O, E, N) -> parent: null
+  for (const mainDef of mainCriteriaDefs) {
+    const cKey = getCompositeKey(mainDef.code, null);
+    if (existingAiMap.has(cKey)) {
+      const existing = existingAiMap.get(cKey);
       gradingAiResult.push({
-        kode_kriteria: subDef.code,
-        nama_kriteria: subDef.name,
-        jumlah_janjang: count,
-        tindakan,
-        jjg_diterima,
-        jjg_ditolak,
-        kg_denda,
-        parent: pConf.parentCode,
+        kode_kriteria: mainDef.code,
+        nama_kriteria: existing.nama_kriteria || mainDef.name,
+        jumlah_janjang: existing.jumlah_janjang,
+        tindakan: existing.tindakan || (mainDef.isRejected ? 'Tolak' : 'Terima'),
+        jjg_diterima: existing.jjg_diterima,
+        jjg_ditolak: existing.jjg_ditolak,
+        kg_denda: existing.kg_denda,
+        parent: null,
       });
+    } else {
+      const total = mainDef.getTotal();
+      const isRejected = mainDef.isRejected;
+      gradingAiResult.push({
+        kode_kriteria: mainDef.code,
+        nama_kriteria: mainDef.name,
+        jumlah_janjang: total,
+        tindakan: isRejected ? 'Tolak' : 'Terima',
+        jjg_diterima: isRejected ? 0 : total,
+        jjg_ditolak: isRejected ? total : 0,
+        kg_denda: mainDef.getKgDenda(),
+        parent: null,
+      });
+    }
+  }
+
+  // 2. Process Subclasses (K, XS, PEST, TP) across parents ('N', 'A', 'O', 'E')
+  for (const subDef of subclassDefinitions) {
+    for (const pConf of parentConfigs) {
+      const cKey = getCompositeKey(subDef.code, pConf.parentCode);
+      if (existingAiMap.has(cKey)) {
+        const existing = existingAiMap.get(cKey);
+        gradingAiResult.push({
+          kode_kriteria: subDef.code,
+          nama_kriteria: existing.nama_kriteria || subDef.name,
+          jumlah_janjang: existing.jumlah_janjang,
+          tindakan: existing.tindakan || (pConf.isRejected ? 'Tolak' : 'Terima'),
+          jjg_diterima: existing.jjg_diterima,
+          jjg_ditolak: existing.jjg_ditolak,
+          kg_denda: existing.kg_denda,
+          parent: pConf.parentCode,
+        });
+      } else {
+        const count = getSubclassCount(pConf.mainKey, subDef.aliases);
+        const isParentRejected = pConf.isRejected;
+        const tindakan = isParentRejected ? 'Tolak' : 'Terima';
+        const jjg_diterima = isParentRejected ? 0 : count;
+        const jjg_ditolak = isParentRejected ? count : 0;
+        let kg_denda = null;
+
+        if (!isParentRejected) {
+          kg_denda = getSubclassKgDenda(subDef.aliases, subDef.docFallbackKey);
+        }
+
+        gradingAiResult.push({
+          kode_kriteria: subDef.code,
+          nama_kriteria: subDef.name,
+          jumlah_janjang: count,
+          tindakan,
+          jjg_diterima,
+          jjg_ditolak,
+          kg_denda,
+          parent: pConf.parentCode,
+        });
+      }
+    }
+  }
+
+  const addedAiKeys = new Set(gradingAiResult.map((item) => getCompositeKey(item.kode_kriteria, item.parent)));
+
+  // Add any extra non-standard items from existingAiMap that weren't in standard set
+  if (Array.isArray(gr.grading_ai)) {
+    for (const [cKey, item] of existingAiMap.entries()) {
+      if (!addedAiKeys.has(cKey) && item.parent !== null) {
+        gradingAiResult.push(item);
+        addedAiKeys.add(cKey);
+      }
     }
   }
 
