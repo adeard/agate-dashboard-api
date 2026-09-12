@@ -362,18 +362,41 @@ const utilsInspection = {
     };
   },
   getAllMonitoringDataNew: (inspections) => {
-    const totalTandan = inspections.reduce(
-      (curr, acc) => Number(acc.grading_result.total_tandan || 0) + curr,
-      0,
-    );
+    let grandTotalTandan = 0;
+    let grandTotalAccepted = 0;
+    let grandTotalRejected = 0;
 
-    const totalRejected = inspections.reduce((curr, item) => {
-      return Number(item.grading_result["total_rejected"] || 0) + curr;
-    }, 0);
+    inspections.forEach((acc) => {
+      const gr = acc.grading_result || {};
+      const accSummary = gr.accepted_summary || {};
+      const rejSummary = gr.rejected_summary || {};
 
-    const totalPassed = inspections.reduce((curr, item) => {
-      return Number(item.grading_result["total_accepted"] || 0) + curr;
-    }, 0);
+      const totalAcceptedFromSummary = Object.values(accSummary).reduce(
+        (sum, cat) => sum + Number(cat?.["TOTAL"] || 0),
+        0,
+      );
+      const totalRejectedFromSummary = Object.values(rejSummary).reduce(
+        (sum, cat) => sum + Number(cat?.["TOTAL"] || 0),
+        0,
+      );
+
+      const totalAccepted = Math.max(
+        Number(gr.total_accepted || 0),
+        totalAcceptedFromSummary,
+      );
+      const totalRejected = Math.max(
+        Number(gr.total_rejected || 0),
+        totalRejectedFromSummary,
+      );
+
+      const totalGraded = totalAccepted + totalRejected;
+      const tandan = Math.max(Number(gr.total_tandan || 0), totalGraded);
+
+      grandTotalTandan += tandan;
+      grandTotalAccepted += totalAccepted;
+      grandTotalRejected += totalRejected;
+    });
+
     const totalFined = inspections.reduce((curr, acc) => {
       let tf = Number(acc.grading_result?.total_fined || 0);
       if (!tf && acc.grading_result?.fined_summary) {
@@ -408,14 +431,21 @@ const utilsInspection = {
     }, 0);
     const totalInspection = inspections.length;
 
-    const percentRejected = (totalRejected / totalTandan) * 100;
-    const percentAccepted = (totalPassed / totalTandan) * 100;
-    const percentFined = (totalFined / totalPassed) * 100;
+    const percentRejected =
+      grandTotalTandan > 0
+        ? Math.min(100, (grandTotalRejected / grandTotalTandan) * 100)
+        : 0;
+    const percentAccepted =
+      grandTotalTandan > 0
+        ? Math.min(100, (grandTotalAccepted / grandTotalTandan) * 100)
+        : 0;
+    const percentFined =
+      grandTotalAccepted > 0 ? (totalFined / grandTotalAccepted) * 100 : 0;
 
     return {
-      totalTandan,
-      totalRejected,
-      totalAccepted: totalPassed,
+      totalTandan: grandTotalTandan,
+      totalRejected: grandTotalRejected,
+      totalAccepted: grandTotalAccepted,
       totalFined,
       totalInspection,
       percentAccepted,
@@ -425,7 +455,44 @@ const utilsInspection = {
   },
 
   getTotalAndPercentClassificationNew: (item, isLngm = false) => {
-    const totalTandan = item.grading_result["total_tandan"];
+    const totalAcceptedSummary = Object.values(
+      item.grading_result?.["accepted_summary"] || {},
+    ).reduce((sum, cat) => sum + Number(cat?.["TOTAL"] || 0), 0);
+
+    const totalRejectedSummary = Object.values(
+      item.grading_result?.["rejected_summary"] || {},
+    ).reduce((sum, cat) => sum + Number(cat?.["TOTAL"] || 0), 0);
+
+    const totalGradedRaw =
+      (item.grading_result?.["accepted_summary"]?.["MATANG"]?.["TOTAL"] || 0) +
+      (item.grading_result?.["accepted_summary"]?.["LEWAT MATANG"]?.["TOTAL"] ||
+        0) +
+      (item.grading_result?.["accepted_summary"]?.["MENTAH"]?.["TOTAL"] || 0) +
+      (item.grading_result?.["accepted_summary"]?.["JANJANG KOSONG"]?.[
+        "TOTAL"
+      ] || 0) +
+      (item.grading_result?.["rejected_summary"]?.["MENTAH"]?.["TOTAL"] || 0) +
+      (item.grading_result?.["rejected_summary"]?.["JANJANG KOSONG"]?.[
+        "TOTAL"
+      ] || 0) +
+      (item.grading_result?.["rejected_summary"]?.["LEWAT MATANG"]?.["TOTAL"] ||
+        0) +
+      (item.grading_result?.["rejected_summary"]?.["MATANG"]?.["TOTAL"] || 0);
+
+    const fallbackTotalGraded =
+      Number(item.grading_result?.["total_accepted"] || 0) +
+      Number(item.grading_result?.["total_rejected"] || 0);
+
+    const actualTotalGraded = Math.max(
+      totalAcceptedSummary + totalRejectedSummary,
+      totalGradedRaw,
+      fallbackTotalGraded,
+    );
+
+    const totalTandan = Math.max(
+      Number(item.grading_result?.["total_tandan"] || 0),
+      actualTotalGraded,
+    );
     let totalRejectedModified =
       Object.keys(item.grading_result["accepted_summary"] || {}).reduce(
         (n, k) =>
@@ -479,7 +546,7 @@ const utilsInspection = {
       }
     }
 
-    const percentAcceptedModified = countPercentage(
+    let percentAcceptedModified = countPercentage(
       totalAcceptedModified,
       totalTandan,
     );
@@ -829,6 +896,11 @@ const utilsInspection = {
       totalJanjangKosongRaw +
       totalLewatMatangDitolakRaw +
       totalMatangDitolakRaw;
+
+    percentAcceptedModified = Math.min(
+      100,
+      countPercentage(totalAcceptedModified, totalTandan),
+    );
 
     const totalMultiple = item.grading_result?.["total_multiple"] || 0;
 
@@ -6457,7 +6529,7 @@ class DashboardV4Controller {
           percent_buah_kecil_2_diterima: percentBuahKecil2Diterima,
           total_buah_kecil_2_diterima: totalBuahKecil2Diterima,
           percent_tangkai_panjang: percentTangkaiPanjang,
-          total_tandan: item["grading_result"]["total_tandan"],
+          total_tandan: totalTandanItem,
           vendor_name: vendorName,
           vehicle_number: item["vehicle_number"],
           date: item.date,
@@ -6469,7 +6541,7 @@ class DashboardV4Controller {
           total_multiple: item["grading_result"]["total_multiple"],
           percent_multiple: countPercentage(
             item["grading_result"]["total_multiple"],
-            item["grading_result"]["total_tandan"],
+            totalTandanItem,
           ),
         };
 
@@ -6780,9 +6852,15 @@ class DashboardV4Controller {
             total_fined: grandTotalFined,
             total_multiple: grandTotalMultiple,
             percent_rejected:
-              countPercentage(grandTotalRejected, grandTotalTandan) || 0,
+              Math.min(
+                100,
+                countPercentage(grandTotalRejected, grandTotalTandan) || 0,
+              ),
             percent_passed:
-              countPercentage(grandTotalAccepted, grandTotalTandan) || 0,
+              Math.min(
+                100,
+                countPercentage(grandTotalAccepted, grandTotalTandan) || 0,
+              ),
             percent_fined:
               countPercentage(grandTotalFined, grandTotalTandan) || 0,
             percent_multiple:
