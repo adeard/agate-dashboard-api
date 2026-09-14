@@ -347,6 +347,17 @@
           "potongan_final_pct": { "type": "number", "nullable": true }
         }
       },
+      "EvaluasiGrader": {
+        "type": "object",
+        "properties": {
+          "false_accept": { "type": "integer", "nullable": true },
+          "false_accept_overripe": { "type": "integer", "nullable": true },
+          "false_reject": { "type": "integer", "nullable": true },
+          "kuning_kunyit": { "type": "integer", "nullable": true },
+          "uji_truk": { "type": "boolean", "nullable": true },
+          "buah_hitam_max_allowed": { "type": "integer", "nullable": true }
+        }
+      },
       "InspectionListItem": {
         "type": "object",
         "properties": {
@@ -385,6 +396,7 @@
             "items": { "$ref": "#/components/schemas/GradingAiItem" }
           },
           "buah_hitam_diterima": { "type": "integer", "nullable": true },
+          "evaluasi_grader": { "$ref": "#/components/schemas/EvaluasiGrader" },
           "redistribusi_potongan": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/RedistribusiPotonganItem" }

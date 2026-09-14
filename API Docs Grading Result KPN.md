@@ -241,6 +241,14 @@ _Alternative Endpoint:_ `GET /api/v5/factory-inspection/detail?ticket_number=A00
       }
     ],
     "buah_hitam_diterima": 10,
+    "evaluasi_grader": {
+      "false_accept": 23,
+      "false_accept_overripe": 0,
+      "false_reject": 0,
+      "kuning_kunyit": 40,
+      "uji_truk": true,
+      "buah_hitam_max_allowed": 43
+    },
     "redistribusi_potongan": [
       {
         "kode_kriteria": "A",

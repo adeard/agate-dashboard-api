@@ -768,6 +768,7 @@ function formatInspectionItemDetail(doc) {
     ...summary,
     grading_ai: formatGradingAi(doc),
     buah_hitam_diterima: gr.buah_hitam_diterima ?? mInput.buahHitamDiterima ?? null,
+    evaluasi_grader: formatEvaluasiGrader(doc),
     redistribusi_potongan: formatRedistribusiPotongan(doc),
     potongan_tambahan: formatPotonganTambahan(doc),
     form_perhitungan: formatFormPerhitungan(doc),
@@ -782,6 +783,45 @@ function formatInspectionItemDetail(doc) {
         : null,
       updated_by: 'system',
     },
+  };
+}
+
+function formatEvaluasiGrader(doc) {
+  const gr = { ...doc, ...(doc.grading_result || {}) };
+  if (gr.evaluasi_grader && typeof gr.evaluasi_grader === 'object') {
+    const eg = gr.evaluasi_grader;
+    return {
+      false_accept: eg.false_accept !== undefined && eg.false_accept !== null ? Number(eg.false_accept) : null,
+      false_accept_overripe: eg.false_accept_overripe !== undefined && eg.false_accept_overripe !== null ? Number(eg.false_accept_overripe) : null,
+      false_reject: eg.false_reject !== undefined && eg.false_reject !== null ? Number(eg.false_reject) : null,
+      kuning_kunyit: eg.kuning_kunyit !== undefined && eg.kuning_kunyit !== null ? Number(eg.kuning_kunyit) : null,
+      uji_truk: eg.uji_truk !== undefined && eg.uji_truk !== null ? Boolean(eg.uji_truk) : null,
+      buah_hitam_max_allowed: eg.buah_hitam_max_allowed !== undefined && eg.buah_hitam_max_allowed !== null ? Number(eg.buah_hitam_max_allowed) : null,
+    };
+  }
+
+  const mInput = gr.manual_input || doc.manual_input || {};
+
+  const parseNullInt = (val) => {
+    if (val === undefined || val === null || val === '') return null;
+    const num = parseInt(val, 10);
+    return isNaN(num) ? null : num;
+  };
+
+  const false_accept = parseNullInt(mInput.aiTerimaGraderTolak);
+  const false_accept_overripe = parseNullInt(mInput.aiTerimaGraderTolakOverripe);
+  const false_reject = parseNullInt(mInput.aiTolakGraderTerima);
+  const kuning_kunyit = parseNullInt(mInput.aiTolakGraderTerimaKuningKunyit ?? mInput.aiTolakGraderTerimaKuningKuning);
+  const uji_truk = mInput.ujiTruk !== undefined && mInput.ujiTruk !== null ? Boolean(mInput.ujiTruk) : null;
+  const buah_hitam_max_allowed = parseNullInt(mInput.buah_hitam_max_allowed);
+
+  return {
+    false_accept,
+    false_accept_overripe,
+    false_reject,
+    kuning_kunyit,
+    uji_truk,
+    buah_hitam_max_allowed,
   };
 }
 
