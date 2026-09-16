@@ -66,6 +66,180 @@ const changeValueToLocalestring = (obj) => {
   }, {});
 };
 
+function generateMuktiPdfData(inspections) {
+  const gradingResults = inspections?.grading_result || {};
+  const totalTandan = Number(gradingResults.total_tandan || 0);
+  const classificationSummary = gradingResults.classification_summary || {};
+  const acceptedSummary = gradingResults.accepted_summary || {};
+  const rejectedSummary = gradingResults.rejected_summary || {};
+  const manualParameter = gradingResults.manual_parameter || {};
+
+  const percent = (n) => {
+    return totalTandan ? Number(((n / totalTandan) * 100).toFixed(2)) : 0;
+  };
+
+  const cleanZero = (n) => (n === 0 ? 0 : n);
+
+  const NORMAL_MERGE_KEYS = [
+    "NORMAL",
+    "RUSAK DIMAKAN TIKUS",
+    "BUAH BESAR",
+    "BUAH UKURAN NORMAL",
+    "TANGKAI NORMAL",
+    "TIDAK RUSAK DIMAKAN TIKUS",
+  ];
+
+  const mergedNormal = (mainData = {}) => {
+    return NORMAL_MERGE_KEYS.reduce(
+      (sum, key) => sum + Number(mainData[key] || 0),
+      0,
+    );
+  };
+
+  const acceptedMatang = acceptedSummary["MATANG"] || {};
+  const acceptedLewatMatang = acceptedSummary["LEWAT MATANG"] || {};
+
+  const classificationMentah = classificationSummary["MENTAH"] || {};
+  const classificationJanjangKosong =
+    classificationSummary["JANJANG KOSONG"] || {};
+
+  const mentahTotal = mergedNormal(classificationMentah);
+  const matangTotal =
+    mergedNormal(acceptedMatang) + Number(acceptedMatang["TANGKAI PANJANG"] || 0);
+  const lewatMatangTotal =
+    mergedNormal(acceptedLewatMatang) +
+    Number(acceptedLewatMatang["TANGKAI PANJANG"] || 0);
+  const tandanKosongTotal = Number(classificationJanjangKosong["TOTAL"] || 0);
+
+  const tbsKecil5Total = Object.keys(classificationSummary).reduce((sum, key) => {
+    if (key !== "JANJANG KOSONG") {
+      const mainData = classificationSummary[key] || {};
+      return (
+        sum +
+        Number(mainData["BUAH KECIL DIBAWAH 5KG"] || 0) +
+        Number(mainData["BUAH KECIL DIBAWAH 3KG"] || 0)
+      );
+    }
+    return sum;
+  }, 0);
+
+  const tangkaiPanjangTotal = Object.values(classificationSummary).reduce(
+    (sum, mainData) => {
+      return sum + Number(mainData?.["TANGKAI PANJANG"] || 0);
+    },
+    0,
+  );
+
+  const makeRow = (no, label, value) => {
+    return {
+      no: no,
+      label: label,
+      jumlah_janjang: cleanZero(value),
+      persen_janjang: cleanZero(percent(value)),
+      potongan_kg: 0,
+      potongan_persen: 0,
+    };
+  };
+
+  const MANUAL_FIELD_UNITS = {
+    TBS_RESTAN: "kg",
+    BERONDOLAN: "jjg",
+    DURA: "persen",
+    TENERA: "persen",
+    PISIFERA: "persen",
+  };
+
+  const makeManualRow = (no, label, fieldKey) => {
+    const unit = MANUAL_FIELD_UNITS[fieldKey];
+    let value = manualParameter[fieldKey];
+    value = value !== undefined && value !== null ? Number(value) : 0;
+
+    let jumlahJanjang = 0;
+    let persenJanjang = 0;
+
+    if (unit === "persen") {
+      persenJanjang = value;
+      jumlahJanjang = totalTandan
+        ? Math.round((value / 100) * totalTandan)
+        : 0;
+    } else {
+      jumlahJanjang = value;
+      persenJanjang = percent(value);
+    }
+
+    return {
+      no: no,
+      label: label,
+      jumlah_janjang: cleanZero(jumlahJanjang),
+      persen_janjang: cleanZero(persenJanjang),
+      potongan_kg: 0,
+      potongan_persen: 0,
+    };
+  };
+
+  const sortasiResult = [
+    makeRow(1, "TBS Mentah", mentahTotal),
+    makeRow(2, "TBS Masak", matangTotal),
+    makeRow(3, "TBS Lewat Matang", lewatMatangTotal),
+    makeRow(4, "Tangkos", tandanKosongTotal),
+    makeRow(5, "TBS < 5 Kg", tbsKecil5Total),
+    makeRow(6, "Tangkai Panjang", tangkaiPanjangTotal),
+    makeManualRow(7, "TBS Restan", "TBS_RESTAN"),
+    makeManualRow(8, "Berondolan", "BERONDOLAN"),
+    makeManualRow(9, "Buah Dura", "DURA"),
+    makeManualRow(10, "Buah Tenera", "TENERA"),
+    makeManualRow(11, "Buah Pisifera", "PISIFERA"),
+  ];
+
+  const sortasiRowCount = sortasiResult.length;
+
+  const totalPotonganKg = Number(
+    sortasiResult.reduce((sum, row) => sum + row.potongan_kg, 0).toFixed(2),
+  );
+  const totalPotonganPersen = Number(
+    sortasiResult.reduce((sum, row) => sum + row.potongan_persen, 0).toFixed(2),
+  );
+
+  const agateLogoImg = getImageFile("agate-logo.png");
+  const companyLogoImg = getImageFile("mukti-logo.jpeg");
+
+  const dateVal = inspections.date ? dayjs(inspections.date) : dayjs();
+  const dateString = dateVal.isValid()
+    ? dateVal.locale("id").format("DD MMMM YYYY").toUpperCase()
+    : "-";
+
+  return {
+    agate_logo: agateLogoImg,
+    company_logo_img: companyLogoImg,
+    data: {
+      date_string: dateString,
+      vehicle_number: inspections.vehicle_number || "-",
+      delivery_number: inspections.delivery_number || "-",
+      estate: inspections.vendor?.name || "-",
+      divisi: "-",
+      tahun_tanam: "-",
+      blok: "-",
+      driver_name: inspections.driver_name || "-",
+      jam_masuk: "-",
+      total_tandan_spb: 0,
+      total_tandan: totalTandan,
+      selisih_janjang: 0,
+      sortasi_result: sortasiResult,
+      sortasi_row_count: sortasiRowCount,
+      total_potongan_kg: totalPotonganKg,
+      total_potongan_persen: totalPotonganPersen,
+      netto_timbangan: 0,
+      grading: 0,
+      netto_setelah_grading: 0,
+      diperiksa_nama: null,
+      diperiksa_jabatan: "-",
+      dibuat_nama: null,
+      dibuat_jabatan: "-",
+    },
+  };
+}
+
+
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
@@ -409,6 +583,23 @@ class InspectionDataController {
       }
 
       const factory = await FactoryModel.findById(inspections.factory).lean();
+      const companyData = factory?.company
+        ? await CompanyModel.findById(factory.company).lean()
+        : null;
+
+      const isMas =
+        companyData &&
+        (companyData.initial === "MAS" ||
+          (companyData.name &&
+            companyData.name.toUpperCase().includes("MUSTIKA")) ||
+          (companyData.name &&
+            companyData.name.toUpperCase().includes("MUKTI")));
+
+      if (isMas) {
+        const muktiPdfData = generateMuktiPdfData(inspections);
+        const template = `lib/pdf/templates/grading-result-mukti.html`;
+        return generatePdf(muktiPdfData, template, res, true);
+      }
 
       const isUtjmKjgm =
         factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
@@ -542,7 +733,7 @@ class InspectionDataController {
         : null;
       // console.log({ totalResult });
 
-      const companyData = await CompanyModel.findById(factory.company).lean();
+      // companyData already fetched above
 
       let data = {
         is_lngm: isLngm,

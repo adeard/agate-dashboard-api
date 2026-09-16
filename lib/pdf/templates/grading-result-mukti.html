@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <link rel="stylesheet" href="/static/fonts/open-sans.css" />
+    <style>
+      @page {
+        size: A4 landscape;
+        margin: 12mm;
+      }
+
+      * {
+        font-family: 'Open Sans', sans-serif;
+        box-sizing: border-box;
+      }
+
+      body {
+        position: relative;
+        padding: 0;
+        margin: 20px;
+        height: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .container {
+        display: flex;
+        max-width: 100vw;
+        height: auto;
+        flex-direction: column;
+        gap: 0;
+        padding: 8px;
+        border: 2px solid #000;
+      }
+
+      /* ===== Header: logo + nama perusahaan (kiri) & kode dokumen (kanan) ===== */
+      .header-row {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      .header-left {
+        display: table-cell;
+        vertical-align: top;
+        width: 70%;
+      }
+      .header-left .logo-wrap {
+        display: table;
+        table-layout: fixed;
+      }
+      .header-left .logo-cell {
+        display: table-cell;
+        vertical-align: top;
+        padding-right: 8px;
+      }
+      .header-left .company-text-cell {
+        display: table-cell;
+        vertical-align: middle;
+      }
+      .company-text .tagline {
+        font-style: italic;
+        font-size: 13px;
+        margin: 0;
+      }
+      .company-text .company-name {
+        font-weight: bold;
+        font-size: 14px;
+        margin: 0;
+      }
+      .company-text .company-sub {
+        font-style: italic;
+        font-size: 11px;
+        margin: 0;
+      }
+      .header-right {
+        display: table-cell;
+        vertical-align: top;
+        text-align: right;
+        width: 30%;
+      }
+
+      .doc-code-box {
+        display: inline-block;
+        border: 1.5px solid #000;
+        margin-bottom: 8px;
+      }
+      .doc-code-box table {
+        border-collapse: collapse;
+      }
+      .doc-code-box td {
+        white-space: nowrap;
+      }
+      .doc-code-box td {
+        border: none;
+        border-bottom: 1px solid #000;
+        text-align: center;
+        font-weight: bold;
+        padding: 4px 8px;
+      }
+      .doc-code-box tr:last-child td {
+        border-bottom: none;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        text-decoration: underline;
+        margin: 8px 0 16px 0;
+      }
+
+      /* ===== Info fields (Tanggal, Estate, dst) — tanpa kotak pembungkus ===== */
+      .info-table {
+        width: 100%;
+        max-width: 420px;
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      .info-table td {
+        border: none;
+        padding: 2px 4px 2px 0;
+      }
+      .info-table td.label {
+        width: 190px;
+        white-space: nowrap;
+      }
+      .info-table td.colon {
+        width: 14px;
+      }
+      .info-table td.value-cell {
+        border: 1px solid #000;
+        padding: 2px 6px;
+      }
+      .info-table tr.emphasis td {
+        font-weight: bold;
+      }
+
+      .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid #000;
+        font-size: 14px;
+        margin-bottom: 0;
+      }
+      .main-table th,
+      .main-table td {
+        border: none;
+        border-right: 1px solid #000;
+        padding: 4px 8px;
+      }
+      .main-table th:last-child,
+      .main-table td:last-child {
+        border-right: none;
+      }
+      .main-table th,
+      .main-table td {
+        border-bottom: 1px solid #000;
+      }
+      .main-table thead th {
+        font-weight: bold;
+        text-align: center;
+        background-color: #ffffff;
+      }
+      .main-table td.no-col {
+        text-align: center;
+        width: 36px;
+      }
+      .main-table td.kriteria-col {
+        text-align: left;
+      }
+      .main-table td.num-col {
+        text-align: center;
+        width: 70px;
+      }
+      .main-table td.keterangan-cell {
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+        border-bottom: none;
+      }
+      .main-table .total-row td {
+        border-top: 2px solid #000;
+        border-bottom: none;
+        font-weight: bold;
+        text-align: center;
+      }
+      .main-table .total-row td.kriteria-col {
+        text-align: center;
+      }
+      .main-table tbody tr:last-of-type td {
+        border-bottom: none;
+      }
+
+      .keterangan-list .line {
+        margin-bottom: 2px;
+      }
+      .keterangan-list .line span.k-label {
+        white-space: nowrap;
+      }
+      .keterangan-list .line span.k-sep {
+        display: inline-block;
+        width: 10px;
+        text-align: center;
+      }
+      .keterangan-list .line span.k-value {
+        text-align: left;
+      }
+
+      .signature-area {
+        display: table;
+        table-layout: fixed;
+        width: 60%;
+        margin: 24px auto;
+      }
+      .signature-area .sig-col {
+        display: table-cell;
+        text-align: center;
+        width: 33.33%;
+        border: 1px solid #000;
+        padding: 8px 4px;
+      }
+      .signature-area .sig-label {
+        font-weight: normal;
+        margin-bottom: 60px;
+      }
+      .signature-area .sig-name {
+        text-decoration: underline;
+        font-weight: bold;
+      }
+      .signature-area .sig-title {
+        margin-top: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="container">
+      <div class="header-row">
+        <div class="header-left">
+          <div class="logo-wrap">
+            <div class="logo-cell">
+              <img src="data:image/jpeg;base64,{{ company_logo_img }}" width="60" />
+            </div>
+            <div class="company-text-cell">
+              <div class="company-text">
+                <p class="tagline">{{#if data.company_tagline}}{{ data.company_tagline }}{{else}}Mahir Plantation{{/if}}</p>
+                <p class="company-name">{{#if data.company_name}}{{ data.company_name }}{{else}}PT. MUSTIKA AGUNG SENTOSA{{/if}}</p>
+                <p class="company-sub">{{#if data.company_sub}}{{ data.company_sub }}{{else}}PABRIK KELAPA SAWIT (PKS){{/if}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="doc-code-box">
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    {{#if data.doc_code}}{{ data.doc_code }}{{else}}(FM-PKS-MAS-GRD-0101){{/if}}
+                  </td>
+                </tr>
+                <tr>
+                  <td>{{#if data.doc_rev}}{{ data.doc_rev }}{{else}}Rev. 00{{/if}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <p class="title">TIKET GRADING</p>
+
+      <table class="info-table">
+        <tbody>
+          <tr>
+            <td class="label">Tanggal</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.date_string }}</td>
+          </tr>
+          <tr>
+            <td class="label">Estate/Vendor</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.estate }}</td>
+          </tr>
+          <tr>
+            <td class="label">Divisi</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.divisi }}</td>
+          </tr>
+          <tr>
+            <td class="label">Tahun Tanam</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.tahun_tanam }}</td>
+          </tr>
+          <tr>
+            <td class="label">Blok</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.blok }}</td>
+          </tr>
+          <tr>
+            <td class="label">No. Polisi</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.vehicle_number }}</td>
+          </tr>
+          <tr>
+            <td class="label">Nama Supir</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.driver_name }}</td>
+          </tr>
+          <tr>
+            <td class="label">Jam Masuk</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.jam_masuk }}</td>
+          </tr>
+          <tr>
+            <td class="label">No.SPB</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.delivery_number }}</td>
+          </tr>
+          <tr>
+            <td class="label">Jumlah Janjang SPB</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.total_tandan_spb }}</td>
+          </tr>
+          <tr class="emphasis">
+            <td class="label">Jumlah Janjang AKTUAL</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.total_tandan }}</td>
+          </tr>
+          <tr class="emphasis">
+            <td class="label">Selisih Janjang</td>
+            <td class="colon">:</td>
+            <td class="value-cell">{{ data.selisih_janjang }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="main-table">
+        <thead>
+          <tr>
+            <th rowspan="2">NO</th>
+            <th rowspan="2">KRITERIA</th>
+            <th rowspan="2">JLH<br />JANJANG</th>
+            <th rowspan="2">%</th>
+            <th colspan="2">POTONGAN</th>
+            <th rowspan="2" style="width: 260px">KETERANGAN</th>
+          </tr>
+          <tr>
+            <th>Kg</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each data.sortasi_result}}
+          <tr>
+            <td class="no-col">{{ this.no }}</td>
+            <td class="kriteria-col">{{ this.label }}</td>
+            <td class="num-col">{{ this.jumlah_janjang }}</td>
+            <td class="num-col">{{ this.persen_janjang }}</td>
+            <td class="num-col">{{ this.potongan_kg }}</td>
+            <td class="num-col">{{ this.potongan_persen }}</td>
+            {{#if @first}}
+            <td class="keterangan-cell" rowspan="{{ ../data.sortasi_row_count }}">
+              <div class="keterangan-list">
+                <div class="line">
+                  <span class="k-label">- Neto Tibangan</span>
+                  <span class="k-sep">:</span>
+                  <span class="k-value">{{ ../data.netto_timbangan }}</span>
+                </div>
+                <div class="line">
+                  <span class="k-label">- Grading</span>
+                  <span class="k-sep">:</span>
+                  <span class="k-value">{{ ../data.grading }}</span>
+                </div>
+                <div class="line">
+                  <span class="k-label">- Netto Setelah Grading</span>
+                  <span class="k-sep">:</span>
+                  <span class="k-value">{{ ../data.netto_setelah_grading }}</span>
+                </div>
+              </div>
+            </td>
+            {{/if}}
+          </tr>
+          {{/each}}
+          <tr class="total-row">
+            <td colspan="4">Total Potongan</td>
+            <td>{{ data.total_potongan_kg }}</td>
+            <td>{{ data.total_potongan_persen }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="signature-area">
+        <div class="sig-col">
+          <p class="sig-label">Disetujui,</p>
+          <p class="sig-name"></p>
+          <p class="sig-title">Sopir</p>
+        </div>
+        <div class="sig-col">
+          <p class="sig-label">Diperiksa,</p>
+          <p class="sig-name"></p>
+          <p class="sig-title">Asst. Grading</p>
+        </div>
+        <div class="sig-col">
+          <p class="sig-label">Dibuat,</p>
+          <p class="sig-name"></p>
+          <p class="sig-title">Anggota Grading</p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
