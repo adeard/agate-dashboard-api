@@ -9,11 +9,12 @@
       }
 
       * {
-        font-family: 'Open Sans', sans-serif;
+        font-family: "Open Sans", sans-serif;
         box-sizing: border-box;
       }
 
-      html, body {
+      html,
+      body {
         padding: 0;
         margin: 0;
         width: 100%;
@@ -129,6 +130,7 @@
         width: 12px;
       }
       .info-table td.value-cell {
+        width: 100%;
         border: 1px solid #000;
         padding: 1px 5px;
       }
@@ -244,13 +246,25 @@
         <div class="header-left">
           <div class="logo-wrap">
             <div class="logo-cell">
-              <img src="data:image/jpeg;base64,{{ company_logo_img }}" width="60" />
+              <img
+                src="data:image/jpeg;base64,{{ company_logo_img }}"
+                width="60"
+              />
             </div>
             <div class="company-text-cell">
               <div class="company-text">
-                <p class="tagline">{{#if data.company_tagline}}{{ data.company_tagline }}{{else}}Mahir Plantation{{/if}}</p>
-                <p class="company-name">{{#if data.company_name}}{{ data.company_name }}{{else}}PT. MUSTIKA AGUNG SENTOSA{{/if}}</p>
-                <p class="company-sub">{{#if data.company_sub}}{{ data.company_sub }}{{else}}PABRIK KELAPA SAWIT (PKS){{/if}}</p>
+                <p class="tagline">
+                  {{#if data.company_tagline}}{{ data.company_tagline
+                  }}{{else}}Mahir Plantation{{/if}}
+                </p>
+                <p class="company-name">
+                  {{#if data.company_name}}{{ data.company_name }}{{else}}PT.
+                  MUSTIKA AGUNG SENTOSA{{/if}}
+                </p>
+                <p class="company-sub">
+                  {{#if data.company_sub}}{{ data.company_sub }}{{else}}PABRIK
+                  KELAPA SAWIT (PKS){{/if}}
+                </p>
               </div>
             </div>
           </div>
@@ -261,11 +275,14 @@
               <tbody>
                 <tr>
                   <td>
-                    {{#if data.doc_code}}{{ data.doc_code }}{{else}}(FM-PKS-MAS-GRD-0101){{/if}}
+                    {{#if data.doc_code}}{{ data.doc_code
+                    }}{{else}}(FM-PKS-MAS-GRD-0101){{/if}}
                   </td>
                 </tr>
                 <tr>
-                  <td>{{#if data.doc_rev}}{{ data.doc_rev }}{{else}}Rev. 00{{/if}}</td>
+                  <td>
+                    {{#if data.doc_rev}}{{ data.doc_rev }}{{else}}Rev. 00{{/if}}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -365,7 +382,10 @@
             <td class="num-col">{{ this.potongan_kg }}</td>
             <td class="num-col">{{ this.potongan_persen }}</td>
             {{#if @first}}
-            <td class="keterangan-cell" rowspan="{{ ../data.sortasi_row_count }}">
+            <td
+              class="keterangan-cell"
+              rowspan="{{ ../data.sortasi_row_count }}"
+            >
               <div class="keterangan-list">
                 <div class="line">
                   <span class="k-label">- Neto Tibangan</span>
@@ -380,7 +400,9 @@
                 <div class="line">
                   <span class="k-label">- Netto Setelah Grading</span>
                   <span class="k-sep">:</span>
-                  <span class="k-value">{{ ../data.netto_setelah_grading }}</span>
+                  <span class="k-value"
+                    >{{ ../data.netto_setelah_grading }}</span
+                  >
                 </div>
               </div>
             </td>
