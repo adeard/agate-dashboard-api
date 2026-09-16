@@ -598,7 +598,7 @@ class InspectionDataController {
       if (isMas) {
         const muktiPdfData = generateMuktiPdfData(inspections);
         const template = `lib/pdf/templates/grading-result-mukti.html`;
-        return generatePdf(muktiPdfData, template, res, true);
+        return generatePdf(muktiPdfData, template, res, false);
       }
 
       const isUtjmKjgm =
