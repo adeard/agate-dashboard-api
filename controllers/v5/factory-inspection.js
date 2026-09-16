@@ -759,6 +759,125 @@ function formatFormPerhitungan(doc) {
   };
 }
 
+function formatFruitDemographic(doc) {
+  const gr = { ...doc, ...(doc.grading_result || {}) };
+  const mInput = gr.manual_input || doc.manual_input || {};
+  const rawDemo =
+    gr.fruit_demographic ||
+    doc.fruit_demographic ||
+    mInput.fruit_demographic ||
+    null;
+
+  const demographicSubclasses = [
+    {
+      code: 'L',
+      name: 'Buah Besar',
+      aliases: ['L', 'BESAR', 'BUAH BESAR', 'BUAH_BESAR'],
+    },
+    {
+      code: 'M',
+      name: 'Buah Sedang',
+      aliases: ['M', 'SEDANG', 'BUAH SEDANG', 'BUAH_SEDANG', 'BUAH UKURAN NORMAL', 'NORMAL'],
+    },
+    {
+      code: 'K',
+      name: 'Buah Kecil',
+      aliases: ['K', 'KECIL', 'BUAH KECIL', 'BUAH_KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH < 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH < 2KG'],
+    },
+    {
+      code: 'XS',
+      name: 'Buah Extra Kecil',
+      aliases: ['XS', 'EXTRAKECIL', 'EXTRA_KECIL', 'EXTRA KECIL', 'BUAH EXTRA KECIL', 'BUAH_EXTRA_KECIL', 'BUAH KECIL DIBAWAH 3KG', 'BUAH < 3KG'],
+    },
+  ];
+
+  const findDemoStdByAlias = (str) => {
+    if (!str) return null;
+    const upper = String(str).trim().toUpperCase();
+    return demographicSubclasses.find((c) => c.aliases.includes(upper)) || null;
+  };
+
+  const resultList = [];
+
+  if (rawDemo && typeof rawDemo === 'object' && !Array.isArray(rawDemo)) {
+    for (const [parentKey, items] of Object.entries(rawDemo)) {
+      const parentCode = normalizeParentCode(parentKey) || String(parentKey).toUpperCase();
+      if (!items || typeof items !== 'object') continue;
+
+      for (const [itemKey, val] of Object.entries(items)) {
+        const std = findDemoStdByAlias(itemKey);
+        const code = std ? std.code : String(itemKey).trim().toUpperCase();
+        const name = std ? std.name : itemKey;
+        const count = safeFloat(val, 0);
+
+        resultList.push({
+          kode_kriteria: code,
+          nama_kriteria: name,
+          jumlah_janjang: count,
+          parent: parentCode,
+        });
+      }
+    }
+    return resultList;
+  }
+
+  if (Array.isArray(rawDemo)) {
+    return rawDemo.map((item) => {
+      const rawKey = item.kode_kriteria || item.code || item.name || item.kriteria || '';
+      const std = findDemoStdByAlias(rawKey);
+      const code = std ? std.code : (item.kode_kriteria || item.code || rawKey);
+      const parentCode = normalizeParentCode(item.parent) || 'N';
+      return {
+        kode_kriteria: code,
+        nama_kriteria: item.nama_kriteria || item.name || (std ? std.name : code),
+        jumlah_janjang: safeFloat(item.jumlah_janjang ?? item.count ?? 0),
+        parent: parentCode,
+      };
+    });
+  }
+
+  // Fallback: extract from classification_summary / accepted_summary / rejected_summary
+  const classSummary = gr.classification_summary || {};
+  const acceptedSummary = gr.accepted_summary || {};
+  const rejectedSummary = gr.rejected_summary || {};
+
+  const parentConfigs = [
+    { parentCode: 'N', mainKey: 'MATANG' },
+    { parentCode: 'A', mainKey: 'MENTAH' },
+    { parentCode: 'O', mainKey: 'LEWAT MATANG' },
+    { parentCode: 'E', mainKey: 'JANJANG KOSONG' },
+  ];
+
+  for (const pConf of parentConfigs) {
+    const classObj =
+      classSummary[pConf.mainKey] ||
+      acceptedSummary[pConf.mainKey] ||
+      rejectedSummary[pConf.mainKey] ||
+      {};
+
+    for (const subDef of demographicSubclasses) {
+      let count = 0;
+      for (const alias of subDef.aliases) {
+        if (classObj[alias] !== undefined) {
+          count = safeFloat(classObj[alias]);
+          break;
+        }
+      }
+
+      if (count > 0) {
+        resultList.push({
+          kode_kriteria: subDef.code,
+          nama_kriteria: subDef.name,
+          jumlah_janjang: count,
+          parent: pConf.parentCode,
+        });
+      }
+    }
+  }
+
+  return resultList;
+}
+
 function formatInspectionItemDetail(doc) {
   const summary = formatInspectionItemSummary(doc);
   const gr = { ...doc, ...(doc.grading_result || {}) };
@@ -772,6 +891,7 @@ function formatInspectionItemDetail(doc) {
     redistribusi_potongan: formatRedistribusiPotongan(doc),
     potongan_tambahan: formatPotonganTambahan(doc),
     form_perhitungan: formatFormPerhitungan(doc),
+    fruit_demographic: formatFruitDemographic(doc),
     remark: doc.notes || gr.remark || null,
     audit: gr.audit || {
       created_at: doc.createdAt
