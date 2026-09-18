@@ -759,6 +759,16 @@ function formatFormPerhitungan(doc) {
   };
 }
 
+function normalizeParentName(p) {
+  if (p === null || p === undefined || p === '') return 'matang';
+  const upper = String(p).trim().toUpperCase();
+  if (['N', 'MATANG', 'BUAH MATANG'].includes(upper)) return 'matang';
+  if (['A', 'MENTAH', 'BUAH MENTAH'].includes(upper)) return 'mentah';
+  if (['O', 'LEWAT MATANG', 'LEWAT_MATANG', 'LEWAT MASAK'].includes(upper)) return 'lewat matang';
+  if (['E', 'JANJANG KOSONG', 'JANJANG_KOSONG', 'TKOSONG'].includes(upper)) return 'janjang kosong';
+  return String(p).trim().toLowerCase();
+}
+
 function formatFruitDemographic(doc) {
   const gr = { ...doc, ...(doc.grading_result || {}) };
   const mInput = gr.manual_input || doc.manual_input || {};
@@ -771,23 +781,35 @@ function formatFruitDemographic(doc) {
   const demographicSubclasses = [
     {
       code: 'L',
-      name: 'Buah Besar',
+      name: 'buah besar',
       aliases: ['L', 'BESAR', 'BUAH BESAR', 'BUAH_BESAR'],
     },
     {
       code: 'M',
-      name: 'Buah Sedang',
+      name: 'buah sedang',
       aliases: ['M', 'SEDANG', 'BUAH SEDANG', 'BUAH_SEDANG', 'BUAH UKURAN NORMAL', 'NORMAL'],
     },
     {
       code: 'K',
-      name: 'Buah Kecil',
+      name: 'buah kecil',
       aliases: ['K', 'KECIL', 'BUAH KECIL', 'BUAH_KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH < 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH < 2KG'],
     },
     {
       code: 'XS',
-      name: 'Buah Extra Kecil',
-      aliases: ['XS', 'EXTRAKECIL', 'EXTRA_KECIL', 'EXTRA KECIL', 'BUAH EXTRA KECIL', 'BUAH_EXTRA_KECIL', 'BUAH KECIL DIBAWAH 3KG', 'BUAH < 3KG'],
+      name: 'buah sangat kecil',
+      aliases: [
+        'XS',
+        'EXTRAKECIL',
+        'EXTRA_KECIL',
+        'EXTRA KECIL',
+        'BUAH EXTRA KECIL',
+        'BUAH_EXTRA_KECIL',
+        'BUAH KECIL DIBAWAH 3KG',
+        'BUAH < 3KG',
+        'BUAH SANGAT KECIL',
+        'BUAH_SANGAT_KECIL',
+        'SANGAT KECIL',
+      ],
     },
   ];
 
@@ -800,38 +822,134 @@ function formatFruitDemographic(doc) {
   const resultList = [];
 
   if (rawDemo && typeof rawDemo === 'object' && !Array.isArray(rawDemo)) {
-    for (const [parentKey, items] of Object.entries(rawDemo)) {
-      const parentCode = normalizeParentCode(parentKey) || String(parentKey).toUpperCase();
-      if (!items || typeof items !== 'object') continue;
+    for (const [parentKey, parentData] of Object.entries(rawDemo)) {
+      const parentName = normalizeParentName(parentKey);
+      if (!parentData || typeof parentData !== 'object') continue;
 
-      for (const [itemKey, val] of Object.entries(items)) {
-        const std = findDemoStdByAlias(itemKey);
-        const code = std ? std.code : String(itemKey).trim().toUpperCase();
-        const name = std ? std.name : itemKey;
-        const count = safeFloat(val, 0);
+      const hasDiterimaObj =
+        parentData.diterima && typeof parentData.diterima === 'object';
+      const hasDitolakObj =
+        parentData.ditolak && typeof parentData.ditolak === 'object';
 
-        resultList.push({
-          kode_kriteria: code,
-          nama_kriteria: name,
-          jumlah_janjang: count,
-          parent: parentCode,
+      if (hasDiterimaObj || hasDitolakObj || 'total' in parentData) {
+        // New structure format with total/diterima/ditolak
+        const diterimaKeys = hasDiterimaObj ? Object.keys(parentData.diterima) : [];
+        const ditolakKeys = hasDitolakObj ? Object.keys(parentData.ditolak) : [];
+        const allCatKeys = Array.from(new Set([...diterimaKeys, ...ditolakKeys]));
+
+        let calcTotal = 0;
+        allCatKeys.forEach((catKey) => {
+          const dCount = hasDiterimaObj && parentData.diterima[catKey] !== undefined ? safeFloat(parentData.diterima[catKey]) : 0;
+          const rCount = hasDitolakObj && parentData.ditolak[catKey] !== undefined ? safeFloat(parentData.ditolak[catKey]) : 0;
+          calcTotal += dCount + rCount;
         });
+
+        const parentTotal =
+          parentData.total !== undefined && parentData.total !== null
+            ? safeFloat(parentData.total)
+            : calcTotal;
+
+        for (const catKey of allCatKeys) {
+          const dVal =
+            hasDiterimaObj && parentData.diterima[catKey] !== undefined
+              ? safeFloat(parentData.diterima[catKey])
+              : (hasDiterimaObj ? 0 : null);
+
+          const rVal =
+            hasDitolakObj && parentData.ditolak[catKey] !== undefined
+              ? safeFloat(parentData.ditolak[catKey])
+              : (hasDitolakObj ? 0 : null);
+
+          const dCount = dVal !== null ? dVal : 0;
+          const rCount = rVal !== null ? rVal : 0;
+          const count = dCount + rCount;
+          const pct = parentTotal > 0 ? safeFloat(count / parentTotal) : 0;
+
+          const std = findDemoStdByAlias(catKey);
+          const kategoriName = std ? std.name : String(catKey).trim().toLowerCase();
+
+          resultList.push({
+            parent: parentName,
+            kategori: kategoriName,
+            jumlah_janjang: count,
+            pct_janjang: pct,
+            diterima: dVal,
+            ditolak: rVal,
+          });
+        }
+      } else {
+        // Legacy flat map format: { "MATANG": { "buah kecil": 12 } }
+        let parentTotal = 0;
+        for (const [itemKey, val] of Object.entries(parentData)) {
+          if (itemKey === 'total') continue;
+          parentTotal += safeFloat(val, 0);
+        }
+
+        for (const [itemKey, val] of Object.entries(parentData)) {
+          if (itemKey === 'total') continue;
+          const std = findDemoStdByAlias(itemKey);
+          const kategoriName = std ? std.name : String(itemKey).trim().toLowerCase();
+          const count = safeFloat(val, 0);
+          const pct = parentTotal > 0 ? safeFloat(count / parentTotal) : 0;
+
+          resultList.push({
+            parent: parentName,
+            kategori: kategoriName,
+            jumlah_janjang: count,
+            pct_janjang: pct,
+            diterima: null,
+            ditolak: null,
+          });
+        }
       }
     }
     return resultList;
   }
 
   if (Array.isArray(rawDemo)) {
+    // Array format: [ { "kategori": "...", "jumlah_janjang": ..., "parent": ... } ]
+    const parentTotalMap = {};
+    rawDemo.forEach((item) => {
+      const pName = normalizeParentName(item.parent);
+      const count = safeFloat(item.jumlah_janjang ?? item.count ?? 0);
+      parentTotalMap[pName] = (parentTotalMap[pName] || 0) + count;
+    });
+
     return rawDemo.map((item) => {
-      const rawKey = item.kode_kriteria || item.code || item.name || item.kriteria || '';
+      const rawKey =
+        item.kategori ||
+        item.kode_kriteria ||
+        item.code ||
+        item.nama_kriteria ||
+        item.name ||
+        item.kriteria ||
+        '';
       const std = findDemoStdByAlias(rawKey);
-      const code = std ? std.code : (item.kode_kriteria || item.code || rawKey);
-      const parentCode = normalizeParentCode(item.parent) || 'N';
+      const parentName = normalizeParentName(item.parent);
+      const kategoriName = std ? std.name : String(rawKey).trim().toLowerCase();
+      const count = safeFloat(item.jumlah_janjang ?? item.count ?? 0);
+      const parentTotal = parentTotalMap[parentName] || 0;
+      const pct =
+        item.pct_janjang !== undefined && item.pct_janjang !== null
+          ? safeFloat(item.pct_janjang)
+          : (parentTotal > 0 ? safeFloat(count / parentTotal) : 0);
+
+      const dVal =
+        item.diterima !== undefined && item.diterima !== null
+          ? safeFloat(item.diterima)
+          : null;
+      const rVal =
+        item.ditolak !== undefined && item.ditolak !== null
+          ? safeFloat(item.ditolak)
+          : null;
+
       return {
-        kode_kriteria: code,
-        nama_kriteria: item.nama_kriteria || item.name || (std ? std.name : code),
-        jumlah_janjang: safeFloat(item.jumlah_janjang ?? item.count ?? 0),
-        parent: parentCode,
+        parent: parentName,
+        kategori: kategoriName,
+        jumlah_janjang: count,
+        pct_janjang: pct,
+        diterima: dVal,
+        ditolak: rVal,
       };
     });
   }
@@ -855,6 +973,20 @@ function formatFruitDemographic(doc) {
       rejectedSummary[pConf.mainKey] ||
       {};
 
+    const parentName = normalizeParentName(pConf.parentCode);
+
+    let parentTotal = safeFloat(classObj.TOTAL ?? 0);
+    if (!parentTotal) {
+      for (const subDef of demographicSubclasses) {
+        for (const alias of subDef.aliases) {
+          if (classObj[alias] !== undefined) {
+            parentTotal += safeFloat(classObj[alias]);
+            break;
+          }
+        }
+      }
+    }
+
     for (const subDef of demographicSubclasses) {
       let count = 0;
       for (const alias of subDef.aliases) {
@@ -865,11 +997,14 @@ function formatFruitDemographic(doc) {
       }
 
       if (count > 0) {
+        const pct = parentTotal > 0 ? safeFloat(count / parentTotal) : 0;
         resultList.push({
-          kode_kriteria: subDef.code,
-          nama_kriteria: subDef.name,
+          parent: parentName,
+          kategori: subDef.name,
           jumlah_janjang: count,
-          parent: pConf.parentCode,
+          pct_janjang: pct,
+          diterima: null,
+          ditolak: null,
         });
       }
     }
@@ -1092,6 +1227,14 @@ class FactoryInspectionController {
     } catch (err) {
       next(err);
     }
+  }
+
+  static formatFruitDemographic(doc) {
+    return formatFruitDemographic(doc);
+  }
+
+  static formatInspectionItemDetail(doc) {
+    return formatInspectionItemDetail(doc);
   }
 }
 
