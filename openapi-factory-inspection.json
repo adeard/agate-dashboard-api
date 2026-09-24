@@ -358,6 +358,45 @@
           "buah_hitam_max_allowed": { "type": "integer", "nullable": true }
         }
       },
+      "EstimasiBeratTolakan": {
+        "type": "object",
+        "properties": {
+          "minimum_kg": { "type": "number" },
+          "rata2_kg": { "type": "number" },
+          "maximum_kg": { "type": "number" },
+          "total_janjang": { "type": "integer" },
+          "per_main_class": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "parent": { "type": "string" },
+                "multiplier": { "type": "number" },
+                "jumlah_janjang": { "type": "integer" },
+                "minimum_kg": { "type": "number" },
+                "rata2_kg": { "type": "number" },
+                "maximum_kg": { "type": "number" }
+              }
+            }
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "parent": { "type": "string" },
+                "kategori": { "type": "string" },
+                "kode_ukuran": { "type": "string" },
+                "jumlah_janjang": { "type": "integer" },
+                "multiplier": { "type": "number" },
+                "minimum_kg": { "type": "number" },
+                "rata2_kg": { "type": "number" },
+                "maximum_kg": { "type": "number" }
+              }
+            }
+          }
+        }
+      },
       "InspectionListItem": {
         "type": "object",
         "properties": {
@@ -376,6 +415,7 @@
               "potongan_final_pct": { "type": "number", "nullable": true }
             }
           },
+          "estimasi_berat_tolakan": { "$ref": "#/components/schemas/EstimasiBeratTolakan" },
           "date": { "type": "string", "format": "date-time" }
         }
       },
@@ -403,6 +443,7 @@
           },
           "potongan_tambahan": { "$ref": "#/components/schemas/PotonganTambahan" },
           "form_perhitungan": { "$ref": "#/components/schemas/FormPerhitungan" },
+          "estimasi_berat_tolakan": { "$ref": "#/components/schemas/EstimasiBeratTolakan" },
           "remark": { "type": "string", "nullable": true },
           "audit": {
             "type": "object",

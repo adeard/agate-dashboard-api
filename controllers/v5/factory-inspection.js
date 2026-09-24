@@ -57,6 +57,8 @@ function formatInspectionItemSummary(doc) {
       potongan_final_pct: formPerhitungan.potongan_final_pct ?? vendorCalc.potonganFinal ?? mInput.potonganFinalManual ?? null,
     },
 
+    estimasi_berat_tolakan: formatEstimasiBeratTolakan(doc),
+
     date: doc.date,
   };
 }
@@ -780,6 +782,11 @@ function formatFruitDemographic(doc) {
 
   const demographicSubclasses = [
     {
+      code: 'XL',
+      name: 'buah sangat besar',
+      aliases: ['XL', 'EXTRA BESAR', 'EXTRA_BESAR', 'BUAH EXTRA BESAR', 'BUAH_EXTRA_BESAR', 'BUAH SANGAT BESAR', 'BUAH_SANGAT_BESAR', 'SANGAT BESAR'],
+    },
+    {
       code: 'L',
       name: 'buah besar',
       aliases: ['L', 'BESAR', 'BUAH BESAR', 'BUAH_BESAR'],
@@ -790,9 +797,9 @@ function formatFruitDemographic(doc) {
       aliases: ['M', 'SEDANG', 'BUAH SEDANG', 'BUAH_SEDANG', 'BUAH UKURAN NORMAL', 'NORMAL'],
     },
     {
-      code: 'K',
+      code: 'S',
       name: 'buah kecil',
-      aliases: ['K', 'KECIL', 'BUAH KECIL', 'BUAH_KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH < 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH < 2KG'],
+      aliases: ['S', 'K', 'KECIL', 'BUAH KECIL', 'BUAH_KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH < 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH < 2KG'],
     },
     {
       code: 'XS',
@@ -1013,6 +1020,147 @@ function formatFruitDemographic(doc) {
   return resultList;
 }
 
+const ESTIMATED_REJECT_SIZE_CONFIGS = [
+  {
+    code: 'XS',
+    name: 'buah sangat kecil',
+    aliases: ['XS', 'EXTRAKECIL', 'EXTRA_KECIL', 'EXTRA KECIL', 'BUAH EXTRA KECIL', 'BUAH_EXTRA_KECIL', 'BUAH KECIL DIBAWAH 3KG', 'BUAH < 3KG', 'BUAH SANGAT KECIL', 'BUAH_SANGAT_KECIL', 'SANGAT KECIL'],
+    min: 3.0,
+    rata2: 3.0,
+    max: 3.0,
+  },
+  {
+    code: 'S',
+    name: 'buah kecil',
+    aliases: ['S', 'K', 'KECIL', 'BUAH KECIL', 'BUAH_KECIL', 'BUAH KECIL DIBAWAH 5KG', 'BUAH < 5KG', 'BUAH KECIL DIBAWAH 2KG', 'BUAH < 2KG'],
+    min: 3.0,
+    rata2: 4.0,
+    max: 5.0,
+  },
+  {
+    code: 'M',
+    name: 'buah sedang',
+    aliases: ['M', 'SEDANG', 'BUAH SEDANG', 'BUAH_SEDANG', 'BUAH UKURAN NORMAL', 'NORMAL'],
+    min: 5.0,
+    rata2: 6.5,
+    max: 8.0,
+  },
+  {
+    code: 'L',
+    name: 'buah besar',
+    aliases: ['L', 'BESAR', 'BUAH BESAR', 'BUAH_BESAR'],
+    min: 8.0,
+    rata2: 11.5,
+    max: 15.0,
+  },
+  {
+    code: 'XL',
+    name: 'buah sangat besar',
+    aliases: ['XL', 'EXTRA BESAR', 'EXTRA_BESAR', 'BUAH EXTRA BESAR', 'BUAH_EXTRA_BESAR', 'BUAH SANGAT BESAR', 'BUAH_SANGAT_BESAR', 'SANGAT BESAR'],
+    min: 15.0,
+    rata2: 17.5,
+    max: 20.0,
+  },
+];
+
+function findRejectSizeConfig(str) {
+  if (!str) return null;
+  const upper = String(str).trim().toUpperCase();
+  return ESTIMATED_REJECT_SIZE_CONFIGS.find((c) => c.code === upper || c.aliases.includes(upper)) || null;
+}
+
+function getParentMultiplier(parent) {
+  const norm = normalizeParentName(parent);
+  if (norm === 'lewat matang') return 0.6;
+  if (norm === 'janjang kosong') return 0.15;
+  return 1.0;
+}
+
+function formatEstimasiBeratTolakan(doc) {
+  const demoList = formatFruitDemographic(doc);
+  const gr = { ...doc, ...(doc.grading_result || {}) };
+  const rejectedList = Array.isArray(gr.classification_rejected)
+    ? gr.classification_rejected.map((s) => String(s).toUpperCase())
+    : ['MENTAH', 'JANJANG KOSONG'];
+
+  const details = [];
+  const mainClassMap = new Map();
+
+  let totalMin = 0;
+  let totalRata2 = 0;
+  let totalMax = 0;
+  let totalJanjang = 0;
+
+  for (const item of demoList) {
+    const parentName = normalizeParentName(item.parent);
+    const sizeConfig = findRejectSizeConfig(item.kategori || item.kode_kriteria || item.code);
+    if (!sizeConfig) continue;
+
+    let rejectCount = 0;
+    if (item.ditolak !== null && item.ditolak !== undefined) {
+      rejectCount = safeFloat(item.ditolak, 0);
+    } else {
+      if (parentName === 'mentah' || parentName === 'janjang kosong') {
+        rejectCount = safeFloat(item.jumlah_janjang, 0);
+      } else if (parentName === 'lewat matang') {
+        rejectCount = rejectedList.includes('LEWAT MATANG') ? safeFloat(item.jumlah_janjang, 0) : 0;
+      } else if (parentName === 'matang') {
+        rejectCount = rejectedList.includes('MATANG') ? safeFloat(item.jumlah_janjang, 0) : 0;
+      }
+    }
+
+    const multiplier = getParentMultiplier(parentName);
+
+    const minKg = safeFloat(rejectCount * sizeConfig.min * multiplier);
+    const rata2Kg = safeFloat(rejectCount * sizeConfig.rata2 * multiplier);
+    const maxKg = safeFloat(rejectCount * sizeConfig.max * multiplier);
+
+    details.push({
+      parent: parentName,
+      kategori: sizeConfig.name,
+      kode_ukuran: sizeConfig.code,
+      jumlah_janjang: rejectCount,
+      multiplier,
+      minimum_kg: minKg,
+      rata2_kg: rata2Kg,
+      maximum_kg: maxKg,
+    });
+
+    totalMin += minKg;
+    totalRata2 += rata2Kg;
+    totalMax += maxKg;
+    totalJanjang += rejectCount;
+
+    if (!mainClassMap.has(parentName)) {
+      mainClassMap.set(parentName, {
+        parent: parentName,
+        multiplier,
+        jumlah_janjang: 0,
+        minimum_kg: 0,
+        rata2_kg: 0,
+        maximum_kg: 0,
+      });
+    }
+
+    const mc = mainClassMap.get(parentName);
+    mc.jumlah_janjang += rejectCount;
+    mc.minimum_kg = safeFloat(mc.minimum_kg + minKg);
+    mc.rata2_kg = safeFloat(mc.rata2_kg + rata2Kg);
+    mc.maximum_kg = safeFloat(mc.maximum_kg + maxKg);
+  }
+
+  const perMainClass = Array.from(mainClassMap.values());
+
+  return {
+    minimum_kg: safeFloat(totalMin),
+    rata2_kg: safeFloat(totalRata2),
+    maximum_kg: safeFloat(totalMax),
+    total_janjang: totalJanjang,
+    per_main_class: perMainClass,
+    details,
+  };
+}
+
 function formatInspectionItemDetail(doc) {
   const summary = formatInspectionItemSummary(doc);
   const gr = { ...doc, ...(doc.grading_result || {}) };
@@ -1027,6 +1175,7 @@ function formatInspectionItemDetail(doc) {
     potongan_tambahan: formatPotonganTambahan(doc),
     form_perhitungan: formatFormPerhitungan(doc),
     fruit_demographic: formatFruitDemographic(doc),
+    estimasi_berat_tolakan: formatEstimasiBeratTolakan(doc),
     remark: doc.notes || gr.remark || null,
     audit: gr.audit || {
       created_at: doc.createdAt
@@ -1231,6 +1380,14 @@ class FactoryInspectionController {
 
   static formatFruitDemographic(doc) {
     return formatFruitDemographic(doc);
+  }
+
+  static formatEstimasiBeratTolakan(doc) {
+    return formatEstimasiBeratTolakan(doc);
+  }
+
+  static formatInspectionItemSummary(doc) {
+    return formatInspectionItemSummary(doc);
   }
 
   static formatInspectionItemDetail(doc) {

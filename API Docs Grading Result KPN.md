@@ -123,6 +123,34 @@ All inspection endpoints require the `Authorization` header with a valid Bearer 
       "form_perhitungan": {
         "potongan_final_pct": 4.04
       },
+      "estimasi_berat_tolakan": {
+        "minimum_kg": 340.0,
+        "rata2_kg": 425.0,
+        "maximum_kg": 510.0,
+        "total_janjang": 50,
+        "per_main_class": [
+          {
+            "parent": "mentah",
+            "multiplier": 1.0,
+            "jumlah_janjang": 50,
+            "minimum_kg": 340.0,
+            "rata2_kg": 425.0,
+            "maximum_kg": 510.0
+          }
+        ],
+        "details": [
+          {
+            "parent": "mentah",
+            "kategori": "buah besar",
+            "kode_ukuran": "L",
+            "jumlah_janjang": 10,
+            "multiplier": 1.0,
+            "minimum_kg": 80.0,
+            "rata2_kg": 115.0,
+            "maximum_kg": 150.0
+          }
+        ]
+      },
       "date": "2026-08-10T02:31:36.000Z"
     }
   ],
@@ -327,6 +355,34 @@ _Alternative Endpoint:_ `GET /api/v5/factory-inspection/detail?ticket_number=A00
       "potongan_pct": 4.04,
       "adjusted_form_b_pct": 19.75,
       "potongan_final_pct": 4.04
+    },
+    "estimasi_berat_tolakan": {
+      "minimum_kg": 340.0,
+      "rata2_kg": 425.0,
+      "maximum_kg": 510.0,
+      "total_janjang": 50,
+      "per_main_class": [
+        {
+          "parent": "mentah",
+          "multiplier": 1.0,
+          "jumlah_janjang": 50,
+          "minimum_kg": 340.0,
+          "rata2_kg": 425.0,
+          "maximum_kg": 510.0
+        }
+      ],
+      "details": [
+        {
+          "parent": "mentah",
+          "kategori": "buah besar",
+          "kode_ukuran": "L",
+          "jumlah_janjang": 10,
+          "multiplier": 1.0,
+          "minimum_kg": 80.0,
+          "rata2_kg": 115.0,
+          "maximum_kg": 150.0
+        }
+      ]
     },
     "remark": null,
     "audit": {
