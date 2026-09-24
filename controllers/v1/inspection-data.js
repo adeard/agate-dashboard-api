@@ -24,25 +24,18 @@ let dictBuahKecil = {
 };
 
 function calculateAndAppendTotals(data) {
+  if (!data || !data.length) return data;
   const totalCounts = { label: "Total" };
 
-  // Initialize the keys with 0
-  Object.keys(data[0]).forEach((key) => {
-    if (key !== "label" && key !== "DENDA") {
-      totalCounts[key] = 0;
-    }
-  });
-
-  // Sum up the values for each key
   data.forEach((entry) => {
     Object.keys(entry).forEach((key) => {
       if (key !== "label" && key !== "DENDA") {
-        totalCounts[key] += entry[key];
+        const val = Number(entry[key]) || 0;
+        totalCounts[key] = (totalCounts[key] || 0) + val;
       }
     });
   });
 
-  // Append the totals to the data array
   data.push(totalCounts);
 
   return data;
@@ -668,8 +661,10 @@ class InspectionDataController {
           arr.forEach((item) => {
             item["BUAH KECIL DIBAWAH 5KG"] =
               (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
-              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
+              (item["BUAH KECIL DIBAWAH 3KG"] || 0) +
+              (item["BUAH KECIL DIBAWAH 2KG"] || 0);
             item["BUAH KECIL DIBAWAH 3KG"] = 0;
+            item["BUAH KECIL DIBAWAH 2KG"] = 0;
           });
         };
         mergeCols(acceptedData);
@@ -1236,6 +1231,10 @@ class InspectionDataController {
       }
 
       const factory = await FactoryModel.findById(factoryId).lean();
+      const isUtjmKjgm =
+        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
+      const isLngm =
+        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
 
       const limit = await getCompanyLimitTandan({ company: factory.company });
 
@@ -1271,19 +1270,14 @@ class InspectionDataController {
       inspections.forEach((inspection) => {
         if (!inspection.grading_result) return;
 
-        const totalTandan = inspection["grading_result"]["total_tandan"];
-        const totalAccepted = inspection["grading_result"]["total_accepted"];
-        const totalRejected = inspection["grading_result"]["total_rejected"];
-        const totalFined = inspection["grading_result"]["total_fined"];
-        const totalMultiple = inspection["grading_result"]["total_multiple"];
+        const totalTandan = inspection["grading_result"]["total_tandan"] || 0;
+        const totalAccepted = inspection["grading_result"]["total_accepted"] || 0;
+        const totalRejected = inspection["grading_result"]["total_rejected"] || 0;
+        const totalFined = inspection["grading_result"]["total_fined"] || 0;
+        const totalMultiple = inspection["grading_result"]["total_multiple"] || 0;
 
         const classificationSummary =
-          inspection["grading_result"]["classification_summary"];
-        const acceptedSummary =
-          inspection["grading_result"]["accepted_summary"];
-        const rejectedSummary =
-          inspection["grading_result"]["rejected_summary"];
-        const finedSummary = inspection["grading_result"]["fined_summary"];
+          inspection["grading_result"]["classification_summary"] || {};
 
         const vendorName = inspection["vendor_name"]?.trim() || "Unknown";
 
@@ -1349,38 +1343,62 @@ class InspectionDataController {
 
         Object.keys(classificationSummary).forEach((k) => {
           const item = classificationSummary[k];
-          // console.log({ item });
+          if (!demografikSemua["classification_summary"][k]) {
+            demografikSemua["classification_summary"][k] = {};
+          }
           Object.keys(item).forEach((ks) => {
-            const value = item[ks];
+            const value = Number(item[ks] || 0);
 
-            demografikSemua["classification_summary"][k][ks] += value;
+            const addToTarget = (targetObj) => {
+              if (!targetObj["classification_summary"][k]) {
+                targetObj["classification_summary"][k] = {};
+              }
+              targetObj["classification_summary"][k][ks] =
+                (targetObj["classification_summary"][k][ks] || 0) + value;
+            };
+
+            addToTarget(demografikSemua);
+
             if (Number(inspection["vendor_type"]) === 1) {
-              // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti["classification_summary"][k][ks] += value;
-              demografikVendorInti[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikInti);
+              if (demografikVendorInti[vendorName]) {
+                addToTarget(demografikVendorInti[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 2) {
-              demografikExternal["classification_summary"][k][ks] += value;
-              demografikVendorExternal[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikExternal);
+              if (demografikVendorExternal[vendorName]) {
+                addToTarget(demografikVendorExternal[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 3) {
-              demografikPlasma["classification_summary"][k][ks] += value;
-              demografikVendorPlasma[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikPlasma);
+              if (demografikVendorPlasma[vendorName]) {
+                addToTarget(demografikVendorPlasma[vendorName]);
+              }
             }
           });
         });
       });
 
-      // console.log({
-      //   semua: demografikSemua['classification_summary'],
-      //   inti: demografikInti['classification_summary'],
-      //   external: demografikExternal['classification_summary'],
-      //   plasma: demografikPlasma['classification_summary'],
-      // });
+      if (isUtjmKjgm) {
+        const mergeColsSummary = (demoObj) => {
+          if (!demoObj?.classification_summary) return;
+          Object.keys(demoObj.classification_summary).forEach((k) => {
+            const item = demoObj.classification_summary[k];
+            if (item) {
+              item["BUAH KECIL DIBAWAH 5KG"] =
+                (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 3KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 2KG"] || 0);
+              item["BUAH KECIL DIBAWAH 3KG"] = 0;
+              item["BUAH KECIL DIBAWAH 2KG"] = 0;
+            }
+          });
+        };
+        mergeColsSummary(demografikSemua);
+        mergeColsSummary(demografikInti);
+        mergeColsSummary(demografikExternal);
+        mergeColsSummary(demografikPlasma);
+      }
 
       demografikSemua["total_accepted_percent"] = countPercentage(
         demografikSemua["total_accepted"],
@@ -1549,6 +1567,8 @@ class InspectionDataController {
       const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
+        is_lngm: isLngm,
+        is_utjm_kjgm: isUtjmKjgm,
         start_date: date_from
           ? dayjs(date_from).format("DD/MM/YYYY HH:mm")
           : dayjs(inspections[0]["date"]).format("DD/MM/YYYY HH:mm:ss"),
@@ -2073,38 +2093,41 @@ class InspectionDataController {
 
         Object.keys(classificationSummary).forEach((k) => {
           const item = classificationSummary[k];
-          // console.log({ item });
+          if (!demografikSemua["classification_summary"][k]) {
+            demografikSemua["classification_summary"][k] = {};
+          }
           Object.keys(item).forEach((ks) => {
-            const value = item[ks];
+            const value = Number(item[ks] || 0);
 
-            demografikSemua["classification_summary"][k][ks] += value;
+            const addToTarget = (targetObj) => {
+              if (!targetObj["classification_summary"][k]) {
+                targetObj["classification_summary"][k] = {};
+              }
+              targetObj["classification_summary"][k][ks] =
+                (targetObj["classification_summary"][k][ks] || 0) + value;
+            };
+
+            addToTarget(demografikSemua);
+
             if (Number(inspection["vendor_type"]) === 1) {
-              // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti["classification_summary"][k][ks] += value;
-              demografikVendorInti[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikInti);
+              if (demografikVendorInti[vendorName]) {
+                addToTarget(demografikVendorInti[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 2) {
-              demografikExternal["classification_summary"][k][ks] += value;
-              demografikVendorExternal[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikExternal);
+              if (demografikVendorExternal[vendorName]) {
+                addToTarget(demografikVendorExternal[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 3) {
-              demografikPlasma["classification_summary"][k][ks] += value;
-              demografikVendorPlasma[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikPlasma);
+              if (demografikVendorPlasma[vendorName]) {
+                addToTarget(demografikVendorPlasma[vendorName]);
+              }
             }
           });
         });
       });
-
-      // console.log({
-      //   semua: demografikSemua['classification_summary'],
-      //   inti: demografikInti['classification_summary'],
-      //   external: demografikExternal['classification_summary'],
-      //   plasma: demografikPlasma['classification_summary'],
-      // });
 
       const isUtjmKjgm =
         factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
@@ -2115,12 +2138,17 @@ class InspectionDataController {
       if (isUtjmKjgm) {
         const mergeClassification = (summaryObj) => {
           const summary = summaryObj.classification_summary;
+          if (!summary) return;
           Object.keys(summary).forEach((key) => {
             const item = summary[key];
-            item["BUAH KECIL DIBAWAH 5KG"] =
-              (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
-              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
-            item["BUAH KECIL DIBAWAH 3KG"] = 0;
+            if (item) {
+              item["BUAH KECIL DIBAWAH 5KG"] =
+                (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 3KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 2KG"] || 0);
+              item["BUAH KECIL DIBAWAH 3KG"] = 0;
+              item["BUAH KECIL DIBAWAH 2KG"] = 0;
+            }
           });
         };
 
