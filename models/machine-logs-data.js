@@ -22,7 +22,6 @@ const SCHEMA = new Schema(
     },
     notes: {
       type: String,
-      // required: true,
     },
     code: {
       type: String,

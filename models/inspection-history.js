@@ -11,7 +11,6 @@ const SCHEMA = new Schema(
     vendor: {
       type: Schema.Types.ObjectId,
       ref: 'GradingHQ_VENDOR',
-      // type: String,
     },
     start_date: {
       type: Date,
@@ -51,19 +50,15 @@ const SCHEMA = new Schema(
 
     unripe_accepeted: {
       type: String,
-      // required: true,
     },
     over_ripe_accepted: {
       type: String,
-      // required: true,
     },
     ripe_accepted: {
       type: String,
-      // required: true,
     },
     semi_ripe_accepted: {
       type: String,
-      // required: true,
     },
 
     // Grading Status

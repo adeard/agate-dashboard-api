@@ -7,7 +7,6 @@ const dayjs = require("dayjs");
 const XLSX = require("xlsx");
 
 // === CONFIGURATION ===
-// Set your desired date range here (YYYY-MM-DD)
 const START_DATE_STR = "2026-07-08";
 const END_DATE_STR = "2026-07-22";
 // =====================
@@ -44,7 +43,6 @@ async function main() {
       process.exit(0);
     }
 
-    // Step 1: Process inspections and merge overlapping intervals (Factory Wide)
     const validInspections = [];
     const mergedBlocks = [];
     let currentBlock = null;
@@ -54,7 +52,6 @@ async function main() {
       const inspEnd = dayjs(insp.finish_date);
       const dur = inspEnd.diff(inspStart, "minute", true);
 
-      // Skip anomalous oversized inspections (> 4 hours / 240 mins)
       if (dur > 240) {
         console.log(
           `Skipped anomalous inspection ${insp._id} (Duration: ${dur.toFixed(2)} mins, Vehicle: ${insp.vehicle_number})`,
@@ -115,7 +112,6 @@ async function main() {
       return d.format("YYYY-MM-DD");
     }
 
-    // Step 2: Calculate daily factory-wide metrics for Sheet 1
     const summaryMap = new Map();
 
     // Populate totalTruck and totalTBS from validInspections first
@@ -170,7 +166,6 @@ async function main() {
       summaryEntry.blockCount += 1;
     }
 
-    // Step 3: Calculate per-machine gaps for Detailed Sheet (Sheet 2)
     const inspectionsByMachine = {};
     for (const insp of validInspections) {
       const m = insp.machine || 1;
@@ -235,7 +230,6 @@ async function main() {
       ]);
     });
 
-    // Step 4: Generate Summary Sheet (Sheet 1)
     const summaryExcelData = [
       [
         "No",
@@ -279,11 +273,9 @@ async function main() {
     // Export to Excel with multiple sheets
     const workbook = XLSX.utils.book_new();
 
-    // Sheet 1: Summary Report
     const worksheet1 = XLSX.utils.aoa_to_sheet(summaryExcelData);
     XLSX.utils.book_append_sheet(workbook, worksheet1, "Summary Report");
 
-    // Sheet 2: Detailed Inspections
     const worksheet2 = XLSX.utils.aoa_to_sheet(detailedExcelData);
     XLSX.utils.book_append_sheet(workbook, worksheet2, "Detailed Inspections");
 

@@ -117,12 +117,6 @@ class AuthController {
         },
       });
 
-      // const generatedToken = generateToken({
-      //   _id: user._id,
-      //   email: user.email,
-      // });
-      // const changePasswordUrl = `${process.env.FE_URL}?token=${generatedToken}`;
-
       await sendEmail({
         toAddress: [body.email],
         subject: 'Berikut Password Baru Anda',

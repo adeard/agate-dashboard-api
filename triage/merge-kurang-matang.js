@@ -8,7 +8,6 @@ connectToDatabase().then(async (res) => {
   console.log(res);
 
   try {
-    // Step 1: Find all inspections with STKA in delivery_number
     const inspectionsWithSTKADelivery = await InspectionDataModel.find({
       delivery_number: { $regex: 'STKA', $options: 'i' },
     })
@@ -19,7 +18,6 @@ connectToDatabase().then(async (res) => {
       `Found ${inspectionsWithSTKADelivery.length} inspections with STKA in delivery_number`
     );
 
-    // Step 2: Find all vendors with STKA in name
     const vendorsWithSTKA = await VendorV2Model.find({
       name: { $regex: 'STKA', $options: 'i' },
     }).lean();
@@ -28,7 +26,6 @@ connectToDatabase().then(async (res) => {
 
     const vendorIdsWithSTKA = vendorsWithSTKA.map((v) => v._id.toString());
 
-    // Step 3: Find inspections with STKA vendors
     const inspectionsWithSTKAVendor = await InspectionDataModel.find({
       vendor: { $in: vendorIdsWithSTKA },
     })
@@ -39,7 +36,6 @@ connectToDatabase().then(async (res) => {
       `Found ${inspectionsWithSTKAVendor.length} inspections with STKA vendors`
     );
 
-    // Step 4: Merge both lists and remove duplicates
     const allInspections = [
       ...inspectionsWithSTKADelivery,
       ...inspectionsWithSTKAVendor,
@@ -52,7 +48,6 @@ connectToDatabase().then(async (res) => {
       `Total unique inspections to process: ${uniqueInspections.length}`
     );
 
-    // Step 5: Process each inspection
     let processedCount = 0;
     let skippedCount = 0;
 

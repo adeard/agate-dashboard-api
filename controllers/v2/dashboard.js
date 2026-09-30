@@ -112,10 +112,7 @@ const setChartData = (
 const convertDemographyChartToArray = (object, main, time, divider = 1) => {
   let x = object[main][time];
   return Object.keys(x).map((key) => {
-    // let total = Object.keys(x[key]).reduce(
-    //   (tot, acc) => Number(tot) + Number(x[key][acc] || 0),
     //   0
-    // );
 
     let data = Object.keys(x[key]).reduce((curr, acc) => {
       let val = curr[acc]['value'];
@@ -142,7 +139,6 @@ const convertDemographyChartToArray = (object, main, time, divider = 1) => {
           vendors: vendorData.filter((e) => e.total > 0),
         };
       }),
-      // total: countPercentage(total, divider),
     };
   });
 };
@@ -197,10 +193,6 @@ class DashboardV2Controller {
       if (factory) {
         q['factory'] = factory;
       }
-
-      // if (year) {
-      //   q['year'] = Number(year);
-      // }
 
       const inspections = await InspectionDataModel.find(q);
 
@@ -965,16 +957,7 @@ class DashboardV2Controller {
       );
       const totalInspection = inspections.length;
 
-      // const getTotalFruitClassification = (type) => {
-      //   const total = results.reduce(
-      //     (curr, acc) => curr + Number(acc[type] || 0),
       //     0
-      //   );
-      //   return {
-      //     total,
-      //     percent: (total / totalGraded) * 100,
-      //   };
-      // };
 
       const totalAllTandonInti = inspections
         .filter((i) => i['vendor_type'] === '1')

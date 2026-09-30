@@ -60,8 +60,6 @@ const changeValueToLocalestring = (obj) => {
 };
 const WbGradingService = require("../../services/wb-grading.service");
 
-
-
 class InspectionDataController {
   static async getAll(req, res, next) {
     try {
@@ -76,7 +74,6 @@ class InspectionDataController {
         limit_minimum = 0,
       } = req.query;
       const { factoryId } = req.params;
-      // console.log({ user });
 
       let q = {
         "grading_result.total_tandan": { $gte: Number(limit_minimum) },
@@ -549,14 +546,9 @@ class InspectionDataController {
           )
         : null;
 
-      // let totalResult = acceptedResult
-      //   ? acceptedResult.find((e) => e.label.toLowerCase() === 'total')
-      //   : null;
-
       let totalResultRejected = rejectedResult
         ? rejectedResult.find((e) => e.label.toLowerCase() === "total")
         : null;
-      // console.log({ totalResult });
 
       // companyData already fetched above
 
@@ -626,11 +618,7 @@ class InspectionDataController {
             ? Number(rejectedSummary["MENTAH"]["TOTAL"]).toLocaleString()
             : 0,
 
-          // bjr_5: finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL'],
-          // bjr_5_denda: (
           //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['TOTAL']) *
-          //   Number(finedSummary['BUAH KECIL DIBAWAH 5KG']['DENDA'])
-          // ).toLocaleString(),
           tangkai_panjang: finedSummary["TANGKAI PANJANG"]?.["TOTAL"] || 0,
           tangkai_panjang_denda: (() => {
             let dendaValue = Number(finedSummary["TANGKAI PANJANG"]?.["DENDA"] || 0);

@@ -10,4 +10,3 @@ module.exports = (express) =>
     )
     .use(authorization)
     .post("/", DashboardV4Controller.getDataDashboardNew);
-// .post('/monitoring', DashboardV2Controller.getDataDashboardMonitoring);

@@ -227,33 +227,6 @@ async function generateExcel(targetDate) {
 
     byDated[date].push(modifiedItem);
 
-    // if (Number(finalScore) <= byDated[date][1]['final_score']) {
-    //   byDated[date][1] = modifiedItem;
-    // } else if (Number(finalScore) <= byDated[date][2]['final_score']) {
-    //   byDated[date][2] = modifiedItem;
-    // } else if (Number(finalScore) <= byDated[date][3]['final_score']) {
-    //   byDated[date][3] = modifiedItem;
-    // } else if (Number(finalScore) <= byDated[date][4]['final_score']) {
-    //   byDated[date][4] = modifiedItem;
-    // } else if (Number(finalScore) <= byDated[date][5]['final_score']) {
-    //   byDated[date][5] = modifiedItem;
-    // } else {
-    //   return;
-    // }
-
-    // if (rejectedPercent > byDated[date][1]['rejected_percent']) {
-    //   byDated[date][1] = modifiedItem;
-    // } else if (rejectedPercent > byDated[date][2]['rejected_percent']) {
-    //   byDated[date][2] = modifiedItem;
-    // } else if (rejectedPercent > byDated[date][3]['rejected_percent']) {
-    //   byDated[date][3] = modifiedItem;
-    // } else if (rejectedPercent > byDated[date][4]['rejected_percent']) {
-    //   byDated[date][4] = modifiedItem;
-    // } else if (rejectedPercent > byDated[date][5]['rejected_percent']) {
-    //   byDated[date][5] = modifiedItem;
-    // } else {
-    //   return;
-    // }
   });
 
   byDated = Object.keys(byDated).reduce((obj, key) => {
@@ -263,27 +236,8 @@ async function generateExcel(targetDate) {
     return obj;
   }, byDated);
 
-  // console.log({ byDated: JSON.stringify(byDated, null, 1) });
-  // return;
-  // console.log({ byDated });
-
   Object.keys(byDated).forEach((keyDate) => {
     let rankData = byDated[keyDate];
-
-    // 'Tanggal',
-    // 'Peringkat',
-    // 'Truk',
-    // 'Vendor',
-    // 'Total Tandan',
-    // 'Diterima',
-    // 'Ditolak',
-    // 'Didenda',
-    // 'Matang',
-    // 'Lewat Matang',
-    // 'Mentah',
-    // 'Janjang Kosong',
-    // 'Buah Kecil',
-    // 'Tangkai Panjang',
 
     rankData.forEach((itemData, index) => {
       excelData.push([
@@ -317,10 +271,6 @@ async function generateExcel(targetDate) {
     });
   });
 
-  // console.log({ excelData });
-
-  // return;
-
   // Create a worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
@@ -347,7 +297,6 @@ function getStats(data) {
   };
 }
 
-// Helper function to format time (minutes to HH:MM:SS)
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -360,9 +309,6 @@ function formatTime(seconds) {
 connectToDatabase().then(async (res) => {
   console.log(res);
   await generateExcel('01/01/2025').catch(console.error);
-  // await generateExcel('01/23/2025').catch(console.error);
-  // await generateExcel('01/24/2025').catch(console.error);
-  // await generateExcel('01/25/2025').catch(console.error);
 
   console.log('Done');
   process.exit(1);

@@ -17,7 +17,6 @@ async function mergeDuplicateVendors() {
   try {
     console.log('Starting duplicate vendor merge process...\n');
 
-    // Step 1: Get all factories first
     const factories = await FactoryModel.find({}).lean();
     const factoryMap = {};
     factories.forEach((factory) => {
@@ -25,11 +24,9 @@ async function mergeDuplicateVendors() {
     });
     console.log(`Total factories found: ${factories.length}\n`);
 
-    // Step 2: Get all vendors
     const vendors = await VendorV2Model.find({}).lean();
     console.log(`Total vendors found: ${vendors.length}\n`);
 
-    // Step 3: Remap vendors to include factory data
     const allVendors = vendors.map((vendor) => {
       if (vendor.factory) {
         const factoryId = vendor.factory.toString();
@@ -42,13 +39,9 @@ async function mergeDuplicateVendors() {
       return vendor; // Keep as is if no factory
     });
 
-    // console.log({ allVendors: JSON.stringify(allVendors, null, 2) });
-
-    // Step 4: Group vendors by 'id', 'name', and 'factory' to find duplicates
     const vendorsByIdAndName = {};
 
     allVendors.forEach((vendor) => {
-      // Create a composite key using id, name, and factory (to avoid merging vendors across different factories)
       const factoryId = vendor.factory?._id || vendor.factory;
       const key = `${vendor.id}_${vendor.name.trim()}_${factoryId}`;
 
@@ -58,7 +51,6 @@ async function mergeDuplicateVendors() {
       vendorsByIdAndName[key].push(vendor);
     });
 
-    // Step 5: Find duplicate groups
     const duplicateGroups = Object.entries(vendorsByIdAndName).filter(
       ([key, vendors]) => vendors.length > 1
     );
@@ -70,7 +62,6 @@ async function mergeDuplicateVendors() {
       return;
     }
 
-    // Step 4: Display duplicates for review
     duplicateGroups.forEach(([key, vendors]) => {
       console.log(`Duplicate group: ${key}`);
       vendors.forEach((v) => {
@@ -83,7 +74,6 @@ async function mergeDuplicateVendors() {
       console.log('');
     });
 
-    // Step 5: Process each duplicate group
     let totalMerged = 0;
     let totalInspectionsUpdated = 0;
 
@@ -93,7 +83,6 @@ async function mergeDuplicateVendors() {
         `\nProcessing duplicate group: ${key} (Factory: ${factoryName})`
       );
 
-      // Keep the first vendor (or you can sort by createdAt to keep the oldest)
       const keepVendor = vendors[0];
       const duplicateVendors = vendors.slice(1);
 
@@ -107,7 +96,6 @@ async function mergeDuplicateVendors() {
       // Get all duplicate vendor IDs
       const duplicateIds = duplicateVendors.map((v) => v._id);
 
-      // Step 8: Find all inspections referencing duplicate vendors
       const inspectionsToUpdate = await InspectionDataModel.find({
         vendor: { $in: duplicateIds },
       });
@@ -116,26 +104,11 @@ async function mergeDuplicateVendors() {
         `  Found ${inspectionsToUpdate.length} inspections referencing duplicate vendors`
       );
 
-      // // if (inspectionsToUpdate.length > 0) {
-      // //   // Step 9: Update all inspections to reference the kept vendor
       // //   const updateResult = await InspectionDataModel.updateMany(
-      // //     { vendor: { $in: duplicateIds } },
-      // //     { $set: { vendor: keepVendor._id } }
-      // //   );
 
       // //   console.log(
       // //     `  Updated ${updateResult.modifiedCount} inspection records`
-      // //   );
-      // //   totalInspectionsUpdated += updateResult.modifiedCount;
-      // // }
 
-      // // // Step 10: Delete duplicate vendors
-      // // const deleteResult = await VendorV2Model.deleteMany({
-      // //   _id: { $in: duplicateIds },
-      // // });
-
-      // // console.log(`  Deleted ${deleteResult.deletedCount} duplicate vendor(s)`);
-      // totalMerged += deleteResult.deletedCount;
     }
 
     console.log('\n=== Merge Complete ===');

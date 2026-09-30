@@ -23,7 +23,6 @@ const KLASIFIKASI = [
   'MENTAH',
   'KURANG MATANG',
   'MATANG',
-  // 'MATANG MEMUASKAN',
   'LEWAT MATANG',
   'JANJANG KOSONG',
 ];
@@ -35,82 +34,10 @@ const SUB_KLASIFIKASI = [
 ];
 
 class DashboardController {
-  // static async getDataDashboard(req, res, next) {
-  //   try {
-  //     const baseQuery = { ...req.body };
-  //     delete baseQuery['factory'];
-  //     delete baseQuery['vendor'];
 
-  //     const { query, page, limit } = getBasicQuery(baseQuery, {
-  //       parseToNumber: ['status'],
-  //     });
-
-  //     let payload = { ...query };
-
-  //     if (req.body.factory && req.body.factory.length) {
-  //       payload['factory'] = {
-  //         $in: req.body.factory.map((d) => new ObjectId(d)),
-  //       };
-  //     }
-
-  //     if (req.body.vendor && req.body.vendor.length) {
-  //       payload['vendor'] = {
-  //         $in: req.body.vendor.map((d) => new ObjectId(d)),
-  //       };
-  //     }
-
-  //     // console.log({payload})
-
-  //     const results = await InspectionHistoryModel.aggregate([
-  //       {
-  //         $match: { ...payload },
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: FactoryModel.collection.name,
-  //           localField: 'factory',
-  //           foreignField: '_id',
-  //           as: 'factory',
-  //         },
-  //       },
-  //       {
-  //         $sort: {
-  //           updatedAt: -1,
-  //         },
-  //       },
-  //       {
-  //         $project: {
-  //           total_tandon: 1,
-  //           total_received: 1,
-  //           total_rejected: 1,
-  //           vehicle_number: 1,
-  //           waybill_number: 1,
-  //           unripe: 1,
-  //           ripe: 1,
-  //           half_ripe: 1,
-  //           over_ripe: 1,
-  //           rotten: 1,
-  //           pest_infection: 1,
-  //           long_stash: 1,
-  //           total_in_kg: 1,
-  //         },
-  //       },
-  //     ]);
-
-  //     const totalAllTandon = results.reduce(
-  //       (curr, acc) => Number(acc.total_tandon || 0) + curr,
   //       0
-  //     );
-  //     const totalRejected = results.reduce(
-  //       (curr, acc) => Number(acc.total_rejected || 0) + curr,
   //       0
-  //     );
-  //     const totalPassed = results.reduce(
-  //       (curr, acc) => Number(acc.total_received || 0) + curr,
   //       0
-  //     );
-  //     const totalGraded = results.reduce((curr, acc) => {
-  //       return (
   //         curr +
   //         Number(acc.ripe || 0) +
   //         Number(acc.unripe || 0) +
@@ -118,60 +45,12 @@ class DashboardController {
   //         Number(acc.over_ripe || 0) +
   //         Number(acc.rotten || 0) +
   //         Number(acc.pest_infection || 0) +
-  //         Number(acc.long_stash || 0)
-  //       );
-  //     }, 0);
-  //     const totalWeight = results.reduce(
-  //       (curr, acc) => Number(acc.total_in_kg || 0) + curr,
   //       0
-  //     );
 
-  //     const getTotalFruitClassification = (type) => {
-  //       const total = results.reduce(
-  //         (curr, acc) => curr + Number(acc[type] || 0),
   //         0
-  //       );
-  //       return {
-  //         total,
-  //         percent: (total / totalGraded) * 100,
-  //       };
-  //     };
 
-  //     const percentRejected = (totalRejected / totalAllTandon) * 100;
-
-  //     const data = {
-  //       total_grading: results.length,
-  //       total_tbs_graded: totalGraded,
-  //       tbs_avg_weight: Number(Number(totalWeight / totalGraded).toFixed(2)),
-  //       total_passed: totalPassed,
-  //       total_rejected: totalRejected,
-  //       percent_rejected: percentRejected,
-  //       classifications: {
-  //         ripe: getTotalFruitClassification('ripe'),
-  //         unripe: getTotalFruitClassification('unripe'),
-  //         half_ripe: getTotalFruitClassification('half_ripe'),
-  //         over_ripe: getTotalFruitClassification('over_ripe'),
-  //         rotten: getTotalFruitClassification('rotten'),
-  //         pest_infection: getTotalFruitClassification('pest_infection'),
-  //         long_stash: getTotalFruitClassification('long_stash'),
-  //       },
-  //     };
-
-  //     return res
-  //       .status(200)
   //       .json(
   //         createResponseSuccess(
-  //           200,
-  //           'Success',
-  //           'Success get all data',
-  //           data,
-  //           {}
-  //         )
-  //       );
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
 
   static async getDataDashboard(req, res, next) {
     try {
@@ -195,16 +74,7 @@ class DashboardController {
       );
       const totalInspection = inspections.length;
 
-      // const getTotalFruitClassification = (type) => {
-      //   const total = results.reduce(
-      //     (curr, acc) => curr + Number(acc[type] || 0),
       //     0
-      //   );
-      //   return {
-      //     total,
-      //     percent: (total / totalGraded) * 100,
-      //   };
-      // };
 
       const classification = KLASIFIKASI.map((key) => {
         const total = inspections.reduce((a, i) => {
@@ -253,15 +123,6 @@ class DashboardController {
         total_fined: totalFined,
         percent_rejected: percentRejected,
         percent_passed: percentAccepted,
-        // classifications: {
-        //   // ripe: getTotalFruitClassification('ripe'),
-        //   // unripe: getTotalFruitClassification('unripe'),
-        //   // half_ripe: getTotalFruitClassification('half_ripe'),
-        //   // over_ripe: getTotalFruitClassification('over_ripe'),
-        //   // rotten: getTotalFruitClassification('rotten'),
-        //   // pest_infection: getTotalFruitClassification('pest_infection'),
-        //   // long_stash: getTotalFruitClassification('long_stash'),
-        // },
         classification: [...classification, ...subclass],
       };
 

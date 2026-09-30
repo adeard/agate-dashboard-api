@@ -192,8 +192,6 @@ const convertDemographyChartToArray = (object, main, time, divider = 1) => {
     return {
       title: key,
       data: finalData,
-      // percent,
-      // total: countPercentage(total, divider),
     };
   });
 };
@@ -282,10 +280,6 @@ class DashboardV2Controller {
       if (vendor_type) {
         q['vendor_type'] = vendor_type;
       }
-
-      // if (year) {
-      //   q['year'] = Number(year);
-      // }
 
       let inspections = await InspectionDataModel.find(q);
       const limit = await getCompanyLimitTandan(user);
@@ -399,8 +393,6 @@ class DashboardV2Controller {
         },
       };
 
-      // console.log(allChartData.durations);
-
       let totalDurationInspection = 0;
       let acceptedPercents = [];
       let rejectedPercents = [];
@@ -449,8 +441,6 @@ class DashboardV2Controller {
 
         usageMachine[inspection.machine] += 1;
 
-        // console.log({ grading_result: inspection['grading_result'] });
-
         totalAcceptedInti +=
           inspection['grading_result']['total_accepted'] || 0;
 
@@ -467,7 +457,6 @@ class DashboardV2Controller {
             start,
             'minutes'
           );
-          // objectRowToAdd['Gap Truk Sebelum'].push(different);
 
           setChartDataTruckGap(
             Math.abs(different),
@@ -495,7 +484,6 @@ class DashboardV2Controller {
           );
           lastFinishMachine[inspection.machine] = finish;
         } else {
-          // objectRowToAdd['Gap Truk Sebelum'].push('');
           lastFinishMachine[inspection.machine] = finish;
         }
 
@@ -1021,7 +1009,6 @@ class DashboardV2Controller {
         summaryPerformances['daily']
       );
 
-      // console.log(allChartData.truck_gaps);
       let duplicateDemografiIntiMain = { ...byDemographyInti['main'] };
       duplicateDemografiIntiMain = Object.entries(
         duplicateDemografiIntiMain
@@ -1037,19 +1024,13 @@ class DashboardV2Controller {
         return obj;
       }, duplicateDemografiIntiMain);
 
-      // console.log({ duplicateDemografiIntiMain });
-
       byDemographyInti = Object.entries(byDemographyInti).reduce(
         (obj, [key, value]) => {
           obj[key] = Object.entries(obj[key]).reduce((o, [k, v]) => {
-            // console.log(o[k], v);
-            // console.log({ key, k });
             o[k] = v.map((e) => {
               const sameTitle = duplicateDemografiIntiMain[k].find(
                 (x) => x.title === e.title
               );
-
-              // console.log({ sameTitle });
 
               return {
                 ...e,
@@ -1168,18 +1149,10 @@ class DashboardV2Controller {
                       title: k,
                       data: allChartData.durations[key][k]['duration']?.data
                         ? [
-                            // {
-                            //   name: 'Highest',
-                            //   total: Math.ceil(highest / 60),
-                            // },
                             {
                               name: 'Average',
                               total: Math.ceil(average / 60),
                             },
-                            // {
-                            //   name: 'Lowest',
-                            //   total: Math.ceil(lowest / 60),
-                            // },
                           ]
                         : [],
                     };
@@ -1189,93 +1162,21 @@ class DashboardV2Controller {
                 },
                 {}
               ),
-              // truck_gaps: Object.keys(allChartData.truck_gaps).reduce(
-              //   (output, key) => {
-              //     if (!output[key]) {
-              //       output[key] = {};
-              //     }
 
               //     output[key] = Object.keys(allChartData.truck_gaps[key]).map(
-              //       (timeKey) => {
-              //         const gapData =
               //           allChartData.truck_gaps[key][timeKey]?.machines?.data ||
-              //           [];
 
               //         // Group by machine
-              //         const machineGroups = gapData.reduce((groups, item) => {
-              //           if (!groups[item.machine]) {
-              //             groups[item.machine] = [];
-              //           }
-              //           groups[item.machine].push(item.value);
-              //           return groups;
-              //         }, {});
 
               //         // Calculate stats for each machine and store in object
-              //         const machineStats = gapData.length
-              //           ? {
-              //               All: (() => {
-              //                 const allDifferences = gapData.map(
               //                   (item) => item.value
-              //                 );
-              //                 // const highest = Math.max(...allDifferences);
-              //                 // const lowest = Math.min(...allDifferences);
               //                 // const average =
               //                 //   allDifferences.reduce((a, b) => a + b, 0) /
-              //                 //   allDifferences.length;
-              //                 const { average, highest, lowest } =
-              //                   getStats(allDifferences);
-
-              //                 return [
-              //                   {
-              //                     name: 'Highest',
-              //                     total: Math.ceil(Math.abs(highest)),
-              //                   },
-              //                   {
-              //                     name: 'Average',
-              //                     total: Math.ceil(Math.abs(average)),
-              //                   },
-              //                   {
-              //                     name: 'Lowest',
-              //                     total: Math.ceil(Math.abs(lowest)),
-              //                   },
-              //                 ];
-              //               })(),
-              //             }
-              //           : {};
 
               //         // Add individual machine stats
-              //         Object.keys(machineGroups).forEach((machineNumber) => {
-              //           const differences = machineGroups[machineNumber];
-              //           const { average, highest, lowest } =
-              //             getStats(differences);
 
               //           machineStats[`${machineNumber}`] = [
-              //             {
-              //               name: 'Highest',
-              //               total: Math.ceil(Math.abs(highest)),
-              //             },
-              //             {
-              //               name: 'Average',
-              //               total: Math.ceil(Math.abs(average)),
-              //             },
-              //             {
-              //               name: 'Lowest',
-              //               total: Math.ceil(Math.abs(lowest)),
-              //             },
-              //           ];
-              //         });
 
-              //         return {
-              //           title: timeKey,
-              //           data: machineStats,
-              //         };
-              //       }
-              //     );
-
-              //     return output;
-              //   },
-              //   {}
-              // ),
               truck_fines: Object.keys(allChartData.truck_fines).reduce(
                 (o, key) => {
                   if (!o[key]) {
@@ -1370,19 +1271,11 @@ class DashboardV2Controller {
               }, {}),
               demography: byDemographyInti,
             },
-            // by_demography_plasma: byDemographyPlasma,
-            // by_demography: byDemographyInti,
-            // by_plasma_accepted: sortDataByKey(
-            //   byVendorPlasmaAccepted,
             //   'percent'
-            // ),
             by_vendor_accepted: sortDataByKey(byVendorIntiAccepted, 'percent'),
             by_fruits: byIntiFruits,
             by_fruits_tp: byIntiFruitsTP,
             by_fruits_size: byIntiFruitsSize,
-            // by_plasma_fruits: byPlasmaFruits,
-            // by_plasma_fruits_size: byPlasmaFruitsSize,
-            // by_plasma_fruits_tp: byPlasmaFruitsTP,
             monitoring: {
               total_tandan: totalAllTandon,
               total_grading: totalInspection,
@@ -1439,16 +1332,7 @@ class DashboardV2Controller {
       );
       const totalInspection = inspections.length;
 
-      // const getTotalFruitClassification = (type) => {
-      //   const total = results.reduce(
-      //     (curr, acc) => curr + Number(acc[type] || 0),
       //     0
-      //   );
-      //   return {
-      //     total,
-      //     percent: (total / totalGraded) * 100,
-      //   };
-      // };
 
       const totalAllTandonInti = inspections
         .filter((i) => i['vendor_type'] === '1')

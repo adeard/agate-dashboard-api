@@ -1213,7 +1213,6 @@ async function generateExcel(targetDate, targetEnd) {
     totalJanjangData.push([`Kategori ${categoryTotal}`]);
     totalJanjangData.push([
       'No',
-      // 'Plat Nomor',
       'Vendor',
       'Total',
       'Kontribusi',
@@ -1224,11 +1223,9 @@ async function generateExcel(targetDate, targetEnd) {
         ...item.vendors[k],
       }))
       .sort((a, b) => b.count - a.count)
-      // .slice(0, 10)
       .forEach((t, idx) => {
         totalJanjangData.push([
           idx + 1,
-          // t.vehicle_number,
           t.vendor_name,
           t.count + 'x',
           countPercentage(t.count, item.total_trucks).toFixed(2) + '%',
@@ -1532,10 +1529,8 @@ async function generateExcel(targetDate, targetEnd) {
       '18 - 19',
       '19 - 21',
       '21 - 24',
-      // 'Total',
     ],
   ];
-  // console.log({ orderDay });
   Object.keys(orderDay).forEach((d) => {
     const item = dailyTruckCount[d];
     const totalDay = orderDay[d];
@@ -1550,7 +1545,6 @@ async function generateExcel(targetDate, targetEnd) {
       Number(item['18'] / totalDay).toFixed(1),
       Number(item['19'] / totalDay).toFixed(1),
       Number(item['21'] / totalDay).toFixed(1),
-      // item['total'],
     ]);
   });
 
@@ -1616,7 +1610,6 @@ function getStats(data) {
   };
 }
 
-// Helper function to format time (minutes to HH:MM:SS)
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -1632,9 +1625,6 @@ connectToDatabase().then(async (res) => {
   await generateExcel('02/01/2025', '02/28/2025').catch(console.error);
   await generateExcel('03/01/2025', '03/31/2025').catch(console.error);
   await generateExcel('04/01/2025', '04/15/2025').catch(console.error);
-  // await generateExcel('01/23/2025').catch(console.error);
-  // await generateExcel('01/24/2025').catch(console.error);
-  // await generateExcel('01/25/2025').catch(console.error);
 
   console.log('Done');
   process.exit(1);

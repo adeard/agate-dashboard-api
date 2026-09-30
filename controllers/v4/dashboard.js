@@ -253,11 +253,6 @@ const utilsInspection = {
       totalTandan,
     );
 
-    // console.log({
-    //   percentMLM: percentMatang + percentLewatMatang,
-    //   percentAccepted,
-    // });
-
     return {
       totalMatang,
       totalLewatMatang,
@@ -880,11 +875,6 @@ const utilsInspection = {
       totalTandan,
     );
 
-    // console.log({
-    //   percentMLM: percentMatang + percentLewatMatang,
-    //   percentAccepted,
-    // });
-
     totalAcceptedModified =
       totalMatangRaw +
       totalLewatMatangRaw +
@@ -922,9 +912,6 @@ const utilsInspection = {
       percentMatang,
       percentMentah,
       percentTangkaiPanjang,
-      // percentAcceptedModified: percentAccepted,
-      // totalAcceptedModified: item['grading_result']['total_accepted'],
-      // totalRejectedModified: item['grading_result']['total_rejected'],
       percentAcceptedModified: percentAcceptedModified,
       totalAcceptedModified: totalAcceptedModified,
       totalRejectedModified: totalRejectedModified,
@@ -1033,7 +1020,6 @@ const setChartDataValue = (
         object[keyTime][time] = {};
       }
       if (asArray) {
-        // console.log({ key });
         if (!object[keyTime][time][key]) {
           object[keyTime][time][key] = [];
         }
@@ -1041,7 +1027,6 @@ const setChartDataValue = (
         return;
       }
 
-      // console.log({ object: object[keyTime][time] });
       if (!object[keyTime][time]?.[key]) {
         object[keyTime][time][key] = 0;
       }
@@ -1131,7 +1116,6 @@ const generateChartArrayFromObject = (data = {}, isArrayValue = false) => {
           if (dateA && dateB && !isNaN(dateA) && !isNaN(dateB)) {
             return dateA - dateB;
           }
-          // if date format is DD/MM/YY
           const fullYearA =
             Number(yearA) < 100 ? 2000 + Number(yearA) : Number(yearA);
           const fullYearB =
@@ -1215,7 +1199,6 @@ function processInspectionData(inspections) {
     percent_rusak_dimakan_tikus: false,
   };
 
-  // Get all percentage metrics (excluding "percent_accepted" as it's not in the ranking criteria)
   const percentMetrics = Object.keys(higherIsBetter);
 
   // For each metric, calculate ranks
@@ -1422,10 +1405,8 @@ function addRankingsToVendorData(data) {
   const forSupplyRanking = [...data];
   const forPercentRanking = [...data];
 
-  // Sort by supply (descending)
   forSupplyRanking.sort((a, b) => b.supply - a.supply);
 
-  // Sort by percent (descending)
   forPercentRanking.sort((a, b) => b.percent - a.percent);
 
   // Create maps to store the ranks
@@ -1485,7 +1466,6 @@ function addRankingsWithTieHandling(data, classification) {
     // Ascending for lower is better
     forPercentRanking.sort((a, b) => a.percent - b.percent);
   } else {
-    // Descending for higher is better (default)
     forPercentRanking.sort((a, b) => b.percent - a.percent);
   }
 
@@ -1593,10 +1573,6 @@ class DashboardV4Controller {
           q["vendor_type"] = vendor_type;
         }
       }
-
-      // if (year) {
-      //   q['year'] = Number(year);
-      // }
 
       let inspections = await InspectionDataModel.find(q).sort({ date: -1 });
 
@@ -2107,7 +2083,6 @@ class DashboardV4Controller {
           day,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -2116,7 +2091,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -2131,7 +2105,6 @@ class DashboardV4Controller {
           week,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -2140,7 +2113,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -2155,7 +2127,6 @@ class DashboardV4Controller {
           monthYear,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -2164,7 +2135,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -2513,10 +2483,8 @@ class DashboardV4Controller {
       const avgAcceptedVendorHistoryDailyData = Object.entries(
         avgAcceptedVendorHistoryDaily,
       ).reduce((obj, [vendor, data]) => {
-        // console.log({ data });
         obj[vendor] = Object.entries(data)
           .map(([d, dayData]) => {
-            // console.log({ dayData });
             return {
               date: d,
               trucks: dayData["trucks"],
@@ -2553,8 +2521,6 @@ class DashboardV4Controller {
 
         return obj;
       }, {});
-
-      // console.log('Hai hai');
 
       return res.status(200).json(
         createResponseSuccess(200, "Success", "Success get all data", {
@@ -2635,7 +2601,6 @@ class DashboardV4Controller {
         : [];
     const uniqIds = [...new Set(ids.map((s) => s.trim()).filter(Boolean))];
 
-    // Parse the target date using dayjs (shift from 06:00 to 05:59:59 next day)
     const startDate = dayjs(fromDate)
       .hour(6)
       .minute(0)
@@ -4383,7 +4348,6 @@ class DashboardV4Controller {
       totalJanjangData.push([`Kategori ${categoryTotal}`]);
       totalJanjangData.push([
         "No",
-        // 'Plat Nomor',
         "Vendor",
         "Total",
         "Kontribusi %",
@@ -4394,11 +4358,9 @@ class DashboardV4Controller {
           ...item.vendors[k],
         }))
         .sort((a, b) => b.count - a.count)
-        // .slice(0, 10)
         .forEach((t, idx) => {
           totalJanjangData.push([
             idx + 1,
-            // t.vehicle_number,
             t.vendor_name,
             t.count + "x",
             formatNumberId(countPercentage(t.count, item.total_trucks)),
@@ -4891,16 +4853,13 @@ class DashboardV4Controller {
         "18 - 19",
         "19 - 21",
         "21 - 24",
-        // 'Total',
       ],
     ];
-    // console.log({ orderDay });
     Object.keys(orderDay).forEach((d) => {
       const item = dailyTruckCount[d];
       const totalDay = orderDay[d];
 
       if (item) {
-        // console.log({ item, totalDay });
         dailyTruckCountData.push([
           d,
           formatNumberId((item?.["00"] || 1) / (totalDay || 1), 1),
@@ -4912,14 +4871,9 @@ class DashboardV4Controller {
           formatNumberId((item?.["18"] || 1) / (totalDay || 1), 1),
           formatNumberId((item?.["19"] || 1) / (totalDay || 1), 1),
           formatNumberId((item?.["21"] || 1) / (totalDay || 1), 1),
-          // item['total'],
         ]);
       }
     });
-
-    // console.log({ orderDay, daysDateArray, dailyTruckCount });
-
-    // return res.send('Thank you');
 
     const workbook = XLSX.utils.book_new();
     // Create a worksheet
@@ -5110,20 +5064,8 @@ class DashboardV4Controller {
       wsWorsttAccepted,
       "Top 20 Worst Trucks",
     );
-    // const wsHourTruck = XLSX.utils.aoa_to_sheet(hourDataRejectData);
-    // XLSX.utils.book_append_sheet(workbook, wsHourTruck, "Reject by Shift Data");
-    // const wsTotalJanjang = XLSX.utils.aoa_to_sheet(totalJanjangData);
     // XLSX.utils.book_append_sheet(
-    //   workbook,
-    //   wsTotalJanjang,
-    //   "Total Tandan Recap",
-    // );
-    // const wsMachineUtility = XLSX.utils.aoa_to_sheet(machineUtilityWeekData);
     // XLSX.utils.book_append_sheet(
-    //   workbook,
-    //   wsMachineUtility,
-    //   "Machine Utilities",
-    // );
     const wsAvgVendor = XLSX.utils.aoa_to_sheet(avgVendorData);
     const avgVendorMerges = [
       { s: { r: 0, c: 0 }, e: { r: 0, c: 27 } },
@@ -5167,20 +5109,8 @@ class DashboardV4Controller {
     ];
 
     XLSX.utils.book_append_sheet(workbook, wsAvgVendor, "Average Vendor");
-    // const wsTotalJanjangDuration = XLSX.utils.aoa_to_sheet(
-    //   totalJanjangDurationData,
-    // );
     // XLSX.utils.book_append_sheet(
-    //   workbook,
-    //   wsTotalJanjangDuration,
-    //   "Total Tandan Duration Recap",
-    // );
-    // const wsDailyTruck = XLSX.utils.aoa_to_sheet(dailyTruckCountData);
     // XLSX.utils.book_append_sheet(
-    //   workbook,
-    //   wsDailyTruck,
-    //   "Daily Truck Day Time",
-    // );
     const wsTrukPerHari = XLSX.utils.aoa_to_sheet(trukPerHari);
     XLSX.utils.book_append_sheet(workbook, wsTrukPerHari, "Total Truk Harian");
 
@@ -5282,8 +5212,6 @@ class DashboardV4Controller {
     );
 
     // Write the file
-    // XLSX.writeFile(workbook, `Report${new Date().toISOString()}.xlsx`);
-    // console.log('Excel file generated successfully!');
 
     // Convert the workbook to a buffer
     const excelBuffer = XLSX.write(workbook, {
@@ -5370,10 +5298,6 @@ class DashboardV4Controller {
           q["vendor_type"] = vendor_type;
         }
       }
-
-      // if (year) {
-      //   q['year'] = Number(year);
-      // }
 
       let inspections = await InspectionDataModel.find(q).sort({ date: -1 });
 
@@ -5811,7 +5735,6 @@ class DashboardV4Controller {
           avgClassificationGrading[group][section][key].push(count);
         };
 
-        // DITERIMA MAIN (Literal classification names)
         recordAvgGrading("diterima", "main", "MATANG", totalMatangRaw);
         recordAvgGrading(
           "diterima",
@@ -6305,7 +6228,6 @@ class DashboardV4Controller {
           day,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -6313,7 +6235,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -6327,7 +6248,6 @@ class DashboardV4Controller {
           week,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -6335,7 +6255,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -6349,7 +6268,6 @@ class DashboardV4Controller {
           monthYear,
           [
             "Mentah",
-            // 'Lewat Matang',
             "Janjang Kosong",
             "Buah <3kg",
             "Buah 3-5kg",
@@ -6357,7 +6275,6 @@ class DashboardV4Controller {
           ],
           [
             percentMentah,
-            // percentLewatMatang,
             percentJangkos,
             percentBuahKecil3,
             percentBuahKecil5,
@@ -6721,10 +6638,8 @@ class DashboardV4Controller {
       const avgAcceptedVendorHistoryDailyData = Object.entries(
         avgAcceptedVendorHistoryDaily,
       ).reduce((obj, [vendor, data]) => {
-        // console.log({ data });
         obj[vendor] = Object.entries(data)
           .map(([d, dayData]) => {
-            // console.log({ dayData });
             return {
               date: d,
               trucks: dayData["trucks"],
@@ -6761,8 +6676,6 @@ class DashboardV4Controller {
 
         return obj;
       }, {});
-
-      // console.log('Hai hai');
 
       return res.status(200).json(
         createResponseSuccess(200, "Success", "Success get all data", {
@@ -6860,7 +6773,6 @@ class DashboardV4Controller {
         .sort({ date: 1 })
         .lean();
 
-      // Group by "Day" (06:00 to 03:59 next day)
       // If we subtract 6 hours from `date`, all times from 06:00 to 03:59 map to the same calendar day string.
       const groupedData = {};
 

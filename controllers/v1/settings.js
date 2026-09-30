@@ -28,7 +28,6 @@ class SettingsController {
   static async createSettings(req, res, next) {
     try {
       const body = req.body;
-      // console.log({ body });
 
       await vBody('settings', body);
 

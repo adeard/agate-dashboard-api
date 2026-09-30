@@ -38,13 +38,11 @@ const getDurationString = (startDate, endDate) => {
 async function generateExcel(targetDate) {
   // Parse the target date using dayjs
   const startDate = dayjs(targetDate).startOf('day'); // 6 AM on the target date
-  // const endDate = dayjs().add(-1, 'day').endOf('day'); // 3 AM the next day
 
   // Fetch data from MongoDB for the specific date range
   let data = await InspectionDataModel.find({
     date: {
       $gte: startDate.toDate(),
-      // $lt: endDate.toDate(),
     },
   })
     .sort({ date: 1 })
@@ -228,7 +226,6 @@ function getStats(data) {
   };
 }
 
-// Helper function to format time (minutes to HH:MM:SS)
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -241,9 +238,6 @@ function formatTime(seconds) {
 connectToDatabase().then(async (res) => {
   console.log(res);
   await generateExcel('03/13/2025').catch(console.error);
-  // await generateExcel('01/23/2025').catch(console.error);
-  // await generateExcel('01/24/2025').catch(console.error);
-  // await generateExcel('01/25/2025').catch(console.error);
 
   console.log('Done');
   process.exit(1);

@@ -7,7 +7,6 @@ const sendEmail = async ({ toAddress, subject, message, htmlBody }) => {
     Subject: subject,
     TextBody: message,
     HtmlBody: htmlBody,
-    // MessageStream: stream
   };
 
   try {

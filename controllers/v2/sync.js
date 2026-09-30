@@ -226,8 +226,6 @@ class SyncDataController {
         },
       );
 
-
-
       return res
         .status(200)
         .json(
@@ -265,7 +263,6 @@ class SyncDataController {
   }
 
   static async syncInspectionImage(req, res, next) {
-    // return res.status(200).json({ success: true, url: null });
     try {
       const file = req.file;
       const { id } = req.params;
@@ -365,8 +362,6 @@ class SyncDataController {
       delete body["is_integrated"];
       console.log({ body });
 
-      // await vBody("machine-logs-file", body);
-
       await agenda.now("sync-machine-logs-file", { body });
 
       return res
@@ -389,8 +384,6 @@ class SyncDataController {
       const body = req.body;
 
       delete body["is_integrated"];
-
-      // await vBody("machine-logs-data", body);
 
       await agenda.now("sync-machine-logs-data", { body });
 

@@ -11,7 +11,6 @@ class VendorController {
   static async getAllVendor(req, res, next) {
     try {
       const user = req.user;
-      // console.log({ user });
       const { name = '', factory = '' } = req.query;
 
       const { query } = getBasicQuery(req.query);
@@ -24,32 +23,6 @@ class VendorController {
       }
 
       console.log({ query, qp });
-
-      // const vendors = await VendorV2Model.aggregate([
-      //   {
-      //     $match: {
-      //       // ...query,
-      //       // name: { $regex: regexPattern },
-      //       // ...qp,
-      //       // factory: new ObjectId(factory),
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: FactoryModel.collection.name,
-      //       localField: 'factory',
-      //       foreignField: '_id',
-      //       as: 'factory',
-      //     },
-      //   },
-      //   {
-      //     $unwind: {
-      //       path: '$factory',
-      //       preserveNullAndEmptyArrays: true,
-      //     },
-      //   },
-      //   { $sort: { updatedAt: -1 } },
-      // ]);
 
       console.log({ user });
 

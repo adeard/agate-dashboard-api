@@ -3,8 +3,6 @@ const { validateClientKey } = require("../../middlewares/authorization");
 
 const { uploadSingleFile, upload } = require("../../middlewares/gcp");
 
-// let upload = upload.single("file")
-
 module.exports = (express) =>
   new express.Router()
     .post("/wa-status", SyncDataController.syncWAStatus)

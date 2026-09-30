@@ -14,7 +14,6 @@ class TestingController {
       const rawData = fs.readFileSync(filePath, 'utf8');
       let tickets = JSON.parse(rawData);
 
-      // Filter by date range (if provided)
       if (start_date || end_date) {
         tickets = tickets.filter(ticket => {
           const ticketDate = dayjs(ticket.summary.date);
@@ -33,7 +32,6 @@ class TestingController {
         });
       }
 
-      // Filter by ticket number (if provided)
       if (ticket_number) {
         const queryTicketNum = ticket_number.toLowerCase().trim();
         tickets = tickets.filter(ticket => 
