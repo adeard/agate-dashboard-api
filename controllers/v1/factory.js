@@ -30,14 +30,14 @@ class FactoryController {
 
       await factories.reduce(async (p, fac) => {
         await p;
-        const totalVendor = await VendorV2Model.count({ factory: fac._id });
+        const totalVendor = await VendorV2Model.countDocuments({ factory: fac._id });
 
         fac['total_vendor'] = totalVendor;
 
         populated.push(fac);
       }, Promise.resolve());
 
-      const totalData = await FactoryModel.count({});
+      const totalData = await FactoryModel.countDocuments(q);
 
       return res.status(200).json(
         createResponseSuccess(

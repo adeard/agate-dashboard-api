@@ -2,6 +2,7 @@ const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
 const InspectionHistoryModel = require('../../models/inspection-history');
 const VendorModel = require('../../models/vendor');
+const WbGradingService = require('../../services/wb-grading.service');
 const { createResponseSuccess } = require('../../utils/helpers');
 const { getBasicQuery } = require('../../utils/query-helpers');
 const { vBody } = require('../../validators/joi');
@@ -18,6 +19,28 @@ class InspectionHistoryControllers {
       const { query, page, limit } = getBasicQuery(baseQuery, {
         parseToNumber: ['status'],
       });
+
+      // Attempt SQL Server query
+      try {
+        const sqlRes = await WbGradingService.getInspectionHistory(
+          {
+            delivery_number: req.body.delivery_number,
+            vehicle_number: req.body.vehicle_number,
+            vendor_id: req.body.vendor?.[0],
+          },
+          { page, limit }
+        );
+
+        if (sqlRes && sqlRes.data && sqlRes.data.length > 0) {
+          return res.status(200).json(
+            createResponseSuccess(200, 'Success', 'Success get all data', sqlRes.data, {
+              total_data: sqlRes.totalData,
+            })
+          );
+        }
+      } catch (sqlErr) {
+        console.warn('[SQL Server getInspectionHistory fallback to Mongo]:', sqlErr.message);
+      }
 
       let payload = { ...query };
 
@@ -75,19 +98,19 @@ class InspectionHistoryControllers {
           },
         },
         {
-          $skip: Number(page) * Number(limit),
-        },
-        {
-          $limit: Number(limit),
-        },
-        {
           $sort: {
             updatedAt: -1,
           },
         },
         {
+          $skip: (Math.max(1, Number(page)) - 1) * Number(limit),
+        },
+        {
+          $limit: Number(limit),
+        },
+        {
           $project: {
-            total_tandon: 1,
+            total_tandan: 1,
             total_rejected: 1,
             vehicle_number: 1,
             waybill_number: 1,
@@ -101,7 +124,7 @@ class InspectionHistoryControllers {
           },
         },
       ]);
-      const totalData = await InspectionHistoryModel.countDocuments({});
+      const totalData = await InspectionHistoryModel.countDocuments(payload);
 
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all data', results, {
@@ -117,10 +140,19 @@ class InspectionHistoryControllers {
     try {
       const { inspectionId } = req.params;
 
-      const result = await InspectionHistoryModel.findById(inspectionId)
-        .populate({ path: 'factory', select: 'name _id' })
-        .populate({ path: 'vendor', select: 'name _id' })
-        .lean();
+      let result = null;
+      try {
+        result = await WbGradingService.getInspectionDetail(inspectionId);
+      } catch (sqlErr) {
+        console.warn('[SQL Server getDetail fallback to Mongo]:', sqlErr.message);
+      }
+
+      if (!result) {
+        result = await InspectionHistoryModel.findById(inspectionId)
+          .populate({ path: 'factory', select: 'name _id' })
+          .populate({ path: 'vendor', select: 'name _id' })
+          .lean();
+      }
 
       return res
         .status(200)

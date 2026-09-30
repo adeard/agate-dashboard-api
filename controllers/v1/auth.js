@@ -101,7 +101,7 @@ class AuthController {
         };
       }
 
-      if (user.is_active === false) {
+      if (user.status === 0) {
         throw {
           code: 400,
           message: 'Mohon maaf akun yang anda masukkan sudah tidak aktif',

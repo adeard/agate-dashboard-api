@@ -1587,22 +1587,9 @@ class DashboardV4Controller {
         q["factory"] = factory;
       }
 
-      const factoryObj = factory
-        ? await FactoryModel.findById(factory).lean()
-        : null;
-      const isLngm =
-        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
-
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (
-          isLngm &&
-          (vTypeLower === "gapoktan" ||
-            vTypeLower === "stka" ||
-            vTypeLower === "luar")
-        ) {
-          q["vendor_name"] = { $regex: new RegExp(vendor_type, "i") };
-        } else if (vTypeLower !== "all") {
+        if (vTypeLower !== "all") {
           q["vendor_type"] = vendor_type;
         }
       }
@@ -2681,32 +2668,9 @@ class DashboardV4Controller {
     }
 
     const companyId = company || req.user?.company;
-    const factoryObj = factory
-      ? await FactoryModel.findById(factory).lean()
-      : null;
-    const companyObj = companyId
-      ? await CompanyModel.findById(companyId).lean()
-      : null;
-    const isLngm =
-      factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
-    const isKynm =
-      (factoryObj && ["KYNM"].some((loc) => factoryObj.name.includes(loc))) ||
-      (companyObj &&
-        ["SIMP"].some(
-          (c) =>
-            companyObj.initial?.includes(c) || companyObj.name?.includes(c),
-        ));
-
     if (vendor_type) {
       const vTypeLower = vendor_type.toLowerCase();
-      if (
-        isLngm &&
-        (vTypeLower === "gapoktan" ||
-          vTypeLower === "stka" ||
-          vTypeLower === "luar")
-      ) {
-        query.vendor_name = { $regex: new RegExp(vendor_type, "i") };
-      } else if (vTypeLower !== "all") {
+      if (vTypeLower !== "all") {
         query.vendor_type = vendor_type;
       }
     }
@@ -3331,7 +3295,7 @@ class DashboardV4Controller {
         totalJanjangObj["<600"]["mentah"] += totalMentah;
         totalJanjangObj["<600"]["janjang_kosong"] += totalJanjangKosong;
         totalJanjangObj["<600"]["buah_kecil"] +=
-          totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+          totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
         if (!totalJanjangObj["<600"]["trucks"][vehicleNumber]) {
           totalJanjangObj["<600"]["trucks"][vehicleNumber] = {
@@ -3364,7 +3328,7 @@ class DashboardV4Controller {
           totalJanjangObjDuration["<600"]["janjang_kosong"] +=
             totalJanjangKosong;
           totalJanjangObjDuration["<600"]["buah_kecil"] +=
-            totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+            totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
           if (!totalJanjangObjDuration["<600"]["trucks"][vehicleNumber]) {
             totalJanjangObjDuration["<600"]["trucks"][vehicleNumber] = {
@@ -3394,7 +3358,7 @@ class DashboardV4Controller {
         totalJanjangObj["<1000"]["mentah"] += totalMentah;
         totalJanjangObj["<1000"]["janjang_kosong"] += totalJanjangKosong;
         totalJanjangObj["<1000"]["buah_kecil"] +=
-          totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+          totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
         if (!totalJanjangObj["<1000"]["trucks"][vehicleNumber]) {
           totalJanjangObj["<1000"]["trucks"][vehicleNumber] = {
@@ -3427,7 +3391,7 @@ class DashboardV4Controller {
           totalJanjangObjDuration["<1000"]["janjang_kosong"] +=
             totalJanjangKosong;
           totalJanjangObjDuration["<1000"]["buah_kecil"] +=
-            totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+            totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
           if (!totalJanjangObjDuration["<1000"]["trucks"][vehicleNumber]) {
             totalJanjangObjDuration["<1000"]["trucks"][vehicleNumber] = {
@@ -3457,7 +3421,7 @@ class DashboardV4Controller {
         totalJanjangObj[">1000"]["mentah"] += totalMentah;
         totalJanjangObj[">1000"]["janjang_kosong"] += totalJanjangKosong;
         totalJanjangObj[">1000"]["buah_kecil"] +=
-          totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+          totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
         if (!totalJanjangObj[">1000"]["trucks"][vehicleNumber]) {
           totalJanjangObj[">1000"]["trucks"][vehicleNumber] = {
@@ -3490,7 +3454,7 @@ class DashboardV4Controller {
           totalJanjangObjDuration[">1000"]["janjang_kosong"] +=
             totalJanjangKosong;
           totalJanjangObjDuration[">1000"]["buah_kecil"] +=
-            totalBuahKecil3 + totalBuahKecil5 + (isLngm ? totalBuahKecil2 : 0);
+            totalBuahKecil3 + totalBuahKecil5 + totalBuahKecil2;
 
           if (!totalJanjangObjDuration[">1000"]["trucks"][vehicleNumber]) {
             totalJanjangObjDuration[">1000"]["trucks"][vehicleNumber] = {
@@ -5400,32 +5364,9 @@ class DashboardV4Controller {
         q["factory"] = factory;
       }
 
-      const factoryObj = factory
-        ? await FactoryModel.findById(factory).lean()
-        : null;
-      const companyObj = user?.company
-        ? await CompanyModel.findById(user.company).lean()
-        : null;
-      const isLngm =
-        factoryObj && ["LNGM"].some((loc) => factoryObj.name.includes(loc));
-      const isKynm =
-        (factoryObj && ["KYNM"].some((loc) => factoryObj.name.includes(loc))) ||
-        (companyObj &&
-          ["SIMP"].some(
-            (c) =>
-              companyObj.initial?.includes(c) || companyObj.name?.includes(c),
-          ));
-
       if (vendor_type) {
         const vTypeLower = vendor_type.toLowerCase();
-        if (
-          isLngm &&
-          (vTypeLower === "gapoktan" ||
-            vTypeLower === "stka" ||
-            vTypeLower === "luar")
-        ) {
-          q["vendor_name"] = { $regex: new RegExp(vendor_type, "i") };
-        } else if (vTypeLower !== "all") {
+        if (vTypeLower !== "all") {
           q["vendor_type"] = vendor_type;
         }
       }
@@ -6760,14 +6701,6 @@ class DashboardV4Controller {
       const avgClassificationVendorData = Object.entries(
         avgClassificationVendor,
       ).reduce((o, [key, value]) => {
-        if (
-          !isKynm &&
-          ["tangkai_panjang_didenda", "rusak_dimakan_tikus_didenda"].includes(
-            key,
-          )
-        ) {
-          return o;
-        }
         o[key] = addRankingsWithTieHandling(
           Object.entries(value)
             .map(([k, v]) => {
@@ -6818,12 +6751,6 @@ class DashboardV4Controller {
       const avgClassificationTrenData = Object.entries(
         avgClassificationTren,
       ).reduce((obj, [c, data]) => {
-        if (
-          !isKynm &&
-          ["tangkai_panjang_didenda", "rusak_dimakan_tikus_didenda"].includes(c)
-        ) {
-          return obj;
-        }
         obj[c] = Object.entries(data).map(([d, value]) => {
           const sum = value.reduce((n, c) => n + (c || 0), 0);
           return {

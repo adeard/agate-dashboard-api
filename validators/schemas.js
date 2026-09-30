@@ -27,13 +27,6 @@ const schemas = {
     name: Joi.string().required(),
     company: Joi.string(),
     location: Joi.string().allow('', null).optional(),
-    api_key: Joi.string().allow('', null).optional(),
-    api_secret: Joi.string().allow('', null).optional(),
-  }),
-
-  "factory-login": Joi.object({
-    api_key: Joi.string().required(),
-    api_secret: Joi.string().required(),
   }),
 
   afdelink: Joi.object({

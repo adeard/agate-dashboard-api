@@ -1,7 +1,5 @@
 const dayjs = require('dayjs');
 const FactoryModel = require('../../models/factory');
-const InspectionHistoryModel = require('../../models/inspection-history');
-const VendorModel = require('../../models/vendor');
 const {
   createResponseSuccess,
   generateWeeks,
