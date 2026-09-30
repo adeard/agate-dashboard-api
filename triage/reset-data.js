@@ -475,17 +475,12 @@ connectToDatabase().then(async (res) => {
 
   // await InspectionDataModel.findByIdAndDelete('6965e7516dcc537bb8440582');
 
-  // const company = await CompanyModel.findOne({
-  //   name: "Mustika Agung Sentosa",
-  //   initial: "MAS",
-  //   image_name: "",
-  //   location: "Ketapang, Kalimantan Barat",
-  // });
-  // const factory = await FactoryModel.findOne({
-  //   name: "MASM",
+  // const company = await CompanyModel.findById("699be68739fb2f1e96d629ff");
+  // const factory = await FactoryModel.find({
   //   company: company._id,
-  //   location: "Ketapang, Kalimantan Barat",
-  // });
+  // }).lean();
+
+  // console.log({ company, factory });
 
   // const user = await UserModel.create({
   //   full_name: "Admin Mustika",
@@ -498,9 +493,9 @@ connectToDatabase().then(async (res) => {
   //   company: "6a058067eead79aa42c659bb",
   // });
 
-  // const factories = await FactoryModel.findOne({ name: "SWK" }).lean();
+  const factories = await FactoryModel.findOne({ name: "BSU" }).lean();
 
-  // console.log({ factories });
+  console.log({ factories });
 
   // const correctIds = [
   //   '691725270995e3ee3ea8d3e4',
@@ -558,15 +553,21 @@ connectToDatabase().then(async (res) => {
   // console.log({ comp, factory, user });
   // ‪+62 821‑1496‑2388‬
 
-  await UserModel.findOneAndUpdate(
-    { email: "simp@accelego.id" },
-    {
-      $set: {
-        whatsapp_number: "6282114962388",
-        password: hashPassword("simp123"),
-      },
-    },
-  );
+  // await UserModel.findOneAndUpdate(
+  //   { email: "simp@accelego.id" },
+  //   {
+  //     $set: {
+  //       whatsapp_number: "6282114962388",
+  //       password: hashPassword("simp123"),
+  //     },
+  //   },
+  // );
+
+  // const results = await InspectionDataModel.find({
+  //   company: "6a449b3897ad166780382f09",
+  // }).lean();
+
+  // console.log({ results: results });
 
   console.log("Done");
   process.exit();

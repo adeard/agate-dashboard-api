@@ -45,7 +45,7 @@ class VendorV2Controller {
         { $sort: { updatedAt: -1 } },
       ]);
 
-      const totalData = await VendorV2Model.count({
+      const totalData = await VendorV2Model.countDocuments({
         ...query,
         ...qp,
         factory: new ObjectId(factory),
@@ -87,11 +87,15 @@ class VendorV2Controller {
 
       body['factory'] = factory['_id'];
 
-      await VendorV2Model.findOneAndUpdate({ name: body['name'] }, body, {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      });
+      await VendorV2Model.findOneAndUpdate(
+        { name: body['name'].trim(), factory: factory['_id'] },
+        body,
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
 
       return res
         .status(200)

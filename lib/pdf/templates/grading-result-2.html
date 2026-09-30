@@ -209,16 +209,13 @@
             <thead>
               <tr style="font-weight: bold">
                 <th style="text-align: left">Klasifikasi</th>
-                <!-- <th style="width: 60px">P</th> -->
-                <th style="width: 60px">TP</th>
-                {{#if is_utjm_kjgm}}
-                <th style="width: 60px">&lt;5kg</th>
-                {{else}}
-                <th style="width: 60px">&lt;3kg</th>
-                <th style="width: 60px">3-5kg</th>
-                {{/if}}
-                <th style="width: 60px">N</th>
-                <th style="width: 60px">T</th>
+                <th style="width: 50px">N</th>
+                <th style="width: 50px">P</th>
+                <th style="width: 50px">BB</th>
+                <th style="width: 50px">TP</th>
+                <th style="width: 50px">&lt;3kg</th>
+                <th style="width: 50px">3-5kg</th>
+                <th style="width: 50px">T</th>
               </tr>
             </thead>
             <tbody>
@@ -227,19 +224,12 @@
                 <td style="text-align: left; text-transform: capitalize">
                   {{label}}
                 </td>
-                <!-- <td>{{[RUSAK DIMAKAN TIKUS]}}</td> -->
-                <td>{{[TANGKAI PANJANG]}}</td>
-                {{#if ../is_utjm_kjgm}}
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{else if ../is_lngm}}
-                <td>{{[BUAH KECIL DIBAWAH 2KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{else}}
-                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{/if}}
                 <td>{{NORMAL}}</td>
+                <td>{{[RUSAK DIMAKAN TIKUS]}}</td>
+                <td>{{[BUAH BESAR]}}</td>
+                <td>{{[TANGKAI PANJANG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
                 <td style="font-weight: bold">{{TOTAL}}</td>
               </tr>
               {{/each}}
@@ -259,16 +249,13 @@
             <thead>
               <tr style="font-weight: bold">
                 <th style="text-align: left">Klasifikasi</th>
-                <!-- <th style="width: 60px">P</th> -->
-                <th style="width: 60px">TP</th>
-                {{#if is_utjm_kjgm}}
-                <th style="width: 60px">&lt;5kg</th>
-                {{else}}
-                <th style="width: 60px">&lt;3kg</th>
-                <th style="width: 60px">3-5kg</th>
-                {{/if}}
-                <th style="width: 60px">N</th>
-                <th style="width: 60px">T</th>
+                <th style="width: 50px">N</th>
+                <th style="width: 50px">P</th>
+                <th style="width: 50px">BB</th>
+                <th style="width: 50px">TP</th>
+                <th style="width: 50px">&lt;3kg</th>
+                <th style="width: 50px">3-5kg</th>
+                <th style="width: 50px">T</th>
               </tr>
             </thead>
             <tbody>
@@ -277,19 +264,12 @@
                 <td style="text-align: left; text-transform: capitalize">
                   {{label}}
                 </td>
-                <!-- <td>{{[RUSAK DIMAKAN TIKUS]}}</td> -->
-                <td>{{[TANGKAI PANJANG]}}</td>
-                {{#if ../is_utjm_kjgm}}
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{else if ../is_lngm}}
-                <td>{{[BUAH KECIL DIBAWAH 2KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{else}}
-                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
-                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
-                {{/if}}
                 <td>{{NORMAL}}</td>
+                <td>{{[RUSAK DIMAKAN TIKUS]}}</td>
+                <td>{{[BUAH BESAR]}}</td>
+                <td>{{[TANGKAI PANJANG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 3KG]}}</td>
+                <td>{{[BUAH KECIL DIBAWAH 5KG]}}</td>
                 <td style="font-weight: bold">{{TOTAL}}</td>
               </tr>
               {{/each}}
@@ -335,33 +315,6 @@
         </div>
       </div>
       {{/if}}
-
-      <!-- <div
-        style="
-          display: table;
-          table-layout: fixed;
-          width: 100%;
-          margin-top: 8px;
-        "
-      >
-        <div class="left" style="font-size: 12px; line-height: 1.5">
-          <p style="font-weight: bold">Keterangan:</p>
-          <p>TP = Tangkai Panjang</p>
-          <p>&lt;3kg = Buah kecil dibawah 3kg</p>
-          <p>3-5kg = Buah kecil 3-5kg</p>
-          <p>N = Buah Normal</p>
-          <p>T = Total</p>
-        </div>
-        <div class="right">
-          <p style="font-size: 14px; text-align: center; font-weight: bold">
-            Penanggung Jawab
-          </p>
-          <p style="width: 100%; margin-top: 120px; text-align: center">
-            <span style="margin-right: 120px">(</span>
-            <span style="margin-left: 120px">)</span>
-          </p>
-        </div>
-      </div> -->
     </section>
   </body>
 </html>

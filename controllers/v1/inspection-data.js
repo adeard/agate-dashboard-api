@@ -24,25 +24,18 @@ let dictBuahKecil = {
 };
 
 function calculateAndAppendTotals(data) {
+  if (!data || !data.length) return data;
   const totalCounts = { label: "Total" };
 
-  // Initialize the keys with 0
-  Object.keys(data[0]).forEach((key) => {
-    if (key !== "label" && key !== "DENDA") {
-      totalCounts[key] = 0;
-    }
-  });
-
-  // Sum up the values for each key
   data.forEach((entry) => {
     Object.keys(entry).forEach((key) => {
       if (key !== "label" && key !== "DENDA") {
-        totalCounts[key] += entry[key];
+        const val = Number(entry[key]) || 0;
+        totalCounts[key] = (totalCounts[key] || 0) + val;
       }
     });
   });
 
-  // Append the totals to the data array
   data.push(totalCounts);
 
   return data;
@@ -65,6 +58,9 @@ const changeValueToLocalestring = (obj) => {
     return o;
   }, {});
 };
+const WbGradingService = require("../../services/wb-grading.service");
+
+
 
 class InspectionDataController {
   static async getAll(req, res, next) {
@@ -117,6 +113,45 @@ class InspectionDataController {
             .second(59)
             .millisecond(999),
         };
+      }
+
+      // 1. Attempt to query SQL Server WbGradingHeader
+      try {
+        const sqlRes = await WbGradingService.getInspections(
+          {
+            delivery_number,
+            vehicle_number,
+            vendor_id,
+            vendor_name: name,
+            date_from,
+            date_to,
+            limit_minimum,
+          },
+          {
+            page: req.query.page || 1,
+            limit: req.query.limit || 50,
+          }
+        );
+
+        if (sqlRes && sqlRes.data && sqlRes.data.length > 0) {
+          return res.status(200).json(
+            createResponseSuccess(
+              200,
+              "Success",
+              "Success get all inspections",
+              sqlRes.data,
+              {
+                total_data: sqlRes.meta.total_data,
+                total_accepted: sqlRes.meta.total_accepted,
+                total_fined: sqlRes.meta.total_fined,
+                total_rejected: sqlRes.meta.total_rejected,
+                total_tandan: sqlRes.meta.total_tandan,
+              }
+            )
+          );
+        }
+      } catch (sqlErr) {
+        console.warn("[SQL Server getInspections fallback to Mongo]:", sqlErr.message);
       }
 
       const inspections = await InspectionDataModel.find(q)
@@ -185,6 +220,49 @@ class InspectionDataController {
       }
 
       delete body["is_integrated"];
+
+      if (
+        !body["main_classification_accepted"] ||
+        !Array.isArray(body["main_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["accepted"]) {
+          body["main_classification_accepted"] = Object.keys(
+            body["grading_result"]["accepted"],
+          );
+        } else {
+          body["main_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["sub_classification_accepted"] ||
+        !Array.isArray(body["sub_classification_accepted"])
+      ) {
+        if (body["grading_result"]?.["fined"]) {
+          body["sub_classification_accepted"] = Object.keys(
+            body["grading_result"]["fined"],
+          );
+        } else {
+          body["sub_classification_accepted"] = [];
+        }
+      }
+
+      if (
+        !body["classification_rejected"] ||
+        !Array.isArray(body["classification_rejected"])
+      ) {
+        if (body["grading_result"]?.["rejected"]) {
+          body["classification_rejected"] = Object.keys(
+            body["grading_result"]["rejected"],
+          );
+        } else {
+          body["classification_rejected"] = [];
+        }
+      }
+
+      if (!body["vendor_type"]) {
+        body["vendor_type"] = "3";
+      }
 
       await vBody("inspection-data", body);
 
@@ -353,9 +431,18 @@ class InspectionDataController {
     try {
       const { inspectionId } = req.params;
 
-      const inspections = await InspectionDataModel.findById(inspectionId)
-        .populate("vendor")
-        .lean();
+      let inspections = null;
+      try {
+        inspections = await WbGradingService.getInspectionDetail(inspectionId);
+      } catch (sqlErr) {
+        console.warn("[SQL Server getInspectionDetail fallback to Mongo]:", sqlErr.message);
+      }
+
+      if (!inspections) {
+        inspections = await InspectionDataModel.findById(inspectionId)
+          .populate("vendor")
+          .lean();
+      }
 
       if (!inspections) {
         throw {
@@ -366,11 +453,9 @@ class InspectionDataController {
       }
 
       const factory = await FactoryModel.findById(inspections.factory).lean();
-
-      const isUtjmKjgm =
-        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
-      const isLngm =
-        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
+      const companyData = factory?.company
+        ? await CompanyModel.findById(factory.company).lean()
+        : null;
 
       const vendorBjr = Number(inspections.vendor?.bjr || 0);
       const vendorType = Number(inspections.vendor?.type || 0);
@@ -397,17 +482,6 @@ class InspectionDataController {
       let finedData = Object.keys(finedSummary).map((k) => {
         let dendaValue = Number(finedSummary[k]["DENDA"] || 0);
         let dendaFormula = dendaValue;
-
-        if (isUtjmKjgm && vendorBjr && vendorType === 3) {
-          if (k === "TANGKAI PANJANG") {
-            dendaFormula = `1% x ${vendorBjr}`;
-            dendaValue = 0.01 * vendorBjr;
-          } else if (k === "MENTAH") {
-            dendaFormula = `30% x ${vendorBjr}`;
-            dendaValue = 0.30 * vendorBjr;
-          }
-        }
-
         const totalValue = Number(finedSummary[k]["TOTAL"] || 0);
         const totalDenda = totalValue * dendaValue;
 
@@ -417,9 +491,7 @@ class InspectionDataController {
             : capitalizeString(k),
           ...finedSummary[k],
           "DENDA": dendaFormula,
-          "TOTAL DENDA": isUtjmKjgm && vendorBjr && vendorType === 3 && (k === "TANGKAI PANJANG" || k === "MENTAH")
-            ? Number(totalDenda.toFixed(2))
-            : totalDenda,
+          "TOTAL DENDA": totalDenda,
         };
       });
       let classificationData = Object.keys(classificationSummary).map((k) => {
@@ -428,19 +500,6 @@ class InspectionDataController {
           ...classificationSummary[k],
         };
       });
-
-      if (isUtjmKjgm) {
-        const mergeCols = (arr) => {
-          arr.forEach((item) => {
-            item["BUAH KECIL DIBAWAH 5KG"] =
-              (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
-              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
-            item["BUAH KECIL DIBAWAH 3KG"] = 0;
-          });
-        };
-        mergeCols(acceptedData);
-        mergeCols(rejectedData);
-      }
 
       let total_accepted_percent =
         inspections["grading_result"]["total_accepted"] > 0
@@ -499,13 +558,11 @@ class InspectionDataController {
         : null;
       // console.log({ totalResult });
 
-      const companyData = await CompanyModel.findById(factory.company).lean();
+      // companyData already fetched above
 
       let data = {
-        is_lngm: isLngm,
-        is_utjm_kjgm: isUtjmKjgm,
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : "sinarmas-logo.png",
+          companyData?.image_name ? companyData.image_name : "",
         ),
         agate_logo_img: getImageFile("agate-logo.png"),
         location: factory ? factory.location : "-",
@@ -1002,6 +1059,10 @@ class InspectionDataController {
       }
 
       const factory = await FactoryModel.findById(factoryId).lean();
+      const isUtjmKjgm =
+        factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
+      const isLngm =
+        factory && ["LNGM"].some((loc) => factory.name.includes(loc));
 
       const limit = await getCompanyLimitTandan({ company: factory.company });
 
@@ -1037,19 +1098,14 @@ class InspectionDataController {
       inspections.forEach((inspection) => {
         if (!inspection.grading_result) return;
 
-        const totalTandan = inspection["grading_result"]["total_tandan"];
-        const totalAccepted = inspection["grading_result"]["total_accepted"];
-        const totalRejected = inspection["grading_result"]["total_rejected"];
-        const totalFined = inspection["grading_result"]["total_fined"];
-        const totalMultiple = inspection["grading_result"]["total_multiple"];
+        const totalTandan = inspection["grading_result"]["total_tandan"] || 0;
+        const totalAccepted = inspection["grading_result"]["total_accepted"] || 0;
+        const totalRejected = inspection["grading_result"]["total_rejected"] || 0;
+        const totalFined = inspection["grading_result"]["total_fined"] || 0;
+        const totalMultiple = inspection["grading_result"]["total_multiple"] || 0;
 
         const classificationSummary =
-          inspection["grading_result"]["classification_summary"];
-        const acceptedSummary =
-          inspection["grading_result"]["accepted_summary"];
-        const rejectedSummary =
-          inspection["grading_result"]["rejected_summary"];
-        const finedSummary = inspection["grading_result"]["fined_summary"];
+          inspection["grading_result"]["classification_summary"] || {};
 
         const vendorName = inspection["vendor_name"]?.trim() || "Unknown";
 
@@ -1115,38 +1171,62 @@ class InspectionDataController {
 
         Object.keys(classificationSummary).forEach((k) => {
           const item = classificationSummary[k];
-          // console.log({ item });
+          if (!demografikSemua["classification_summary"][k]) {
+            demografikSemua["classification_summary"][k] = {};
+          }
           Object.keys(item).forEach((ks) => {
-            const value = item[ks];
+            const value = Number(item[ks] || 0);
 
-            demografikSemua["classification_summary"][k][ks] += value;
+            const addToTarget = (targetObj) => {
+              if (!targetObj["classification_summary"][k]) {
+                targetObj["classification_summary"][k] = {};
+              }
+              targetObj["classification_summary"][k][ks] =
+                (targetObj["classification_summary"][k][ks] || 0) + value;
+            };
+
+            addToTarget(demografikSemua);
+
             if (Number(inspection["vendor_type"]) === 1) {
-              // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti["classification_summary"][k][ks] += value;
-              demografikVendorInti[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikInti);
+              if (demografikVendorInti[vendorName]) {
+                addToTarget(demografikVendorInti[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 2) {
-              demografikExternal["classification_summary"][k][ks] += value;
-              demografikVendorExternal[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikExternal);
+              if (demografikVendorExternal[vendorName]) {
+                addToTarget(demografikVendorExternal[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 3) {
-              demografikPlasma["classification_summary"][k][ks] += value;
-              demografikVendorPlasma[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikPlasma);
+              if (demografikVendorPlasma[vendorName]) {
+                addToTarget(demografikVendorPlasma[vendorName]);
+              }
             }
           });
         });
       });
 
-      // console.log({
-      //   semua: demografikSemua['classification_summary'],
-      //   inti: demografikInti['classification_summary'],
-      //   external: demografikExternal['classification_summary'],
-      //   plasma: demografikPlasma['classification_summary'],
-      // });
+      if (isUtjmKjgm) {
+        const mergeColsSummary = (demoObj) => {
+          if (!demoObj?.classification_summary) return;
+          Object.keys(demoObj.classification_summary).forEach((k) => {
+            const item = demoObj.classification_summary[k];
+            if (item) {
+              item["BUAH KECIL DIBAWAH 5KG"] =
+                (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 3KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 2KG"] || 0);
+              item["BUAH KECIL DIBAWAH 3KG"] = 0;
+              item["BUAH KECIL DIBAWAH 2KG"] = 0;
+            }
+          });
+        };
+        mergeColsSummary(demografikSemua);
+        mergeColsSummary(demografikInti);
+        mergeColsSummary(demografikExternal);
+        mergeColsSummary(demografikPlasma);
+      }
 
       demografikSemua["total_accepted_percent"] = countPercentage(
         demografikSemua["total_accepted"],
@@ -1315,6 +1395,8 @@ class InspectionDataController {
       const companyData = await CompanyModel.findById(factory.company).lean();
 
       let data = {
+        is_lngm: isLngm,
+        is_utjm_kjgm: isUtjmKjgm,
         start_date: date_from
           ? dayjs(date_from).format("DD/MM/YYYY HH:mm")
           : dayjs(inspections[0]["date"]).format("DD/MM/YYYY HH:mm:ss"),
@@ -1324,7 +1406,7 @@ class InspectionDataController {
               "DD/MM/YYYY HH:mm:ss",
             ),
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : "sinarmas-logo.png",
+          companyData?.image_name ? companyData.image_name : "",
         ),
         agate_logo_img: getImageFile("agate-logo.png"),
         location: factory ? factory.location : "-",
@@ -1839,38 +1921,41 @@ class InspectionDataController {
 
         Object.keys(classificationSummary).forEach((k) => {
           const item = classificationSummary[k];
-          // console.log({ item });
+          if (!demografikSemua["classification_summary"][k]) {
+            demografikSemua["classification_summary"][k] = {};
+          }
           Object.keys(item).forEach((ks) => {
-            const value = item[ks];
+            const value = Number(item[ks] || 0);
 
-            demografikSemua["classification_summary"][k][ks] += value;
+            const addToTarget = (targetObj) => {
+              if (!targetObj["classification_summary"][k]) {
+                targetObj["classification_summary"][k] = {};
+              }
+              targetObj["classification_summary"][k][ks] =
+                (targetObj["classification_summary"][k][ks] || 0) + value;
+            };
+
+            addToTarget(demografikSemua);
+
             if (Number(inspection["vendor_type"]) === 1) {
-              // console.log({ vendorType: inspection['vendor_type'] });
-              demografikInti["classification_summary"][k][ks] += value;
-              demografikVendorInti[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikInti);
+              if (demografikVendorInti[vendorName]) {
+                addToTarget(demografikVendorInti[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 2) {
-              demografikExternal["classification_summary"][k][ks] += value;
-              demografikVendorExternal[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikExternal);
+              if (demografikVendorExternal[vendorName]) {
+                addToTarget(demografikVendorExternal[vendorName]);
+              }
             } else if (Number(inspection["vendor_type"]) === 3) {
-              demografikPlasma["classification_summary"][k][ks] += value;
-              demografikVendorPlasma[vendorName]["classification_summary"][k][
-                ks
-              ] += value;
+              addToTarget(demografikPlasma);
+              if (demografikVendorPlasma[vendorName]) {
+                addToTarget(demografikVendorPlasma[vendorName]);
+              }
             }
           });
         });
       });
-
-      // console.log({
-      //   semua: demografikSemua['classification_summary'],
-      //   inti: demografikInti['classification_summary'],
-      //   external: demografikExternal['classification_summary'],
-      //   plasma: demografikPlasma['classification_summary'],
-      // });
 
       const isUtjmKjgm =
         factory && ["UTJM", "KJGM"].some((loc) => factory.name.includes(loc));
@@ -1881,12 +1966,17 @@ class InspectionDataController {
       if (isUtjmKjgm) {
         const mergeClassification = (summaryObj) => {
           const summary = summaryObj.classification_summary;
+          if (!summary) return;
           Object.keys(summary).forEach((key) => {
             const item = summary[key];
-            item["BUAH KECIL DIBAWAH 5KG"] =
-              (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
-              (item["BUAH KECIL DIBAWAH 3KG"] || 0);
-            item["BUAH KECIL DIBAWAH 3KG"] = 0;
+            if (item) {
+              item["BUAH KECIL DIBAWAH 5KG"] =
+                (item["BUAH KECIL DIBAWAH 5KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 3KG"] || 0) +
+                (item["BUAH KECIL DIBAWAH 2KG"] || 0);
+              item["BUAH KECIL DIBAWAH 3KG"] = 0;
+              item["BUAH KECIL DIBAWAH 2KG"] = 0;
+            }
           });
         };
 
@@ -2064,14 +2154,12 @@ class InspectionDataController {
       const companyData = await CompanyModel.findById(user.company).lean();
 
       let data = {
-        is_utjm_kjgm: isUtjmKjgm,
-        is_lngm: isLngm,
         start_date: dayjs(yesterday.startOf("day")).format(
           "DD/MM/YYYY HH:mm:ss",
         ),
         end_date: dayjs(yesterday.endOf("day")).format("DD/MM/YYYY HH:mm:ss"),
         sinarmas_logo_img: getImageFile(
-          companyData ? companyData.image_name : "sinarmas-logo.png",
+          companyData?.image_name ? companyData.image_name : "",
         ),
         agate_logo_img: getImageFile("agate-logo.png"),
         location: factory ? factory.location : "-",

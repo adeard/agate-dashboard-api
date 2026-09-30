@@ -11,10 +11,11 @@ const server = require('http').createServer(app);
 
 const routes = require('./routes');
 const connectToDatabase = require('./lib/db-connect');
+const { connectToSqlServer } = require('./lib/db/sqlserver');
+const { runMigrations } = require('./services/migration.service');
 const agenda = require('./lib/agenda');
 const {
   runBlasReportCron,
-  runUpdateDataDemo,
 } = require('./lib/cron/blast-report');
 const { generateExcel } = require('./utils/generate-excel-daily');
 const dayjs = require('dayjs');
@@ -24,6 +25,18 @@ const XLSX = require('xlsx');
   connectToDatabase()
     .then(async (response) => {
       console.log(response);
+
+      // Connect to SQL Server
+      if (process.env.MSSQL_SERVER) {
+        try {
+          await connectToSqlServer();
+          if (process.env.AUTO_MIGRATE === 'true') {
+            await runMigrations();
+          }
+        } catch (sqlErr) {
+          console.warn('[SQL Server Warning]: Could not connect to SQL Server on startup:', sqlErr.message);
+        }
+      }
 
       // All your controllers should live here
       app.get('/', function rootHandler(req, res) {
@@ -89,7 +102,6 @@ const XLSX = require('xlsx');
       app.set('port', PORT);
 
       runBlasReportCron().start();
-      runUpdateDataDemo().start();
 
       server.listen(PORT, () => {
         console.log('App Connected on PORT:', PORT);

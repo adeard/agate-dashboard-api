@@ -8,14 +8,15 @@ connectToDatabase().then(async (res) => {
   console.log(res);
 
   const companies = (await CompanyModel.find().lean()).filter(
-    (e) => e.initial !== "DMO",
+    (e) => e.initial === "SIMP",
   );
 
   await companies.reduce(async (acc, comp) => {
     await acc;
-    console.log("BLAST REPORT TO USER IS RUNNING");
+    console.log("BLAST REPORT TO USER IS RUNNING", comp._id, comp.initial);
     await blastReportToUser(comp._id);
   }, Promise.resolve());
 
   console.log("Done");
+  process.exit(0);
 });

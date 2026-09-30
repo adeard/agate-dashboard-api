@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "start:dev": "nodemon app.js",
-    "worker": "node worker.js"
+    "worker": "node worker.js",
+    "migrate": "node scripts/run-migrations.js"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.3",
     "morgan": "^1.10.0",
+    "mssql": "^12.7.2",
     "multer": "^1.4.5-lts.2",
     "puppeteer": "^8.0.0",
     "xlsx": "^0.18.5"

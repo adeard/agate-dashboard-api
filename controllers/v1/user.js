@@ -50,7 +50,11 @@ class UserController {
           },
         },
       ]);
-      const userTotal = await UserModel.countDocuments({});
+      const userTotal = await UserModel.countDocuments({
+        ...query,
+        full_name: { $regex: regexPattern },
+        company: user.company,
+      });
 
       return res.status(200).json(
         createResponseSuccess(200, 'Success', 'Success get all users', users, {

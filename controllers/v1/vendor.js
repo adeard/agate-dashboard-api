@@ -53,11 +53,13 @@ class VendorController {
 
       console.log({ user });
 
-      let vendors = await VendorV2Model.find({}).lean();
+      let filter = { ...qp };
+      if (factory) {
+        filter['factory'] = factory;
+      }
 
-      vendors = vendors.filter((v) => String(v.factory) === String(factory));
-
-      const totalData = vendors.length;
+      let vendors = await VendorV2Model.find(filter).sort({ updatedAt: -1 }).lean();
+      const totalData = await VendorV2Model.countDocuments(filter);
 
       return res.status(200).json(
         createResponseSuccess(
